@@ -25,8 +25,12 @@ test.beforeEach(async ({ page }) => {
   await openApp(page);
 });
 
-test("Prettier formats JavaScript in the browser, as one undo step", async ({ page }) => {
-  await chooseLanguage(page, "javascript", "JavaScript");
+test("Prettier formats JavaScript in the browser, as one undo step", async ({ page, request }) => {
+  // Prettier itself needs no sandbox, but the picker offers JavaScript only when its
+  // sandbox image is installed. React (JSX, formatted by the same Prettier parser)
+  // runs in the browser, so it is always there.
+  if (await isInstalled(request, "javascript")) await chooseLanguage(page, "javascript", "JavaScript");
+  else await chooseLanguage(page, "react", "React");
   const messy = "const marks={asha:91,ravi:[78,85]};function avg( list ){return list.reduce((a,b)=>a+b,0)/list.length}\n";
   await setEditorText(page, messy);
   await focusEditor(page);

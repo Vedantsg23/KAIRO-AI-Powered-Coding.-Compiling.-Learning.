@@ -1,4 +1,4 @@
-import { chooseLanguage, expect, openApp, problemMarkers, setEditorText, skipWelcome, test } from "./helpers";
+import { chooseLanguage, expect, isInstalled, openApp, problemMarkers, setEditorText, skipWelcome, test } from "./helpers";
 
 test("a syntax slip is flagged while typing, without running, and clears when fixed", async ({ page }) => {
   await skipWelcome(page);
@@ -35,7 +35,8 @@ test("Python's ':' and indentation slips are explained while typing", async ({ p
   await expect(page.getByTestId("live-problems")).toHaveCount(0);
 });
 
-test("SQL has no live check and says so", async ({ page }) => {
+test("SQL has no live check and says so", async ({ page, request }) => {
+  test.skip(!(await isInstalled(request, "sql")), "the SQL sandbox image is not installed");
   await skipWelcome(page);
   await openApp(page);
   await chooseLanguage(page, "sql", "SQL");

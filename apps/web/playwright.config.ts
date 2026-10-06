@@ -8,6 +8,9 @@ export default defineConfig({
   expect: { timeout: 20_000 },
   fullyParallel: false,
   workers: 1,
+  // On CI a failed test runs once more: there a page load on the cold dev server
+  // has twice stalled past the timeout. A real failure fails again and is reported.
+  retries: process.env.CI ? 1 : 0,
   reporter: [["list"]],
   use: {
     baseURL: process.env.E2E_BASE_URL ?? "http://localhost:5173",
@@ -19,5 +22,7 @@ export default defineConfig({
     url: "http://localhost:5173",
     reuseExistingServer: true,
     timeout: 60_000,
+    // Keep the dev server's own log in the CI output, so a slow page load can be explained.
+    stdout: process.env.CI ? "pipe" : "ignore",
   },
 });
