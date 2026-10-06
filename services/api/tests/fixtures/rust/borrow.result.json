@@ -1,0 +1,20 @@
+{
+  "toolchain": "1.75.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "error[E0382]: borrow of moved value: `names`\n --> main.rs:4:20\n  |\n2 |     let names = vec![String::from(\"Asha\"), String::from(\"Ravi\")];\n  |         ----- move occurs because `names` has type `Vec<String>`, which does not implement the `Copy` trait\n3 |     let moved = names;\n  |                 ----- value moved here\n4 |     println!(\"{}\", names.len());\n  |                    ^^^^^ value borrowed here after move\n  |\nhelp: consider cloning the value if the performance cost is acceptable\n  |\n3 |     let moved = names.clone();\n  |                      ++++++++\n\nerror: aborting due to previous error\n\nFor more information about this error, try `rustc --explain E0382`.\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

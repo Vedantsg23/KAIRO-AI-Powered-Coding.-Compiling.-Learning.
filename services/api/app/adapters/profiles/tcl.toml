@@ -1,0 +1,84 @@
+# Language profile: Tcl 8.6 (Ubuntu 24.04), run with tclsh.
+#
+# Tcl has no separate compile step: errors are reported when the failing
+# command runs, with the line of the command in main.tcl.
+
+schema_version = 2
+id = "tcl"
+display_name = "Tcl"
+editor_mode = "tcl"
+source_file = "main.tcl"
+code_prefix = "TCL"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "Tcl"
+declared_version = "8.6"
+image = "compiler-copilot/sandbox-extra:24.04"
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["tclsh", "/workspace/main.tcl"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "tcl"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "no-variable"
+pattern = '''^can't read "[^"]+": no such variable|^can't read "[^"]+": variable is array|^can't read "[^"]+\([^)]*\)": no such element in array'''
+category = "name"
+code = "TCL_UNDEFINED_VARIABLE"
+
+[[classify]]
+id = "no-command"
+pattern = '''^invalid command name'''
+category = "name"
+code = "TCL_UNDEFINED_FUNCTION"
+
+[[classify]]
+id = "arguments"
+pattern = '''^wrong # args'''
+category = "type"
+code = "TCL_WRONG_ARGUMENTS"
+
+[[classify]]
+id = "syntax"
+pattern = '''^missing close-brace|^missing close-bracket|^missing "|^extra characters after close-(?:quote|brace)|^missing operand|^syntax error in expression|^unbalanced|^invalid bareword|^missing \)'''
+category = "syntax"
+code = "TCL_SYNTAX_ERROR"
+
+[[classify]]
+id = "divide"
+pattern = '''^divide by zero'''
+category = "runtime"
+code = "TCL_DIVISION_BY_ZERO"
+
+[[classify]]
+id = "not-number"
+pattern = '''^expected (?:integer|floating-point number|boolean value|number) but got|^can't use (?:non-numeric|empty) string'''
+category = "type"
+code = "TCL_TYPE_MISMATCH"
+
+[[classify]]
+id = "index"
+pattern = '''^bad index|^list index out of range|^index "[^"]+" out of range'''
+category = "runtime"
+code = "TCL_INDEX_OUT_OF_BOUNDS"
+
+[[classify]]
+id = "recursion"
+pattern = '''^too many nested evaluations'''
+category = "memory"
+code = "TCL_STACK_OVERFLOW"

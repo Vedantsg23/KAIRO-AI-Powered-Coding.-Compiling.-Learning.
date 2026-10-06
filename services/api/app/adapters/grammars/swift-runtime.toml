@@ -1,0 +1,27 @@
+# Runtime output of Swift programs (EXPERIMENTAL: written from the documented
+# format and not yet checked against real output; see docs/languages.md).
+#
+# A failed runtime check prints one line, then the program traps (SIGILL on
+# x86-64, SIGTRAP on ARM64). Checks in the student's code name main.swift
+# (possibly with a module or directory prefix); checks inside the standard
+# library name a library file and carry no user location:
+#   main/main.swift:5: Fatal error: Unexpectedly found nil while unwrapping an Optional value
+#   Swift/ContiguousArrayBuffer.swift:691: Fatal error: Index out of range
+# Arithmetic overflow traps without printing anything; the profile's
+# signal_messages explain those crashes.
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = false
+
+[[rules]]
+id = "swift.check-in-user-code"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?:.*/)?(?P<file>main\.swift):(?P<line>\d+): (?P<message>(?:Fatal error|Precondition failed|Assertion failed)(?:: .*)?)$'''
+
+[[rules]]
+id = "swift.check-in-library"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?:[\w.-]+/)*[\w.-]+\.swift:\d+: (?P<message>(?:Fatal error|Precondition failed|Assertion failed)(?:: .*)?)$'''

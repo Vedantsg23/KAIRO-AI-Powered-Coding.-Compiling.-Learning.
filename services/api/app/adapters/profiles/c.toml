@@ -1,0 +1,227 @@
+# Language profile: C with GCC 13.
+#
+# A language adapter is this file plus the shared output grammars it names
+# (adapters/grammars/*.toml). The runner never reads it: the API turns it
+# into a job (image + argument arrays + limits) and the runner re-checks that
+# job against its own allow-list and ceilings.
+#
+# Regular expressions use Python `re` syntax inside TOML literal strings
+# (triple single quotes), so backslashes need no escaping. Classify rules are
+# ORDERED: put the most specific pattern first.
+
+
+schema_version = 2
+id = "c"
+display_name = "C"
+editor_mode = "c"            # Monaco language id
+source_file = "main.c"       # MVP: one file per program, entry point int main(void)
+code_prefix = "C"            # default codes: C_COMPILER_ERROR, C_COMPILER_WARNING, ...
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "GCC"
+declared_version = "13"      # the exact version is read from the image per run
+image = "compiler-copilot/sandbox-gcc:13"
+
+# ---------------------------------------------------------------- steps
+
+[[steps]]
+name = "compile"
+kind = "compile"
+# Trusted argument array. The student's code is only ever a file (main.c),
+# never part of a command string.
+argv = [
+  "gcc", "-std=gnu17", "-O0", "-g", "-Wall",
+  "-fdiagnostics-color=never",        # no ANSI colour codes in the output
+  "-fdiagnostics-urls=never",
+  "-fdiagnostics-column-unit=byte",   # converted to UTF-16 columns by the normalizer
+  "-fmessage-length=0",               # one diagnostic per line, no wrapping
+  "-o", "main", "main.c", "-lm",
+]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { LC_ALL = "C" }               # ASCII quotes in messages -> stable parsing
+grammar = "gcc"
+[steps.limits]
+wall_time_ms = 10000
+cpu_time_s = 10
+memory_mb = 256
+pids = 64
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 64
+
+[[steps]]
+name = "run"
+kind = "run"
+# stdbuf makes stdout line-buffered, as in a terminal, so text printed before
+# a crash is not lost in an unflushed buffer.
+argv = ["stdbuf", "-oL", "/workspace/main"]
+workdir = "/tmp"                     # the only writable place during the run
+workspace_mode = "ro"
+stdin = true
+grammar = "glibc-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+# Algorithm A4: message -> shared category + stable code. First match wins;
+# unmatched messages get C_COMPILER_ERROR / C_COMPILER_WARNING / C_RUNTIME_ERROR.
+
+[[classify]]
+id = "undeclared"
+pattern = '''^'[^']+' undeclared'''
+category = "name"
+code = "C_UNDECLARED_IDENTIFIER"
+
+[[classify]]
+id = "implicit-function"
+pattern = '''^(?:incompatible )?implicit declaration of (?:built-in )?function'''
+category = "name"
+code = "C_IMPLICIT_FUNCTION_DECLARATION"
+
+[[classify]]
+id = "unknown-type"
+pattern = '''^unknown type name'''
+category = "name"
+code = "C_UNKNOWN_TYPE_NAME"
+
+[[classify]]
+id = "redefinition"
+pattern = '''^(?:redefinition|redeclaration) of'''
+category = "name"
+code = "C_REDEFINITION"
+
+[[classify]]
+id = "missing-header"
+pattern = '''No such file or directory$'''
+category = "build"
+code = "C_MISSING_HEADER"
+
+[[classify]]
+id = "undefined-reference"
+pattern = '''^undefined reference to'''
+category = "build"
+code = "C_UNDEFINED_REFERENCE"
+
+[[classify]]
+id = "toolchain-limit"
+pattern = '''(?:File size limit exceeded|Killed) signal terminated program'''
+category = "build"
+code = "TOOLCHAIN_RESOURCE_LIMIT"
+
+[[classify]]
+id = "stray-character"
+pattern = '''^stray '.+' in program'''
+category = "syntax"
+code = "C_STRAY_CHARACTER"
+
+[[classify]]
+id = "unterminated-literal"
+pattern = '''^missing terminating .+ character'''
+category = "syntax"
+code = "C_UNTERMINATED_LITERAL"
+
+[[classify]]
+id = "missing-semicolon"
+pattern = '''^expected (?:'[,)]' or )?';''''
+category = "syntax"
+code = "C_MISSING_SEMICOLON"
+hint = "previous_line_end"
+hint_message = "The missing ';' probably belongs at the end of this line."
+
+[[classify]]
+id = "end-of-input"
+pattern = '''at end of input$'''
+category = "syntax"
+code = "C_UNEXPECTED_END_OF_INPUT"
+
+[[classify]]
+id = "expected-token"
+pattern = '''^expected '''
+category = "syntax"
+code = "C_EXPECTED_TOKEN"
+
+[[classify]]
+id = "argument-count"
+pattern = '''^too (?:few|many) arguments to function'''
+category = "type"
+code = "C_WRONG_ARGUMENT_COUNT"
+
+[[classify]]
+id = "format-mismatch"
+pattern = '''^format '%[^']*' expects'''
+category = "type"
+code = "C_FORMAT_MISMATCH"
+
+[[classify]]
+id = "pointer-integer"
+pattern = '''makes (?:pointer from integer|integer from pointer) without a cast'''
+category = "type"
+code = "C_POINTER_INTEGER_CONVERSION"
+
+[[classify]]
+id = "type-mismatch"
+pattern = '''^(?:incompatible types|invalid operands to binary|invalid initializer|conflicting types for|lvalue required|subscripted value is neither|called object .+ is not a function)|incompatible pointer type|request for member .+ in something not a structure'''
+category = "type"
+code = "C_TYPE_MISMATCH"
+
+[[classify]]
+id = "return-mismatch"
+pattern = '''^'return' with (?:no value|a value)'''
+category = "type"
+code = "C_RETURN_MISMATCH"
+
+[[classify]]
+id = "missing-return"
+pattern = '''^control reaches end of non-void function'''
+category = "other"
+code = "C_MISSING_RETURN"
+
+[[classify]]
+id = "uninitialized"
+pattern = '''is used uninitialized|may be used uninitialized'''
+category = "other"
+code = "C_UNINITIALIZED_VARIABLE"
+
+[[classify]]
+id = "assignment-in-condition"
+pattern = '''^suggest parentheses around assignment used as truth value'''
+category = "other"
+code = "C_ASSIGNMENT_IN_CONDITION"
+
+[[classify]]
+id = "unused"
+pattern = '''^unused (?:variable|parameter|function|label)|defined but not used|set but not used'''
+category = "other"
+code = "C_UNUSED"
+
+[[classify]]
+id = "array-bounds"
+pattern = '''array subscript .+ is (?:above|below|outside) array bounds'''
+category = "other"
+code = "C_ARRAY_BOUNDS"
+
+[[classify]]
+id = "assertion"
+pattern = '''^Assertion `.*' failed'''
+category = "runtime"
+code = "C_ASSERTION_FAILED"
+
+[[classify]]
+id = "stack-smashing"
+pattern = '''stack smashing detected'''
+category = "memory"
+code = "C_STACK_BUFFER_OVERFLOW"
+
+[[classify]]
+id = "heap-corruption"
+pattern = '''^(?:free|malloc|realloc|munmap_chunk|malloc_consolidate)\(\)|^double free or corruption|^corrupted '''
+category = "memory"
+code = "C_HEAP_CORRUPTION"

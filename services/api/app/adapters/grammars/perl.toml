@@ -1,0 +1,31 @@
+# Perl 5.38 (perl -c for the syntax check, then perl for the run).
+#   syntax error at main.pl line 3, near "print"
+#   Illegal division by zero at main.pl line 4.
+#   Use of uninitialized value $x in addition (+) at main.pl line 5.
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "perl.hint"               # "\t(Missing semicolon on previous line?)" under an error
+action = "detail"
+pattern = '''^\s+\((?P<detail>(?:Missing|Do you need to predeclare|Might be a runaway|Might be a missing)[^)]*)\)$'''
+append = " ({detail})"
+
+[[rules]]
+id = "perl.summary"
+action = "ignore"
+pattern = '''^(?:\S+ had compilation errors\.|\S+ syntax OK|Execution of \S+ aborted due to compilation errors\.|BEGIN not safe after errors)'''
+
+[[rules]]
+id = "perl.warning"
+action = "diagnostic"
+severity = "warning"
+pattern = '''^(?P<message>(?:Use of uninitialized value|Argument ".*" isn't numeric|Useless use|Name "\S+" used only once|Scalar value|Possible|Odd number of|Reference found|Deep recursion|Found = in conditional|Unquoted string|Useless|Useless use of|Variable "\S+" will not stay shared|Misplaced _ in number|Unsuccessful|readline\(\) on closed).+?) at (?P<file>\S+) line (?P<line>\d+)(?:, <\w+> (?:line|chunk) \d+)?\.$'''
+
+[[rules]]
+id = "perl.located"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<message>.+?) at (?P<file>\S+) line (?P<line>\d+)(?:, (?:near .+|<\w+> (?:line|chunk) \d+|at EOF))?\.?$'''

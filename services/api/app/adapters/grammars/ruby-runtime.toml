@@ -1,0 +1,18 @@
+# Runtime output of Ruby 3.2: uncaught exceptions (with error_highlight and
+# "Did you mean?") and warnings. Other stderr is not reported.
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "ruby.exception"        # /workspace/main.rb:3:in `<main>': undefined ... (NameError)
+action = "block"
+parser = "ruby-exception"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+):in [`'](?P<func>[^']*)': (?P<message>.*) \((?P<type>[\w:]+)\)$'''
+
+[[rules]]
+id = "ruby.warning"
+action = "diagnostic"
+severity = "warning"
+pattern = '''^(?P<file>[^\s:][^:]*\.rb):(?P<line>\d+): warning: (?P<message>.+)$'''

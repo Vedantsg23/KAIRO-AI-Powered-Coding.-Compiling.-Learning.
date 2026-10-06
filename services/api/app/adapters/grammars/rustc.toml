@@ -1,0 +1,22 @@
+# Output of rustc 1.75 (human-readable format). Each diagnostic is a block:
+#   error[E0425]: cannot find value `totl` in this scope
+#    --> main.rs:6:20
+#     |
+#   6 |     println!("{}", totl);
+#     |                    ^^^^ help: a local variable with a similar name exists: `total`
+# Columns count characters (code points).
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = true
+
+[[rules]]
+id = "rustc.summary"
+action = "ignore"
+pattern = '''^(?:error: aborting due to|(?:warning|error): \d+ (?:warnings?|errors?) emitted|For more information about (?:this|an) error, try|Some errors have detailed explanations:)'''
+
+[[rules]]
+id = "rustc.diagnostic"
+action = "block"
+parser = "rustc"
+pattern = '''^(?P<severity>error|warning)(?:\[(?P<code>E\d{4})\])?: (?P<message>.+)$'''

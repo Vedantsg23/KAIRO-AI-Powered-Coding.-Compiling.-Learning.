@@ -1,0 +1,24 @@
+# Runtime output of Node.js: uncaught errors (JavaScript, and TypeScript with
+# --enable-source-maps, where files and lines are the .ts source) and V8's
+# out-of-memory report. The program's own stderr is not reported.
+
+streams = ["stderr"]
+column_unit = "utf16"
+report_unmatched = false
+
+[[rules]]
+id = "node.error"
+action = "block"
+parser = "node-error"
+pattern = '''^(?P<file>[^\s:][^:]*\.(?:[cm]?js|ts|mts|cts)):(?P<line>\d+)$'''
+
+[[rules]]
+id = "node.heap-out-of-memory"   # FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory
+action = "diagnostic"
+severity = "error"
+pattern = '''^FATAL ERROR: (?P<message>.*JavaScript heap out of memory.*)$'''
+
+[[rules]]
+id = "node.version-trailer"
+action = "ignore"
+pattern = '''^Node\.js v\d+'''

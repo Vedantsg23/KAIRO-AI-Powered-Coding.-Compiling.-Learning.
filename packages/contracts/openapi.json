@@ -1,0 +1,2146 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "KAIRO API",
+    "description": "Languages, sandboxed executions, normalized diagnostics and Saarthi, the AI assistant.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health",
+        "description": "API status plus what the runner reports (cached for a few seconds).",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Api V1 Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/languages": {
+      "get": {
+        "tags": [
+          "languages"
+        ],
+        "summary": "List Languages",
+        "description": "Languages this deployment supports, with their toolchains and limits.\n\n`available` tells the editor which ones can run right now: a language whose\nsandbox image is not installed on the runner is listed but not offered.\nProfiles that are not languages of their own (the notebook runner) are not\nlisted; they can still be run by id.",
+        "operationId": "list_languages_api_v1_languages_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LanguageOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Languages Api V1 Languages Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/executions": {
+      "post": {
+        "tags": [
+          "executions"
+        ],
+        "summary": "Create Execution",
+        "description": "Queue a compile-and-run of the given source. Returns immediately.",
+        "operationId": "create_execution_api_v1_executions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecutionCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/executions/{execution_id}": {
+      "get": {
+        "tags": [
+          "executions"
+        ],
+        "summary": "Get Execution",
+        "operationId": "get_execution_api_v1_executions__execution_id__get",
+        "parameters": [
+          {
+            "name": "execution_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Execution Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assistant/status": {
+      "get": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Assistant Status",
+        "operationId": "assistant_status_api_v1_assistant_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantStatusOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assistant/explain": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Explain",
+        "description": "Explain a diagnostic of a finished run, grounded in that run's evidence.",
+        "operationId": "explain_api_v1_assistant_explain_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExplainIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExplanationOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assistant/fix": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Fix",
+        "description": "Propose the smallest patch for a diagnostic. The student must approve it.",
+        "operationId": "fix_api_v1_assistant_fix_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FixIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FixOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assistant/verify": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Verify",
+        "description": "Decide from a real run of the patched code whether a fix worked.",
+        "operationId": "verify_api_v1_assistant_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assistant/ask": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Ask",
+        "description": "Answer a question about programming, the editor's code or a run.",
+        "operationId": "ask_api_v1_assistant_ask_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AskIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AskOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assistant/complete": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Complete",
+        "description": "Suggest what comes next at the cursor (the editor shows it as ghost text; Tab accepts).",
+        "operationId": "complete_api_v1_assistant_complete_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompleteOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AskIn": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Question"
+          },
+          "languageId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Languageid"
+          },
+          "executionId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executionid",
+            "description": "Ground the answer in this run (source, diagnostics, output)."
+          },
+          "sourceHash": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourcehash"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 65536
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source",
+            "description": "The editor's code when there is no run to ground the answer in."
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/ChatTurnIn"
+            },
+            "type": "array",
+            "maxItems": 8,
+            "title": "History"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "AskIn"
+      },
+      "AskOut": {
+        "properties": {
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          },
+          "groundedOn": {
+            "type": "string",
+            "enum": [
+              "execution",
+              "source",
+              "none"
+            ],
+            "title": "Groundedon"
+          },
+          "executionId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executionid"
+          },
+          "sourceHash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourcehash"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "answer",
+          "groundedOn",
+          "provider",
+          "model"
+        ],
+        "title": "AskOut"
+      },
+      "AssistantStatusOut": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "description": "False when no AI provider is configured; the rest of the app still works."
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason",
+            "description": "Why Saarthi is unavailable, in plain words."
+          },
+          "requestsPerMinute": {
+            "type": "integer",
+            "title": "Requestsperminute"
+          },
+          "requestsPerDay": {
+            "type": "integer",
+            "title": "Requestsperday"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled",
+          "requestsPerMinute",
+          "requestsPerDay"
+        ],
+        "title": "AssistantStatusOut"
+      },
+      "Category": {
+        "type": "string",
+        "enum": [
+          "syntax",
+          "name",
+          "type",
+          "build",
+          "runtime",
+          "timeout",
+          "memory",
+          "other"
+        ],
+        "title": "Category"
+      },
+      "ChatTurnIn": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "title": "Role"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Content"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "ChatTurnIn"
+      },
+      "CodeLocationOut": {
+        "properties": {
+          "line": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Line"
+          }
+        },
+        "type": "object",
+        "required": [
+          "line"
+        ],
+        "title": "CodeLocationOut"
+      },
+      "CompleteIn": {
+        "properties": {
+          "languageId": {
+            "type": "string",
+            "maxLength": 32,
+            "title": "Languageid"
+          },
+          "prefix": {
+            "type": "string",
+            "maxLength": 16384,
+            "title": "Prefix",
+            "description": "The code before the cursor."
+          },
+          "suffix": {
+            "type": "string",
+            "maxLength": 8192,
+            "title": "Suffix",
+            "description": "The code after the cursor.",
+            "default": ""
+          },
+          "maxLines": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Maxlines",
+            "default": 4
+          }
+        },
+        "type": "object",
+        "required": [
+          "languageId",
+          "prefix"
+        ],
+        "title": "CompleteIn",
+        "description": "Code around the editor's cursor, for an inline completion (ghost text)."
+      },
+      "CompleteOut": {
+        "properties": {
+          "completion": {
+            "type": "string",
+            "title": "Completion",
+            "description": "Text to insert at the cursor; empty when the model has nothing useful."
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "completion",
+          "provider",
+          "model"
+        ],
+        "title": "CompleteOut"
+      },
+      "Diagnostic": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "source": {
+            "$ref": "#/components/schemas/DiagnosticSource"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/Severity"
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "title": "Code",
+            "description": "Stable identifier, e.g. C_UNDECLARED_IDENTIFIER, RUNTIME_SEGMENTATION_FAULT, UNPARSED"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File",
+            "description": "Workspace-relative path, e.g. main.c"
+          },
+          "range": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SourceRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "relatedLocations": {
+            "items": {
+              "$ref": "#/components/schemas/RelatedLocation"
+            },
+            "type": "array",
+            "title": "Relatedlocations"
+          },
+          "executionId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executionid"
+          },
+          "rawOutputReference": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RawOutputReference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "severity",
+          "category",
+          "code",
+          "message"
+        ],
+        "title": "Diagnostic"
+      },
+      "DiagnosticSource": {
+        "type": "string",
+        "enum": [
+          "local",
+          "compiler",
+          "runtime"
+        ],
+        "title": "DiagnosticSource"
+      },
+      "ErrorOut": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "retryAfterS": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retryafters"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "ErrorOut"
+      },
+      "ExecutionCreate": {
+        "properties": {
+          "languageId": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Languageid",
+            "examples": [
+              "c"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Exact editor contents; its SHA-256 identifies this snapshot."
+          },
+          "stdin": {
+            "type": "string",
+            "title": "Stdin",
+            "description": "Text given to the program on standard input.",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "languageId",
+          "source"
+        ],
+        "title": "ExecutionCreate"
+      },
+      "ExecutionOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "languageId": {
+            "type": "string",
+            "title": "Languageid"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ExecutionState"
+          },
+          "terminal": {
+            "type": "boolean",
+            "title": "Terminal"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "description": "One-line, plain-language status for the UI."
+          },
+          "sourceHash": {
+            "type": "string",
+            "title": "Sourcehash",
+            "description": "sha256:<hex> of the exact source that was (or will be) compiled."
+          },
+          "sourceBytes": {
+            "type": "integer",
+            "title": "Sourcebytes"
+          },
+          "queuePosition": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Queueposition",
+            "description": "1-based position while QUEUED."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createdat"
+          },
+          "startedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Startedat"
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finishedat"
+          },
+          "toolchain": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolchainOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/ExecutionStepOut"
+            },
+            "type": "array",
+            "title": "Steps"
+          },
+          "diagnostics": {
+            "items": {
+              "$ref": "#/components/schemas/Diagnostic"
+            },
+            "type": "array",
+            "title": "Diagnostics"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "languageId",
+          "state",
+          "terminal",
+          "summary",
+          "sourceHash",
+          "sourceBytes",
+          "createdAt",
+          "steps",
+          "diagnostics"
+        ],
+        "title": "ExecutionOut"
+      },
+      "ExecutionState": {
+        "type": "string",
+        "enum": [
+          "QUEUED",
+          "STARTING",
+          "COMPILING",
+          "RUNNING",
+          "SUCCEEDED",
+          "COMPILE_ERROR",
+          "RUNTIME_ERROR",
+          "TIMEOUT",
+          "MEMORY_LIMIT",
+          "REJECTED",
+          "CANCELLED",
+          "INTERNAL_ERROR"
+        ],
+        "title": "ExecutionState"
+      },
+      "ExecutionStepOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "compile",
+              "run"
+            ],
+            "title": "Kind"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StepStatus"
+          },
+          "termination": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Termination"
+          },
+          "exitCode": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exitcode"
+          },
+          "signal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signal"
+          },
+          "signalName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signalname"
+          },
+          "durationMs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Durationms"
+          },
+          "wallMs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wallms"
+          },
+          "stdout": {
+            "type": "string",
+            "title": "Stdout",
+            "default": ""
+          },
+          "stderr": {
+            "type": "string",
+            "title": "Stderr",
+            "default": ""
+          },
+          "stdoutTruncated": {
+            "type": "boolean",
+            "title": "Stdouttruncated",
+            "default": false
+          },
+          "stderrTruncated": {
+            "type": "boolean",
+            "title": "Stderrtruncated",
+            "default": false
+          },
+          "peakMemoryBytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peakmemorybytes"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/StepLimitsOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "status",
+          "limits"
+        ],
+        "title": "ExecutionStepOut"
+      },
+      "ExplainIn": {
+        "properties": {
+          "executionId": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Executionid"
+          },
+          "sourceHash": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Sourcehash",
+            "description": "Hash of the code in the editor; must match the run (no stale answers)."
+          },
+          "diagnosticId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diagnosticid",
+            "description": "Diagnostic to explain; default: the first error."
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question"
+          }
+        },
+        "type": "object",
+        "required": [
+          "executionId",
+          "sourceHash"
+        ],
+        "title": "ExplainIn"
+      },
+      "ExplanationOut": {
+        "properties": {
+          "executionId": {
+            "type": "string",
+            "title": "Executionid"
+          },
+          "sourceHash": {
+            "type": "string",
+            "title": "Sourcehash",
+            "description": "The explanation applies to exactly this source."
+          },
+          "focusDiagnosticId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Focusdiagnosticid"
+          },
+          "diagnosticIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Diagnosticids",
+            "description": "The diagnostics Saarthi was shown (its evidence)."
+          },
+          "problem": {
+            "type": "string",
+            "title": "Problem"
+          },
+          "whatHappened": {
+            "type": "string",
+            "title": "Whathappened"
+          },
+          "why": {
+            "type": "string",
+            "title": "Why"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CodeLocationOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "suggestedFix": {
+            "type": "string",
+            "title": "Suggestedfix"
+          },
+          "relatedConcepts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Relatedconcepts"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Confidence"
+          },
+          "verified": {
+            "type": "boolean",
+            "const": false,
+            "title": "Verified",
+            "description": "Explanations are advice; only a run verifies code.",
+            "default": false
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "executionId",
+          "sourceHash",
+          "focusDiagnosticId",
+          "diagnosticIds",
+          "problem",
+          "whatHappened",
+          "why",
+          "location",
+          "suggestedFix",
+          "relatedConcepts",
+          "confidence",
+          "provider",
+          "model"
+        ],
+        "title": "ExplanationOut"
+      },
+      "FixIn": {
+        "properties": {
+          "executionId": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Executionid"
+          },
+          "sourceHash": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Sourcehash"
+          },
+          "diagnosticId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diagnosticid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "executionId",
+          "sourceHash"
+        ],
+        "title": "FixIn"
+      },
+      "FixOut": {
+        "properties": {
+          "fixId": {
+            "type": "string",
+            "title": "Fixid",
+            "description": "Pass to /assistant/verify after running the patched code."
+          },
+          "executionId": {
+            "type": "string",
+            "title": "Executionid"
+          },
+          "baseSourceHash": {
+            "type": "string",
+            "title": "Basesourcehash",
+            "description": "The patch applies to exactly this source."
+          },
+          "patchedSource": {
+            "type": "string",
+            "title": "Patchedsource"
+          },
+          "patchedSourceHash": {
+            "type": "string",
+            "title": "Patchedsourcehash"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "edits": {
+            "items": {
+              "$ref": "#/components/schemas/PatchEditOut"
+            },
+            "type": "array",
+            "title": "Edits"
+          },
+          "targetCodes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Targetcodes",
+            "description": "Diagnostic codes the fix is meant to remove."
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Confidence"
+          },
+          "verified": {
+            "type": "boolean",
+            "const": false,
+            "title": "Verified",
+            "description": "Not verified until the patched code is run.",
+            "default": false
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "fixId",
+          "executionId",
+          "baseSourceHash",
+          "patchedSource",
+          "patchedSourceHash",
+          "summary",
+          "edits",
+          "targetCodes",
+          "confidence",
+          "provider",
+          "model"
+        ],
+        "title": "FixOut"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LanguageOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "displayName": {
+            "type": "string",
+            "title": "Displayname"
+          },
+          "editorMode": {
+            "type": "string",
+            "title": "Editormode"
+          },
+          "sourceFile": {
+            "type": "string",
+            "title": "Sourcefile"
+          },
+          "toolchain": {
+            "$ref": "#/components/schemas/LanguageToolchainOut"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/LanguageStepOut"
+            },
+            "type": "array",
+            "title": "Steps"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "stable",
+              "experimental"
+            ],
+            "title": "Status",
+            "description": "\"experimental\": prepared but not yet verified end to end (shown with a badge).",
+            "default": "stable"
+          },
+          "available": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available",
+            "description": "Whether the sandbox runner has this language's toolchain image installed. null when the runner cannot be reached right now."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "displayName",
+          "editorMode",
+          "sourceFile",
+          "toolchain",
+          "steps"
+        ],
+        "title": "LanguageOut"
+      },
+      "LanguageStepOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "compile",
+              "run"
+            ],
+            "title": "Kind"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Shown in the run pipeline, e.g. \"Compile\" or \"Syntax check\"."
+          },
+          "argv": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Argv",
+            "description": "The exact trusted command, shown to students for transparency."
+          },
+          "limits": {
+            "$ref": "#/components/schemas/StepLimitsOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "label",
+          "argv",
+          "limits"
+        ],
+        "title": "LanguageStepOut"
+      },
+      "LanguageToolchainOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "declaredVersion": {
+            "type": "string",
+            "title": "Declaredversion"
+          },
+          "image": {
+            "type": "string",
+            "title": "Image"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "declaredVersion",
+          "image"
+        ],
+        "title": "LanguageToolchainOut"
+      },
+      "PatchEditOut": {
+        "properties": {
+          "startLine": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Startline",
+            "description": "First replaced line (1-based, in the original source)."
+          },
+          "endLine": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Endline",
+            "description": "Last replaced line, inclusive."
+          },
+          "replacement": {
+            "type": "string",
+            "title": "Replacement",
+            "description": "The new lines; empty deletes the range."
+          }
+        },
+        "type": "object",
+        "required": [
+          "startLine",
+          "endLine",
+          "replacement"
+        ],
+        "title": "PatchEditOut"
+      },
+      "RawOutputReference": {
+        "properties": {
+          "step": {
+            "type": "string",
+            "title": "Step"
+          },
+          "stream": {
+            "type": "string",
+            "enum": [
+              "stdout",
+              "stderr"
+            ],
+            "title": "Stream"
+          },
+          "startLine": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Startline"
+          },
+          "endLine": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Endline"
+          }
+        },
+        "type": "object",
+        "required": [
+          "step",
+          "stream",
+          "startLine",
+          "endLine"
+        ],
+        "title": "RawOutputReference",
+        "description": "Where in the bounded raw output this diagnostic came from (1-based lines)."
+      },
+      "RelatedLocation": {
+        "properties": {
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "range": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SourceRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "RelatedLocation"
+      },
+      "Severity": {
+        "type": "string",
+        "enum": [
+          "error",
+          "warning",
+          "info"
+        ],
+        "title": "Severity"
+      },
+      "SourceRange": {
+        "properties": {
+          "startLine": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Startline"
+          },
+          "startColumn": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Startcolumn"
+          },
+          "endLine": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Endline"
+          },
+          "endColumn": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Endcolumn"
+          }
+        },
+        "type": "object",
+        "required": [
+          "startLine",
+          "startColumn",
+          "endLine",
+          "endColumn"
+        ],
+        "title": "SourceRange"
+      },
+      "StepLimitsOut": {
+        "properties": {
+          "wallTimeMs": {
+            "type": "integer",
+            "title": "Walltimems"
+          },
+          "memoryMb": {
+            "type": "integer",
+            "title": "Memorymb"
+          },
+          "outputKb": {
+            "type": "integer",
+            "title": "Outputkb"
+          }
+        },
+        "type": "object",
+        "required": [
+          "wallTimeMs",
+          "memoryMb",
+          "outputKb"
+        ],
+        "title": "StepLimitsOut"
+      },
+      "StepStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "RUNNING",
+          "SUCCEEDED",
+          "FAILED",
+          "SKIPPED"
+        ],
+        "title": "StepStatus"
+      },
+      "ToolchainOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version",
+            "description": "Exact version read from the sandbox image; null if unknown."
+          },
+          "image": {
+            "type": "string",
+            "title": "Image"
+          },
+          "imageId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imageid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "version",
+          "image"
+        ],
+        "title": "ToolchainOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VerifyIn": {
+        "properties": {
+          "fixId": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Fixid"
+          },
+          "executionId": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Executionid",
+            "description": "The run of the patched code."
+          }
+        },
+        "type": "object",
+        "required": [
+          "fixId",
+          "executionId"
+        ],
+        "title": "VerifyIn"
+      },
+      "VerifyOut": {
+        "properties": {
+          "fixId": {
+            "type": "string",
+            "title": "Fixid"
+          },
+          "executionId": {
+            "type": "string",
+            "title": "Executionid"
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "improved",
+              "not_fixed",
+              "different_code"
+            ],
+            "title": "Verdict"
+          },
+          "verified": {
+            "type": "boolean",
+            "title": "Verified",
+            "description": "True only when the run of the patched code finished without errors."
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "beforeState": {
+            "type": "string",
+            "title": "Beforestate"
+          },
+          "afterState": {
+            "type": "string",
+            "title": "Afterstate"
+          },
+          "beforeErrors": {
+            "type": "integer",
+            "title": "Beforeerrors"
+          },
+          "afterErrors": {
+            "type": "integer",
+            "title": "Aftererrors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fixId",
+          "executionId",
+          "verdict",
+          "verified",
+          "message",
+          "beforeState",
+          "afterState",
+          "beforeErrors",
+          "afterErrors"
+        ],
+        "title": "VerifyOut"
+      }
+    }
+  }
+}

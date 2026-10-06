@@ -1,0 +1,96 @@
+# Output grammar for GCC 13 (gcc and g++): compiler, linker and driver lines.
+# Shared by the C and C++ adapters. Rules are ORDERED: most specific first.
+# Regular expressions use Python `re` syntax in TOML literal strings.
+
+streams = ["stderr"]
+column_unit = "byte"         # compiled with -fdiagnostics-column-unit=byte
+report_unmatched = true
+severity_map = { "fatal error" = "error", "internal compiler error" = "error" }
+
+[[rules]]
+id = "gcc.excerpt"           # "    5 |     x = 3;", "      |     ^~~~", "  +++ |+#include ..."
+action = "ignore"
+pattern = '''^\s*(?:\d+|\+\+\+)?\s*\|'''
+
+[[rules]]
+id = "gcc.in-function"       # main.c: In function 'main':   /   main.cpp: In member function 'void A::f()':
+action = "context"
+pattern = '''^(?P<file>[^\s:][^:]*): In (?:(?:static )?member function|function|constructor|destructor|copy constructor|lambda function|instantiation of|substitution of) '(?P<function>.+)':$'''
+
+[[rules]]
+id = "gcc.top-level"
+action = "context"
+pattern = '''^(?P<file>[^\s:][^:]*): At (?:top level|global scope):$'''
+
+[[rules]]
+id = "gcc.required-from"     # main.cpp:8:13:   required from here  (template instantiated by this line)
+action = "context"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+):(?P<column>\d+):\s+required (?:from|by) .+$'''
+
+[[rules]]
+id = "gcc.included-from"
+action = "context"
+pattern = '''^In file included from (?P<file>[^:]+):(?P<line>\d+)[:,]$'''
+
+[[rules]]
+id = "gcc.included-from-more"
+action = "ignore"
+pattern = '''^\s+from [^:]+:\d+[:,]$'''
+
+[[rules]]
+id = "gcc.boilerplate-note"  # repeated after every "undeclared" error; adds nothing
+action = "ignore"
+pattern = '''^[^\s:][^:]*:\d+:\d+: note: each undeclared identifier is reported only once'''
+
+[[rules]]
+id = "gcc.located"           # main.c:6:9: error: 'totl' undeclared ...
+action = "diagnostic"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+):(?P<column>\d+): (?P<severity>fatal error|error|warning|note): (?P<message>.+)$'''
+
+[[rules]]
+id = "gcc.line-only"
+action = "diagnostic"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+): (?P<severity>fatal error|error|warning|note): (?P<message>.+)$'''
+
+[[rules]]
+id = "ld.in-function"        # /usr/bin/ld: /tmp/ccX.o: in function `main':
+action = "context"
+pattern = '''^(?:/usr/bin/)?ld: .+: in function [`'](?P<function>[^'`]+)':$'''
+
+[[rules]]
+id = "ld.undefined-located"  # /workspace/main.c:6:(.text+0xe): undefined reference to `helper'
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?:(?:/usr/bin/)?ld: )?(?P<file>[^\s:][^:]*):(?P<line>\d+):\([^)]*\): (?P<message>undefined reference to .+)$'''
+
+[[rules]]
+id = "ld.undefined"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?:(?:/usr/bin/)?ld: )?(?P<file>[^\s:][^:]*):\([^)]*\): (?P<message>undefined reference to .+)$'''
+
+[[rules]]
+id = "ld.summary"
+action = "ignore"
+pattern = '''^collect2: error: ld returned \d+ exit status$'''
+
+[[rules]]
+id = "ld.other"              # e.g. "/usr/bin/ld: cannot find -lfoo"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?:/usr/bin/)?ld: (?P<message>.+)$'''
+
+[[rules]]
+id = "gcc.driver"            # gcc: fatal error: Killed signal terminated program cc1
+action = "diagnostic"
+pattern = '''^(?:gcc|g\+\+|cc1|cc1plus|as|collect2)(?:-\d+)?: (?P<severity>fatal error|internal compiler error|error|warning|note): (?P<message>.+)$'''
+
+[[rules]]
+id = "gcc.terminated"
+action = "ignore"
+pattern = '''^compilation terminated\.$'''
+
+[[rules]]
+id = "gcc.bug-report-footer"
+action = "ignore"
+pattern = '''^(?:Please submit a full bug report|See <[^>]+> for instructions\.)'''

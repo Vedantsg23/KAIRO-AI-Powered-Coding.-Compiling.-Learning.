@@ -1,0 +1,21 @@
+# Output of the sqlite3 command-line shell (3.45) running main.sql:
+#   Parse error near line 3: near "SELEC": syntax error
+#     SELEC name FROM students;
+#     ^--- error here
+#   Runtime error near line 3: UNIQUE constraint failed: students.name (19)
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "sqlite.error"
+action = "block"
+parser = "sqlite-error"
+pattern = '''^(?P<kind>Parse|Runtime) error near line (?P<line>\d+): (?P<message>.+)$'''
+
+[[rules]]
+id = "sqlite.error-old"      # older shells: Error: near line 3: ...
+action = "block"
+parser = "sqlite-error"
+pattern = '''^Error: near line (?P<line>\d+): (?P<message>.+)$'''

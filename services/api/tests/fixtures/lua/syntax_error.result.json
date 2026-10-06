@@ -1,0 +1,20 @@
+{
+  "toolchain": "php 8.3.6, ruby 3.2.3, lua 5.4.6, bash 5.2.21, sqlite 3.45.1",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "luac5.4: main.lua:5: 'end' expected (to close 'for' at line 2) near <eof>\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

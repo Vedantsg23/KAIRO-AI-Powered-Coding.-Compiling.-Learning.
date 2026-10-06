@@ -1,0 +1,39 @@
+# Formatter profile: Java with clang-format (the "Sandbox Formatters" extension).
+#
+# Not a language: the web app sends the editor's code, the run step prints it
+# formatted, and the editor replaces its text with that output (one undo
+# step). The code is only parsed and reformatted, never compiled or run, and
+# still only inside the sandbox, with the same isolation as programs.
+
+schema_version = 2
+id = "fmt-java"
+display_name = "Format Java"
+editor_mode = "java"
+source_file = "Main.java"
+code_prefix = "FMTJAVA"
+workspace_prefix = "/workspace/"
+listed = false
+purpose = "formatter"
+
+[toolchain]
+name = "clang-format"
+declared_version = "18"
+image = "compiler-copilot/sandbox-gcc:13"
+
+[[steps]]
+name = "format"
+kind = "run"
+label = "Format"
+argv = ["clang-format", "--style={BasedOnStyle: Google, IndentWidth: 4, ContinuationIndentWidth: 8, ColumnLimit: 100, AllowShortFunctionsOnASingleLine: Empty, AllowShortIfStatementsOnASingleLine: Never, AllowShortLoopsOnASingleLine: false, AllowShortBlocksOnASingleLine: Never}", "/workspace/Main.java"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "formatter"
+[steps.limits]
+wall_time_ms = 8000
+cpu_time_s = 5
+memory_mb = 256
+pids = 8
+output_kb = 512
+tmp_mb = 16
+file_size_mb = 16

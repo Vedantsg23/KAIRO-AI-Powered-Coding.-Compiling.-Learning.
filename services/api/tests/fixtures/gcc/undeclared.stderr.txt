@@ -1,0 +1,6 @@
+main.c: In function 'main':
+main.c:6:9: error: 'totl' undeclared (first use in this function); did you mean 'total'?
+    6 |         totl += i;
+      |         ^~~~
+      |         total
+main.c:6:9: note: each undeclared identifier is reported only once for each function it appears in

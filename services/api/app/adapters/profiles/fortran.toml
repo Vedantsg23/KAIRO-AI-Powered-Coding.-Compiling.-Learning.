@@ -1,0 +1,174 @@
+# Language profile: Fortran 2018 (free form) with gfortran 13 (Ubuntu 24.04).
+#
+# Compiled with run-time checks (-fcheck=all): an array index outside its
+# bounds stops the program with "Fortran runtime error" and the line, instead
+# of silently reading memory. Preconnected units are unbuffered so output
+# printed before an error is not lost.
+
+schema_version = 2
+id = "fortran"
+display_name = "Fortran"
+editor_mode = "fortran"
+source_file = "main.f90"
+code_prefix = "FORTRAN"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "gfortran"
+declared_version = "13"
+image = "compiler-copilot/sandbox-native:24.04"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = [
+  "gfortran", "-O0", "-g", "-Wall", "-Wno-conversion", "-Wno-tabs", "-fcheck=all",
+  "-fdiagnostics-color=never", "-fdiagnostics-plain-output", "-fmessage-length=0",
+  "-o", "main", "main.f90",
+]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { LC_ALL = "C" }
+grammar = "gfortran"
+[steps.limits]
+wall_time_ms = 20000
+cpu_time_s = 20
+memory_mb = 512
+pids = 64
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 64
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["/workspace/main"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+env = { GFORTRAN_UNBUFFERED_PRECONNECTED = "y" }
+grammar = "fortran-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "implicit-type"
+pattern = '''has no IMPLICIT type'''
+category = "name"
+code = "FORTRAN_UNDEFINED"
+
+[[classify]]
+id = "undefined-reference"
+pattern = '''^undefined reference to'''
+category = "build"
+code = "FORTRAN_UNDEFINED_REFERENCE"
+
+[[classify]]
+id = "missing-module"
+pattern = '''^Cannot open module file|Can't open module file'''
+category = "build"
+code = "FORTRAN_MODULE_NOT_FOUND"
+
+[[classify]]
+id = "end-of-file"
+pattern = '''^Unexpected end of file|^Unexpected END statement|^Expecting END (?:PROGRAM|SUBROUTINE|FUNCTION|DO|IF|MODULE)'''
+category = "syntax"
+code = "FORTRAN_UNEXPECTED_END_OF_FILE"
+
+[[classify]]
+id = "unterminated"
+pattern = '''^Unterminated character constant'''
+category = "syntax"
+code = "FORTRAN_UNTERMINATED_STRING"
+
+[[classify]]
+id = "syntax"
+pattern = '''^(?:Syntax error|Unclassifiable statement|Invalid character|Expected |Unexpected |Missing |Unbalanced parentheses|Non-numeric character|Nonnegative width required|Positive width required|Invalid form of|Line truncated|Statement label)'''
+category = "syntax"
+code = "FORTRAN_SYNTAX_ERROR"
+
+[[classify]]
+id = "argument-count"
+pattern = '''^Missing actual argument|^More actual than formal arguments|^Too many arguments|^Too few arguments'''
+category = "type"
+code = "FORTRAN_WRONG_ARGUMENT_COUNT"
+
+[[classify]]
+id = "type-mismatch"
+pattern = '''^(?:Type mismatch|Cannot convert|Incompatible ranks|Operands of |Different shape|Rank mismatch|Unequal character lengths)'''
+category = "type"
+code = "FORTRAN_TYPE_MISMATCH"
+
+[[classify]]
+id = "integer-division"
+pattern = '''^Integer division truncated'''
+category = "other"
+code = "FORTRAN_INTEGER_DIVISION"
+
+[[classify]]
+id = "redefinition"
+pattern = '''already has basic type|^Symbol '.+' at \(1\) already|is already being used|already defined'''
+category = "name"
+code = "FORTRAN_REDEFINITION"
+
+[[classify]]
+id = "unused"
+pattern = '''^Unused (?:variable|parameter|dummy argument|module variable)|declared at \(1\) is never used'''
+category = "other"
+code = "FORTRAN_UNUSED"
+
+[[classify]]
+id = "uninitialized"
+pattern = '''is used uninitialized|may be used uninitialized'''
+category = "other"
+code = "FORTRAN_UNINITIALIZED_VARIABLE"
+
+[[classify]]
+id = "array-bounds-static"
+pattern = '''^Array reference at \(1\) (?:is )?out of bounds|^Index in dimension \d+ is out of bounds'''
+category = "other"
+code = "FORTRAN_ARRAY_BOUNDS"
+
+[[classify]]
+id = "index"
+pattern = '''^Index '[^']*' of dimension \d+ of array .+ (?:above upper|below lower) bound'''
+category = "runtime"
+code = "FORTRAN_INDEX_OUT_OF_BOUNDS"
+
+[[classify]]
+id = "division"
+pattern = '''^Division by zero'''
+category = "runtime"
+code = "FORTRAN_DIVISION_BY_ZERO"
+
+[[classify]]
+id = "bad-input"
+pattern = '''^Bad (?:integer|real|logical|complex) (?:for item|number in item)|^Bad value during'''
+category = "runtime"
+code = "FORTRAN_INPUT_MISMATCH"
+
+[[classify]]
+id = "end-of-input"
+pattern = '''^End of file'''
+category = "runtime"
+code = "FORTRAN_EOF_ERROR"
+
+[[classify]]
+id = "memory"
+pattern = '''^Allocation would exceed memory limit|^Memory allocation failed'''
+category = "memory"
+code = "FORTRAN_OUT_OF_MEMORY"
+
+[[classify]]
+id = "deallocated"
+pattern = '''is not allocated|already allocated'''
+category = "memory"
+code = "FORTRAN_ALLOCATION_ERROR"

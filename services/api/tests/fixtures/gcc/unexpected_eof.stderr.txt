@@ -1,0 +1,5 @@
+main.c: In function 'main':
+main.c:5:9: error: expected declaration or statement at end of input
+    5 |         printf("x");
+      |         ^~~~~~
+main.c:5:9: error: expected declaration or statement at end of input

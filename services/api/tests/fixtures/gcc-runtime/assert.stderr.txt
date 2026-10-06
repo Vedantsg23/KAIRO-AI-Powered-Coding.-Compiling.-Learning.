@@ -1,0 +1,1 @@
+main: main.c:7: main: Assertion `balance >= 0' failed.

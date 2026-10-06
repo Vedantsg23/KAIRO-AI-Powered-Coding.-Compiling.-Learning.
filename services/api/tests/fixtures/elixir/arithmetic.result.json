@@ -1,0 +1,20 @@
+{
+  "toolchain": "R (2024-02-29), perl v5.38.2, swipl 9.0.4, tcl 8.6.14, guile 3.0.9, sbcl 2.2.9.debian, erlang 25, elixir 1.14.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "run",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "** (ArithmeticError) bad argument in arithmetic expression: div(10, 0)\n    :erlang.div(10, 0)\n    /workspace/main.exs:2: (file)\n    (elixir 1.14.0) lib/code.ex:1245: Code.require_file/2\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+main.c: In function 'main':
+main.c:5:18: error: 'valu' undeclared (first use in this function)
+    5 |         count = count + valu;
+      |                         ^~~~
+main.c:5:18: note: each undeclared identifier is reported only once for each function it appears in

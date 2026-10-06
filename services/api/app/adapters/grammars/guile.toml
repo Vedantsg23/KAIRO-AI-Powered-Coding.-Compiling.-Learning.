@@ -1,0 +1,31 @@
+# GNU Guile 3.0 (guile --no-auto-compile main.scm).
+#   /workspace/main.scm:3:1: unexpected end of input while searching for: )
+#   Backtrace: ... ERROR: In procedure /: Throw to key `numerical-overflow' ...
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "guile.procedure-error"   # "ice-9/read.scm:126:4: In procedure lp:" or "...: Throw to key ..."
+action = "block"
+parser = "guile-error"
+pattern = '''^[^\s:][^:]*:\d+:\d+: (?:In procedure |Throw to key )'''
+
+[[rules]]
+id = "guile.located"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<file>/workspace/[^\s:][^:]*):(?P<line>\d+):(?P<column>\d+): (?P<message>.+)$'''
+
+[[rules]]
+id = "guile.backtrace"
+action = "block"
+parser = "guile-error"
+pattern = '''^Backtrace:$'''
+
+[[rules]]
+id = "guile.error"
+action = "block"
+parser = "guile-error"
+pattern = '''^ERROR: In procedure'''

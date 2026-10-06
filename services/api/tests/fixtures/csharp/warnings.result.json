@@ -1,0 +1,34 @@
+{
+  "toolchain": "8.0.131",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "main.cs(5,19): warning CS8602: Dereference of a possibly null reference.\nmain.cs(3,5): warning CS0219: The variable 'unused' is assigned but its value is never used\n",
+      "stderr": "",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    },
+    {
+      "name": "run",
+      "termination": "SIGNALED",
+      "exitCode": 134,
+      "signal": 6,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "Unhandled exception. System.NullReferenceException: Object reference not set to an instance of an object.\n   at Program.<Main>$(String[] args) in /workspace/main.cs:line 5\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

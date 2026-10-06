@@ -1,0 +1,162 @@
+# Language profile: D with GDC 13 (the GCC D front end, D 2.100 library).
+#
+# A debug build keeps array bounds checks and asserts: an index outside an
+# array throws core.exception.ArrayIndexError with the file and line.
+
+schema_version = 2
+id = "d"
+display_name = "D"
+editor_mode = "d"
+source_file = "main.d"
+code_prefix = "D"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "GDC"
+declared_version = "13"
+image = "compiler-copilot/sandbox-native:24.04"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = [
+  "gdc", "-O0", "-g", "-Wall",
+  "-fdiagnostics-color=never", "-fdiagnostics-urls=never",
+  "-fdiagnostics-column-unit=byte", "-fmessage-length=0",
+  "-o", "main", "main.d",
+]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { LC_ALL = "C" }
+grammar = "gcc"
+[steps.limits]
+wall_time_ms = 30000
+cpu_time_s = 30
+memory_mb = 1024
+pids = 64
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 64
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["stdbuf", "-oL", "/workspace/main"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "d-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "undefined"
+pattern = '''^undefined identifier|^no property [`'].+[`'] for|is not defined|^template [`'].+[`'] is not defined'''
+category = "name"
+code = "D_UNDEFINED"
+
+[[classify]]
+id = "import"
+pattern = '''^unable to read module|^module [`'].+[`'] import|^module .+ is in file .+ which cannot be read'''
+category = "build"
+code = "D_MODULE_NOT_FOUND"
+
+[[classify]]
+id = "missing-semicolon"
+pattern = '''when expecting [`'];[`']|^semicolon needed to end|^semicolon expected'''
+category = "syntax"
+code = "D_MISSING_SEMICOLON"
+hint = "previous_line_end"
+hint_message = "The missing ';' probably belongs at the end of this line."
+
+[[classify]]
+id = "end-of-file"
+pattern = '''found [`']End of File[`']|^unterminated'''
+category = "syntax"
+code = "D_UNEXPECTED_END_OF_FILE"
+
+[[classify]]
+id = "syntax"
+pattern = '''^found [`'].+[`'] when expecting|^expression expected|^no identifier for declarator|^declaration expected|^statement expected|^basic type expected|^unrecognized declaration|^semicolon expected|^matching [`'].[`'] expected|^use [`'].+[`'] instead of'''
+category = "syntax"
+code = "D_SYNTAX_ERROR"
+
+[[classify]]
+id = "wrong-arguments"
+pattern = '''is not callable using argument types|^expected \d+ arguments?, not \d+|^function .+ is not callable|^none of the overloads'''
+category = "type"
+code = "D_WRONG_ARGUMENTS"
+
+[[classify]]
+id = "type"
+pattern = '''^cannot implicitly convert|^incompatible types|^cannot be applied|^cannot modify|^cannot append|is not of arithmetic type|^cannot cast|^cannot pass argument'''
+category = "type"
+code = "D_TYPE_MISMATCH"
+
+[[classify]]
+id = "redefinition"
+pattern = '''conflicts with|^declaration [`'].+[`'] is already defined|is already defined'''
+category = "name"
+code = "D_REDEFINITION"
+
+[[classify]]
+id = "missing-return"
+pattern = '''no [`']return exp;[`'] or [`']assert\(0\);[`'] at end of function|missing return'''
+category = "other"
+code = "D_MISSING_RETURN"
+
+[[classify]]
+id = "unused"
+pattern = '''^unused variable|^variable .+ is never used'''
+category = "other"
+code = "D_UNUSED"
+
+[[classify]]
+id = "array-index"
+pattern = '''^ArrayIndexError'''
+category = "runtime"
+code = "D_INDEX_OUT_OF_BOUNDS"
+
+[[classify]]
+id = "range"
+pattern = '''^RangeError|^ArraySliceError'''
+category = "runtime"
+code = "D_RANGE_ERROR"
+
+[[classify]]
+id = "assert"
+pattern = '''^AssertError'''
+category = "runtime"
+code = "D_ASSERTION_FAILED"
+
+[[classify]]
+id = "conversion"
+pattern = '''^ConvException|^ConvOverflowException'''
+category = "runtime"
+code = "D_NUMBER_FORMAT"
+
+[[classify]]
+id = "memory"
+pattern = '''^OutOfMemoryError|^InvalidMemoryOperationError'''
+category = "memory"
+code = "D_OUT_OF_MEMORY"
+
+[[classify]]
+id = "null"
+pattern = '''^NullPointerError|null this'''
+category = "memory"
+code = "D_NULL_POINTER"
+
+[[classify]]
+id = "exception"
+pattern = '''^\w*(?:Exception|Error): '''
+category = "runtime"
+code = "D_UNCAUGHT_EXCEPTION"

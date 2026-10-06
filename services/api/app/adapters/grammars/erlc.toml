@@ -1,0 +1,30 @@
+# Erlang/OTP 25 compiler (erlc main.erl).
+#   main.erl:5:5: syntax error before: io
+#   main.erl:5:27: Warning: evaluation of operator 'div'/2 will fail with a 'badarith' exception
+
+streams = ["stdout", "stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+severity_map = { "Warning" = "warning" }
+
+[[rules]]
+id = "erlc.excerpt"
+action = "ignore"
+pattern = '''^%'''
+
+[[rules]]
+id = "erlc.warning"
+action = "diagnostic"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+):(?P<column>\d+): (?P<severity>Warning): (?P<message>.+)$'''
+
+[[rules]]
+id = "erlc.located"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+):(?P<column>\d+): (?P<message>.+)$'''
+
+[[rules]]
+id = "erlc.line-only"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+): (?P<message>.+)$'''

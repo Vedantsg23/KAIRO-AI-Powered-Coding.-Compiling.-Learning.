@@ -1,0 +1,26 @@
+/* A navigation bar with flexbox and hover effects */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #0f172a;
+  color: white;
+}
+
+nav {
+  display: flex;
+  gap: 12px;
+}
+
+nav a {
+  color: #cbd5e1;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+nav a:hover {
+  background: #22c55e;
+  color: #0f172a;
+}

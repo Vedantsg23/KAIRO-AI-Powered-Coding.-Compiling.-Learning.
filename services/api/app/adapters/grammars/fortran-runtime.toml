@@ -1,0 +1,19 @@
+# Runtime output of gfortran programs (compiled with -fcheck=all -g):
+#   At line 5 of file main.f90
+#   Fortran runtime error: Index '5' of dimension 1 of array 'a' above upper bound of 3
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = false
+
+[[rules]]
+id = "fortran.runtime"
+action = "block"
+parser = "fortran-runtime"
+pattern = '''^At line (?P<line>\d+) of file (?P<file>\S+)'''
+
+[[rules]]
+id = "fortran.runtime-unlocated"
+action = "diagnostic"
+severity = "error"
+pattern = '''^Fortran runtime error: (?P<message>.+)$'''

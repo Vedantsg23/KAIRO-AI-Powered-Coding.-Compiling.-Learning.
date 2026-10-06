@@ -1,0 +1,20 @@
+# Runtime output of Lua 5.4: errors with a stack traceback.
+#   lua5.4: /workspace/main.lua:4: attempt to call a nil value (global 'greett')
+#   stack traceback:
+#           /workspace/main.lua:4: in main chunk
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "lua.error"
+action = "block"
+parser = "lua-error"
+pattern = '''^lua(?:5\.\d)?: (?P<file>[^:]+):(?P<line>\d+): (?P<message>.+)$'''
+
+[[rules]]
+id = "lua.error-unlocated"
+action = "diagnostic"
+severity = "error"
+pattern = '''^lua(?:5\.\d)?: (?P<message>.+)$'''

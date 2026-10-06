@@ -1,0 +1,31 @@
+# Diagnostics in the "file(line,column): error CODE: message" format used by
+# the TypeScript compiler (tsc --pretty false) and the C# compiler (csc).
+#
+#   main.ts(5,7): error TS2322: Type 'string' is not assignable to type 'number'.
+#   main.cs(8,19): error CS0103: The name 'totl' does not exist in the current context
+#
+# Both count columns in UTF-16 code units, like the editor. The code is kept
+# at the end of the message ("... [TS2322]"), where the UI shows it as a tag.
+
+streams = ["stdout", "stderr"]
+column_unit = "utf16"
+report_unmatched = true
+severity_map = { "message" = "info" }
+
+[[rules]]
+id = "vs.located"
+action = "diagnostic"
+template = "{message} [{code}]"
+pattern = '''^(?P<file>[^(\s][^(]*)\((?P<line>\d+),(?P<column>\d+)\): (?P<severity>error|warning|info|message) (?P<code>[A-Z]+\d+): (?P<message>.+)$'''
+
+[[rules]]
+id = "vs.elaboration"        # tsc: indented lines that explain the error above
+action = "detail"
+append = " ({detail})"
+pattern = '''^\s{2,}(?P<detail>\S.*)$'''
+
+[[rules]]
+id = "vs.unlocated"          # error TS5023: Unknown compiler option ...
+action = "diagnostic"
+template = "{message} [{code}]"
+pattern = '''^(?P<severity>error|warning|info|message) (?P<code>[A-Z]+\d+): (?P<message>.+)$'''

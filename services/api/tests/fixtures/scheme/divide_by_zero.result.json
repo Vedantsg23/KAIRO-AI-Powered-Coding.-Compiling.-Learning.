@@ -1,0 +1,20 @@
+{
+  "toolchain": "R (2024-02-29), perl v5.38.2, swipl 9.0.4, tcl 8.6.14, guile 3.0.9, sbcl 2.2.9.debian, erlang 25, elixir 1.14.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "run",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "Backtrace:\n           2 (primitive-load \"/workspace/main.scm\")\nIn ice-9/eval.scm:\n   191:35  1 (_ #f)\n    159:9  0 (_ #(#(#<directory (guile-user) 7fc83c544c80>) 10 0))\n\nice-9/eval.scm:159:9: Throw to key `numerical-overflow' with args `(\"divide\" \"Numerical overflow\" #f #f)'.\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

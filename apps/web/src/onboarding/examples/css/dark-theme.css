@@ -1,0 +1,28 @@
+/* A dark theme built from CSS variables: change one value, recolour everything */
+:root {
+  --bg: #0b1210;
+  --surface: #14201b;
+  --text: #e2e8f0;
+  --accent: #4ade80;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+}
+
+.card, .signup, .menu-table {
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.btn, .price {
+  color: var(--bg);
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+}

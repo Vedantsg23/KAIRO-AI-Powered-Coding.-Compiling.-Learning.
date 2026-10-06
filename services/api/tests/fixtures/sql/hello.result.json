@@ -1,0 +1,20 @@
+{
+  "toolchain": "php 8.3.6, ruby 3.2.3, lua 5.4.6, bash 5.2.21, sqlite 3.45.1",
+  "error": null,
+  "steps": [
+    {
+      "name": "run",
+      "termination": "EXITED",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "┌───────┬───────┐\n│ name  │ marks │\n├───────┼───────┤\n│ Asha  │ 91    │\n│ Meera │ 85    │\n└───────┴───────┘\n",
+      "stderr": "",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

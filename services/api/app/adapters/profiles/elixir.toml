@@ -1,0 +1,97 @@
+# Language profile: Elixir 1.14 on Erlang/OTP 25 (Ubuntu 24.04).
+#
+# The script (main.exs) is compiled in memory and run by `elixir`. One
+# scheduler thread keeps the VM inside the sandbox's process limit.
+
+schema_version = 2
+id = "elixir"
+display_name = "Elixir"
+editor_mode = "elixir"
+source_file = "main.exs"
+code_prefix = "EX"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "Elixir"
+declared_version = "1.14"
+image = "compiler-copilot/sandbox-extra:24.04"
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["elixir", "--erl", "+S 1:1 +SDcpu 1:1 +SDio 1 +A 1", "/workspace/main.exs"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+env = { ERL_CRASH_DUMP_SECONDS = "0" }
+grammar = "elixir"
+[steps.limits]
+wall_time_ms = 15000
+cpu_time_s = 15
+memory_mb = 384
+pids = 64
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "syntax"
+pattern = '''^(?:SyntaxError|TokenMissingError|MismatchedDelimiterError): '''
+category = "syntax"
+code = "EX_SYNTAX_ERROR"
+
+[[classify]]
+id = "undefined-variable"
+pattern = '''^CompileError: .*undefined variable|^CompileError: .*undefined function|undefined variable "|^variable "[^"]+" does not exist'''
+category = "name"
+code = "EX_UNDEFINED_VARIABLE"
+
+[[classify]]
+id = "undefined-function"
+pattern = '''^UndefinedFunctionError: '''
+category = "name"
+code = "EX_UNDEFINED_FUNCTION"
+
+[[classify]]
+id = "arithmetic"
+pattern = '''^ArithmeticError: '''
+category = "runtime"
+code = "EX_ARITHMETIC_EXCEPTION"
+
+[[classify]]
+id = "match"
+pattern = '''^(?:MatchError|CaseClauseError|CondClauseError|WithClauseError|FunctionClauseError): '''
+category = "runtime"
+code = "EX_NO_MATCHING_FUNCTION"
+
+[[classify]]
+id = "argument"
+pattern = '''^ArgumentError: '''
+category = "type"
+code = "EX_ARGUMENT_ERROR"
+
+[[classify]]
+id = "key"
+pattern = '''^KeyError: '''
+category = "runtime"
+code = "EX_KEY_ERROR"
+
+[[classify]]
+id = "unused"
+pattern = '''is unused|^variable "[^"]+" is unused'''
+category = "other"
+code = "EX_UNUSED_VARIABLE"
+
+[[classify]]
+id = "memory"
+pattern = '''Cannot allocate \d+ bytes of memory|^SystemLimitError: '''
+category = "memory"
+code = "EX_OUT_OF_MEMORY"
+
+[[classify]]
+id = "compile"
+pattern = '''^CompileError: '''
+category = "other"
+code = "EX_COMPILE_ERROR"

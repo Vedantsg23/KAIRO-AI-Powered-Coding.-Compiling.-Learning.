@@ -1,0 +1,34 @@
+{
+  "toolchain": "3.12.3",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    },
+    {
+      "name": "run",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/workspace/main.py\", line 3, in load\n    return int(text)\n           ^^^^^^^^^\nValueError: invalid literal for int() with base 10: 'x'\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/workspace/main.py\", line 7, in <module>\n    load(\"x\")\n  File \"/workspace/main.py\", line 5, in load\n    raise RuntimeError(\"could not load settings\") from e\nRuntimeError: could not load settings\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

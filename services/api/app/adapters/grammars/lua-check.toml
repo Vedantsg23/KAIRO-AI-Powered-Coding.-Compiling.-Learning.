@@ -1,0 +1,18 @@
+# Lua syntax check: luac5.4 -p main.lua
+#   luac5.4: main.lua:5: 'end' expected (to close 'for' at line 2) near <eof>
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = true
+
+[[rules]]
+id = "luac.located"
+action = "diagnostic"
+severity = "error"
+pattern = '''^luac(?:5\.\d)?: (?P<file>[^:]+):(?P<line>\d+): (?P<message>.+)$'''
+
+[[rules]]
+id = "luac.other"
+action = "diagnostic"
+severity = "error"
+pattern = '''^luac(?:5\.\d)?: (?P<message>.+)$'''

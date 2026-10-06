@@ -1,0 +1,47 @@
+# Runtime output of the Java launcher and uncaught exceptions (OpenJDK 21).
+# The program's own stderr is not reported.
+
+streams = ["stderr"]
+column_unit = "utf16"
+report_unmatched = false
+
+[[rules]]
+id = "jvm.exception"         # Exception in thread "main" java.lang.ArithmeticException: / by zero
+action = "block"
+parser = "jvm-exception"
+pattern = '''^Exception in thread "(?P<thread>[^"]*)" (?P<type>[\w.$]+)(?:: (?P<message>.*))?$'''
+
+[[rules]]
+id = "jvm.main-class"        # Error: Could not find or load main class Main
+action = "diagnostic"
+severity = "error"
+pattern = '''^Error: (?P<message>Could not find or load main class .+)$'''
+
+[[rules]]
+id = "jvm.main-class-cause"  # Caused by: java.lang.ClassNotFoundException: Main
+action = "detail"
+append = " ({detail})"
+pattern = '''^Caused by: (?P<detail>.+)$'''
+
+[[rules]]
+id = "jvm.main-method"       # Error: Main method not found in class Main, please define ...
+action = "diagnostic"
+severity = "error"
+pattern = '''^Error: (?P<message>Main method not found in class [^,]+)'''
+
+[[rules]]
+id = "jvm.main-method-help"
+action = "ignore"
+pattern = '''^(?:\s+public static void main\(String\[\] args\)|or a JavaFX application class must extend .+)$'''
+
+[[rules]]
+id = "jvm.launcher-error"
+action = "diagnostic"
+severity = "error"
+pattern = '''^Error: (?P<message>.+)$'''
+
+[[rules]]
+id = "jvm.vm-warning"
+action = "diagnostic"
+severity = "info"
+pattern = '''^OpenJDK 64-Bit Server VM warning: (?P<message>.+)$'''

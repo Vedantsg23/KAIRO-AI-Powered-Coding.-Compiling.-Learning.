@@ -1,0 +1,14 @@
+main.c: In function 'main':
+main.c:2:5: warning: implicit declaration of function 'printf' [-Wimplicit-function-declaration]
+    2 |     printf("hi\n");
+      |     ^~~~~~
+main.c:1:1: note: include '<stdio.h>' or provide a declaration of 'printf'
+  +++ |+#include <stdio.h>
+    1 | int main(void) {
+main.c:2:5: warning: incompatible implicit declaration of built-in function 'printf' [-Wbuiltin-declaration-mismatch]
+    2 |     printf("hi\n");
+      |     ^~~~~~
+main.c:2:5: note: include '<stdio.h>' or provide a declaration of 'printf'
+main.c:3:9: warning: unused variable 'unused' [-Wunused-variable]
+    3 |     int unused = 3;
+      |         ^~~~~~

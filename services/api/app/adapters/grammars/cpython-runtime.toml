@@ -1,0 +1,22 @@
+# Runtime output of CPython 3.12: uncaught exceptions (tracebacks) and
+# warnings. The program's own stderr is not reported.
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "python.traceback"
+action = "block"
+parser = "python-traceback"
+pattern = '''^Traceback \(most recent call last\):$'''
+
+[[rules]]
+id = "python.chained"
+action = "ignore"
+pattern = '''^(?:During handling of the above exception, another exception occurred:|The above exception was the direct cause of the following exception:)$'''
+
+[[rules]]
+id = "python.warning"        # /workspace/main.py:3: DeprecationWarning: ...
+action = "diagnostic"
+pattern = '''^(?P<file>[^\s:][^:]*\.py):(?P<line>\d+): (?P<severity>\w*Warning): (?P<message>.+)$'''

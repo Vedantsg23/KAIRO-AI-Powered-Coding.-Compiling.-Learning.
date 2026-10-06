@@ -1,0 +1,158 @@
+# Language profile: TypeScript (Microsoft's TypeScript 7 native compiler) run
+# on Node.js 18.
+#
+# tsc type-checks in strict mode and compiles to JavaScript with source maps;
+# --noEmitOnError keeps a program with type errors from running. Node runs
+# the output with --enable-source-maps, so runtime errors point at main.ts.
+# The Node.js type definitions (@types/node) are installed, so `fs`,
+# `process` and `readline` can be used.
+
+schema_version = 2
+id = "typescript"
+display_name = "TypeScript"
+editor_mode = "typescript"
+source_file = "main.ts"
+code_prefix = "TS"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "TypeScript"
+declared_version = "7"
+image = "compiler-copilot/sandbox-node:18"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = ["tsc", "--pretty", "false", "--strict", "--target", "es2022", "--module", "commonjs", "--sourceMap", "--noEmitOnError", "--typeRoots", "/opt/typescript-types/node_modules/@types", "--types", "node", "--outDir", "/workspace/out", "main.ts"]
+workdir = "/workspace"
+workspace_mode = "rw"
+grammar = "vs-style"
+[steps.limits]
+wall_time_ms = 20000
+cpu_time_s = 20
+memory_mb = 512
+pids = 64
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 64
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["node", "--enable-source-maps", "--max-old-space-size=160", "/workspace/out/main.js"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "node-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 320
+pids = 64
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "cannot-find-name"
+pattern = '''\[TS(?:2304|2552|2580|2582|2583|2584)\]$'''
+category = "name"
+code = "TS_CANNOT_FIND_NAME"
+
+[[classify]]
+id = "no-property"
+pattern = '''\[TS(?:2339|2551)\]$'''
+category = "name"
+code = "TS_NO_SUCH_PROPERTY"
+
+[[classify]]
+id = "not-assignable"
+pattern = '''\[TS(?:2322|2345|2322|2769)\]$'''
+category = "type"
+code = "TS_TYPE_MISMATCH"
+
+[[classify]]
+id = "argument-count"
+pattern = '''\[TS(?:2554|2555|2556)\]$'''
+category = "type"
+code = "TS_WRONG_ARGUMENT_COUNT"
+
+[[classify]]
+id = "possibly-undefined"
+pattern = '''\[TS(?:2531|2532|2533|18047|18048|18049)\]$'''
+category = "type"
+code = "TS_POSSIBLY_NULL"
+
+[[classify]]
+id = "implicit-any"
+pattern = '''\[TS(?:7005|7006|7008|7031)\]$'''
+category = "type"
+code = "TS_IMPLICIT_ANY"
+
+[[classify]]
+id = "missing-return"
+pattern = '''\[TS(?:2355|2366|7030)\]$'''
+category = "other"
+code = "TS_MISSING_RETURN"
+
+[[classify]]
+id = "unused"
+pattern = '''\[TS(?:6133|6196|6138)\]$'''
+category = "other"
+code = "TS_UNUSED"
+
+[[classify]]
+id = "cannot-find-module"
+pattern = '''\[TS(?:2307|2792)\]$'''
+category = "build"
+code = "TS_CANNOT_FIND_MODULE"
+
+[[classify]]
+id = "syntax"
+pattern = '''\[TS1\d{3}\]$'''
+category = "syntax"
+code = "TS_SYNTAX_ERROR"
+
+[[classify]]
+id = "reference"
+pattern = '''^ReferenceError'''
+category = "name"
+code = "JS_REFERENCE_ERROR"
+
+[[classify]]
+id = "undefined-property"
+pattern = '''^TypeError: Cannot read propert(?:y|ies) of (?:undefined|null)'''
+category = "runtime"
+code = "JS_UNDEFINED_PROPERTY"
+
+[[classify]]
+id = "not-iterable"
+pattern = '''^TypeError: .+ is not iterable'''
+category = "runtime"
+code = "JS_NOT_ITERABLE"
+
+[[classify]]
+id = "type"
+pattern = '''^TypeError'''
+category = "type"
+code = "JS_TYPE_ERROR"
+
+[[classify]]
+id = "stack"
+pattern = '''^RangeError: Maximum call stack size exceeded'''
+category = "memory"
+code = "JS_STACK_OVERFLOW"
+
+[[classify]]
+id = "heap"
+pattern = '''JavaScript heap out of memory'''
+category = "memory"
+code = "JS_OUT_OF_MEMORY"
+
+[[classify]]
+id = "thrown"
+pattern = '''^\w*Error\b'''
+category = "runtime"
+code = "JS_UNCAUGHT_ERROR"

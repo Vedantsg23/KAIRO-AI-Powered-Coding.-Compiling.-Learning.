@@ -1,0 +1,5 @@
+# Keep LF line endings in the repository and in checkouts, including on
+# Windows, so Dockerfiles, TOML profiles and test fixtures behave the same
+# everywhere (golden tests compare exact compiler output).
+* text=auto eol=lf
+*.png binary

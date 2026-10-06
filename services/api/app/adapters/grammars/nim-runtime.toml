@@ -1,0 +1,27 @@
+# Runtime errors of Nim programs (debug build): frames, most recent call last,
+# then the exception.
+#   /workspace/main.nim(3)     main
+#   /usr/lib/nim/lib/system/fatal.nim(54) sysFatal
+#   Error: unhandled exception: index 5 not in 0 .. 2 [IndexDefect]
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = false
+
+[[rules]]
+id = "nim.traceback"
+action = "block"
+parser = "nim-traceback"
+pattern = '''^(?:Traceback \(most recent call last\)|\S+\(\d+\)\s+\S+)$'''
+
+[[rules]]
+id = "nim.exception"
+action = "diagnostic"
+severity = "error"
+pattern = '''^Error: unhandled exception: (?P<message>.+)$'''
+
+[[rules]]
+id = "nim.segv"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<message>SIGSEGV: Illegal storage access\..*)$'''

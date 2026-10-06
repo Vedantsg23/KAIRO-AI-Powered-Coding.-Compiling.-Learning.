@@ -1,0 +1,159 @@
+# Language profile: C# with the .NET 8 SDK (Ubuntu 24.04 package).
+#
+# main.cs is compiled with the Roslyn compiler (csc) directly: no project
+# file, no MSBuild and no NuGet (so no network). Top-level statements and a
+# classic `static void Main` both work. W^X double mapping is turned off
+# because it needs a large memory-backed file, which the sandbox's file-size
+# limit (correctly) refuses.
+
+schema_version = 2
+id = "csharp"
+display_name = "C#"
+editor_mode = "csharp"
+source_file = "main.cs"
+code_prefix = "CS"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = ".NET"
+declared_version = "8"
+image = "compiler-copilot/sandbox-dotnet:8.0"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = ["dotnet", "/opt/code-drishti/csharp/csc.dll", "-nologo", "-noconfig", "@/opt/code-drishti/csharp/refs.rsp", "-target:exe", "-langversion:latest", "-nullable:enable", "-debug:portable", "-out:/workspace/main.dll", "main.cs"]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { DOTNET_EnableWriteXorExecute = "0" }
+grammar = "vs-style"
+[steps.limits]
+wall_time_ms = 30000
+cpu_time_s = 30
+memory_mb = 768
+pids = 64
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 64
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["dotnet", "exec", "--runtimeconfig", "/opt/code-drishti/csharp/app.runtimeconfig.json", "/workspace/main.dll"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+env = { DOTNET_EnableWriteXorExecute = "0" }
+grammar = "dotnet-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 10
+memory_mb = 384
+pids = 64
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "undefined"
+pattern = '''\[CS0103\]$|\[CS0246\]$|\[CS0117\]$|\[CS1061\]$'''
+category = "name"
+code = "CS_NAME_NOT_FOUND"
+
+[[classify]]
+id = "missing-semicolon"
+pattern = '''\[CS1002\]$'''
+category = "syntax"
+code = "CS_MISSING_SEMICOLON"
+
+[[classify]]
+id = "syntax"
+pattern = '''\[CS1\d{3}\]$'''
+category = "syntax"
+code = "CS_SYNTAX_ERROR"
+
+[[classify]]
+id = "conversion"
+pattern = '''\[CS0029\]$|\[CS0266\]$|\[CS1503\]$|\[CS0019\]$'''
+category = "type"
+code = "CS_TYPE_MISMATCH"
+
+[[classify]]
+id = "argument-count"
+pattern = '''\[CS1501\]$|\[CS7036\]$'''
+category = "type"
+code = "CS_WRONG_ARGUMENT_COUNT"
+
+[[classify]]
+id = "unassigned"
+pattern = '''\[CS0165\]$'''
+category = "other"
+code = "CS_UNASSIGNED_VARIABLE"
+
+[[classify]]
+id = "missing-return"
+pattern = '''\[CS0161\]$'''
+category = "other"
+code = "CS_MISSING_RETURN"
+
+[[classify]]
+id = "nullable"
+pattern = '''\[CS86\d\d\]$'''
+category = "type"
+code = "CS_POSSIBLE_NULL"
+
+[[classify]]
+id = "unused"
+pattern = '''\[CS0168\]$|\[CS0219\]$|\[CS0169\]$'''
+category = "other"
+code = "CS_UNUSED"
+
+[[classify]]
+id = "duplicate"
+pattern = '''\[CS0128\]$|\[CS0102\]$|\[CS0111\]$'''
+category = "name"
+code = "CS_DUPLICATE_DEFINITION"
+
+[[classify]]
+id = "divide"
+pattern = '''^DivideByZeroException'''
+category = "runtime"
+code = "CS_DIVIDE_BY_ZERO"
+
+[[classify]]
+id = "index"
+pattern = '''^(?:IndexOutOfRangeException|ArgumentOutOfRangeException)'''
+category = "runtime"
+code = "CS_INDEX_OUT_OF_RANGE"
+
+[[classify]]
+id = "null"
+pattern = '''^NullReferenceException'''
+category = "runtime"
+code = "CS_NULL_REFERENCE"
+
+[[classify]]
+id = "format"
+pattern = '''^FormatException'''
+category = "runtime"
+code = "CS_FORMAT_ERROR"
+
+[[classify]]
+id = "overflow"
+pattern = '''^(?:StackOverflowException|OverflowException)'''
+category = "memory"
+code = "CS_OVERFLOW"
+
+[[classify]]
+id = "oom"
+pattern = '''^OutOfMemoryException|^Out of memory'''
+category = "memory"
+code = "CS_OUT_OF_MEMORY"
+
+[[classify]]
+id = "uncaught"
+pattern = '''^\w*Exception\b'''
+category = "runtime"
+code = "CS_UNHANDLED_EXCEPTION"

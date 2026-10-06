@@ -1,0 +1,22 @@
+# SWI-Prolog 9 (swipl -q --on-error=halt -t halt main.pl): loading and run.
+#   ERROR: /workspace/main.pl:3:17: Syntax error: Operator expected
+#   ERROR: /workspace/main.pl:1: Initialization goal raised exception:
+#   ERROR: //2: Arithmetic: evaluation error: `zero_divisor'
+#   Warning: /workspace/main.pl:2:
+#   Warning:    Singleton variables: [X]
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "prolog.located"
+action = "block"
+parser = "prolog-message"
+pattern = '''^(?P<kind>ERROR|Warning): (?P<file>/?[^\s:][^:]*):(?P<line>\d+):(?:(?P<column>\d+):)?\s*(?P<message>.*)$'''
+
+[[rules]]
+id = "prolog.unlocated"
+action = "diagnostic"
+severity = "error"
+pattern = '''^ERROR: (?P<message>.+)$'''

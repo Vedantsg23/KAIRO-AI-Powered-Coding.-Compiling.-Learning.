@@ -1,0 +1,14 @@
+main.c: In function 'main':
+main.c:4:5: error: unknown type name 'strng'
+    4 |     strng name = "Asha";
+      |     ^~~~~
+main.c:4:18: warning: initialization of 'int' from 'char *' makes integer from pointer without a cast [-Wint-conversion]
+    4 |     strng name = "Asha";
+      |                  ^~~~~~
+main.c:5:14: warning: format '%s' expects argument of type 'char *', but argument 2 has type 'int' [-Wformat=]
+    5 |     printf("%s\n", name);
+      |             ~^     ~~~~
+      |              |     |
+      |              |     int
+      |              char *
+      |             %d

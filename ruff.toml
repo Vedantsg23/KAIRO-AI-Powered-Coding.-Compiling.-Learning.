@@ -1,0 +1,5 @@
+# Lint settings for the repository-level Python (scripts/, tests/integration/).
+# services/api and services/runner carry the same settings in their pyproject.toml.
+line-length = 120
+target-version = "py312"
+extend-exclude = ["services/api/tests/fixtures", "services/runner/tests/programs", "apps"]

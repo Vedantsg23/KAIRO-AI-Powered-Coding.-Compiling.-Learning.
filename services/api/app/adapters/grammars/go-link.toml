@@ -1,0 +1,13 @@
+# Output of Go's linker (go tool link). Link errors are rare for a single
+# file and carry no source position, e.g.
+#   main.main: function main is undeclared in the main package
+
+streams = ["stdout", "stderr"]
+column_unit = "byte"
+report_unmatched = true
+
+[[rules]]
+id = "go.link-error"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<message>\S.*)$'''

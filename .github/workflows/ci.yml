@@ -1,0 +1,142 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: API and runner
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install API and runner
+        run: pip install -e "services/api[dev]" -e "services/runner[dev]"
+      - name: Lint (ruff)
+        run: ruff check services scripts tests
+      - name: Build the GCC sandbox image (for the runner's containment tests)
+        run: docker build -t compiler-copilot/sandbox-gcc:13 infra/containers/gcc
+      - name: API tests (normalizer golden tests, Saarthi, state machine, endpoints, contracts)
+        working-directory: services/api
+        run: pytest -q
+      - name: Runner tests (policy, HTTP layer, Docker containment corpus)
+        working-directory: services/runner
+        run: pytest -q
+
+  languages:
+    # Each sandbox image is built from its Dockerfile (base images from Docker
+    # Hub) and every language it serves runs its programs end to end: hello,
+    # compile and runtime errors, and the hostile ones (endless loop, memory
+    # and fork bombs, network, writes, output flood), plus all its examples.
+    name: Sandbox ${{ matrix.image }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ["gcc:13", "java:21", "python:3.12", "node:18", "go:1.23", "rust:1.75", "dotnet:8.0", "kotlin:2.4", "scripting:24.04", "native:24.04", "extra:24.04"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install API and runner
+        run: pip install -e "services/api[dev]" -e "services/runner[dev]"
+      - name: Build compiler-copilot/sandbox-${{ matrix.image }}
+        env:
+          IMAGE: ${{ matrix.image }}
+        run: docker build -t "compiler-copilot/sandbox-$IMAGE" "infra/containers/${IMAGE%%:*}"
+      - name: Languages in this image, end to end (the others are skipped)
+        run: pytest tests/integration -q -rs
+
+  web:
+    name: Web app
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  e2e:
+    # The real stack in a browser: Vite -> API -> runner -> Docker, with the C
+    # and Python sandboxes. Saarthi answers from scripts/mock_llm.py (a canned
+    # test double, not an AI), so no API key is needed or used.
+    name: Browser tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install API, runner and web app
+        run: |
+          pip install -e "services/api[dev]" -e "services/runner[dev]"
+          (cd apps/web && npm ci && npx playwright install --with-deps chromium)
+      - name: Build the C/C++ and Python sandbox images
+        run: |
+          docker build -t compiler-copilot/sandbox-gcc:13 infra/containers/gcc
+          docker build -t compiler-copilot/sandbox-python:3.12 infra/containers/python
+      - name: Start the runner, the mock AI and the API
+        run: |
+          (cd services/runner && RUNNER_TOKEN=ci-token nohup python -m runner > /tmp/runner.log 2>&1 &)
+          nohup python scripts/mock_llm.py --port 8099 > /tmp/mock-ai.log 2>&1 &
+          (cd services/api && CC_RUNNER_TOKEN=ci-token CC_AI_PROVIDER=openai \
+            CC_AI_BASE_URL=http://127.0.0.1:8099/v1 CC_AI_MODEL=mock-saarthi \
+            nohup uvicorn app.main:app --port 8000 > /tmp/api.log 2>&1 &)
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:8000/api/v1/health && break; sleep 1; done
+      - name: Playwright
+        working-directory: apps/web
+        run: npx playwright test
+      - name: Keep the logs and traces of a failed run
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results
+          path: |
+            apps/web/test-results
+            /tmp/*.log
+
+  swift:
+    # Swift is experimental: its image could not be built where the project
+    # was developed. This job is where it is verified; it may fail without
+    # failing the build. See docs/languages.md ("Enabling Swift").
+    name: Swift (experimental)
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install API and runner
+        run: pip install -e "services/api[dev]" -e "services/runner[dev]"
+      - name: Build compiler-copilot/sandbox-swift:6.1
+        run: docker build -t compiler-copilot/sandbox-swift:6.1 infra/containers/swift
+      - name: Swift end to end
+        env:
+          RUNNER_ALLOWED_IMAGES: '["compiler-copilot/sandbox-swift:6.1"]'
+        run: pytest tests/integration -q -rs -k swift

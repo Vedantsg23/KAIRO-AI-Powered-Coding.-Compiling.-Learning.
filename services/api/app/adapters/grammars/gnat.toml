@@ -1,0 +1,25 @@
+# GNAT 13 (gnatmake): GCC-style messages plus gnatmake's own lines.
+#   main.adb:3:20: error: missing ";"
+#   gnatmake: "main.adb" compilation error
+
+extends = ["gcc"]
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = true
+
+[[rules]]
+id = "gnat.follow-up"          # continuation messages at the same position
+action = "detail"
+pattern = '''^[^\s:][^:]*:\d+:\d+: (?:error: )?(?P<detail>possible misspelling of "[^"]+"|found type .+|found private type .+|==> in call to .+)$'''
+append = "; {detail}"
+
+[[rules]]
+id = "gnatmake.summary"
+action = "ignore"
+pattern = '''^gnatmake: "[^"]+" compilation error$'''
+
+[[rules]]
+id = "gnatmake.other"
+action = "diagnostic"
+severity = "error"
+pattern = '''^gnatmake: (?P<message>.+)$'''

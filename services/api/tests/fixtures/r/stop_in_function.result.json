@@ -1,0 +1,34 @@
+{
+  "toolchain": "R 4.3.3, perl v5.38.2, swipl 9.0.4, tcl 8.6.14, guile 3.0.9, sbcl 2.2.9.debian, erlang 25, elixir 1.14.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    },
+    {
+      "name": "run",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "Error in check_age(-5) : age cannot be negative\nCalls: print -> check_age\nExecution halted\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

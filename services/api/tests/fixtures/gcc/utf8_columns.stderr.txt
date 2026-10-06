@@ -1,0 +1,5 @@
+main.c: In function 'main':
+main.c:4:27: error: 'y' undeclared (first use in this function)
+    4 |     printf("héllo %d\n", y);
+      |                          ^
+main.c:4:27: note: each undeclared identifier is reported only once for each function it appears in

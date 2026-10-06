@@ -1,0 +1,19 @@
+# Runtime errors of Free Pascal programs (compiled with -gl for line info):
+#   Runtime error 200 at $00000000004010C8
+#     $00000000004010C8  main,  line 7 of main.pas
+
+streams = ["stdout", "stderr"]
+column_unit = "byte"
+report_unmatched = false
+
+[[rules]]
+id = "pascal.runtime"
+action = "block"
+parser = "pascal-runtime"
+pattern = '''^Runtime error (?P<code>\d+) at \$[0-9A-Fa-f]+'''
+
+[[rules]]
+id = "pascal.exception"
+action = "block"
+parser = "pascal-exception"
+pattern = '''^An unhandled exception occurred at \$[0-9A-Fa-f]+:'''

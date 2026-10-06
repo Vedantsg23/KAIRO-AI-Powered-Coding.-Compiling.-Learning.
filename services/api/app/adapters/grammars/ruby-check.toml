@@ -1,0 +1,22 @@
+# Ruby syntax check: ruby -wc main.rb (Ruby 3.2).
+#   main.rb:6: warning: mismatched indentations at 'end' with 'else' at 4
+#   main.rb: main.rb:8: syntax error, unexpected end-of-input (SyntaxError)
+#   puts grade(55)
+#                 ^
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = true
+
+[[rules]]
+id = "ruby.warning"
+action = "diagnostic"
+severity = "warning"
+pattern = '''^(?P<file>[^\s:][^:]*\.rb):(?P<line>\d+): warning: (?P<message>.+)$'''
+
+[[rules]]
+id = "ruby.syntax-error"
+action = "diagnostic"
+severity = "error"
+caret = true
+pattern = '''^(?:[^\s:]+: )?(?P<file>[^\s:][^:]*\.rb):(?P<line>\d+): (?P<message>.+?)(?: \(SyntaxError\))?$'''

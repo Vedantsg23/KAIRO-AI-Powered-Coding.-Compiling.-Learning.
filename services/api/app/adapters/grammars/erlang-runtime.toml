@@ -1,0 +1,33 @@
+# erl -noshell -s main main -s init stop, when main:main() crashes:
+#   {"init terminating in do_boot",{badarith,[{main,main,0,[{file,"main.erl"},{line,5}]},...]}}
+#   init terminating in do_boot ({badarith,[{main,main,0,[{_},{_}]},...]})
+# The reason (badarith, badmatch, undef, function_clause, ...) is the message.
+
+streams = ["stdout", "stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "erlang.crash-located"
+action = "diagnostic"
+severity = "error"
+template = "Uncaught error: {message}"
+pattern = '''^\{"init terminating in do_boot",\{\{?(?P<message>\w+).*?\{file,"(?:/workspace/)?(?P<file>main\.erl)"\},\{line,(?P<line>\d+)\}'''
+
+[[rules]]
+id = "erlang.crash"
+action = "diagnostic"
+severity = "error"
+template = "Uncaught error: {message}"
+pattern = '''^\{"init terminating in do_boot",\{\{?(?P<message>\w+)'''
+
+[[rules]]
+id = "erlang.noise"
+action = "ignore"
+pattern = '''^(?:init terminating in do_boot|Crash dump is being written)'''
+
+[[rules]]
+id = "beam.out-of-memory"      # "eheap_alloc: Cannot allocate 3280272 bytes of memory (of type "heap")."
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<message>\w+: Cannot allocate \d+ bytes of memory.*)$'''

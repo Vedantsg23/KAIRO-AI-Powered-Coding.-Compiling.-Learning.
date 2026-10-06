@@ -1,0 +1,12 @@
+# PHP syntax check: php -l main.php (errors on stderr with display_errors=stderr).
+#   Parse error: syntax error, unexpected token "}", expecting "," or ";" in main.php on line 5
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = true
+severity_map = { "Parse error" = "error", "Fatal error" = "error", "Warning" = "warning", "Notice" = "info", "Deprecated" = "warning" }
+
+[[rules]]
+id = "php.message"
+action = "diagnostic"
+pattern = '''^(?:PHP )?(?P<severity>Parse error|Fatal error|Warning|Notice|Deprecated): (?P<message>.+) in (?P<file>\S+) on line (?P<line>\d+)$'''

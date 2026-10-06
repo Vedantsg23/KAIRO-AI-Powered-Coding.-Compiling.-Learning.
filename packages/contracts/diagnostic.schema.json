@@ -1,0 +1,228 @@
+{
+  "$defs": {
+    "Category": {
+      "enum": [
+        "syntax",
+        "name",
+        "type",
+        "build",
+        "runtime",
+        "timeout",
+        "memory",
+        "other"
+      ],
+      "title": "Category",
+      "type": "string"
+    },
+    "DiagnosticSource": {
+      "enum": [
+        "local",
+        "compiler",
+        "runtime"
+      ],
+      "title": "DiagnosticSource",
+      "type": "string"
+    },
+    "RawOutputReference": {
+      "description": "Where in the bounded raw output this diagnostic came from (1-based lines).",
+      "properties": {
+        "step": {
+          "title": "Step",
+          "type": "string"
+        },
+        "stream": {
+          "enum": [
+            "stdout",
+            "stderr"
+          ],
+          "title": "Stream",
+          "type": "string"
+        },
+        "startLine": {
+          "minimum": 1,
+          "title": "Startline",
+          "type": "integer"
+        },
+        "endLine": {
+          "minimum": 1,
+          "title": "Endline",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "step",
+        "stream",
+        "startLine",
+        "endLine"
+      ],
+      "title": "RawOutputReference",
+      "type": "object"
+    },
+    "RelatedLocation": {
+      "properties": {
+        "file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "File"
+        },
+        "range": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "title": "RelatedLocation",
+      "type": "object"
+    },
+    "Severity": {
+      "enum": [
+        "error",
+        "warning",
+        "info"
+      ],
+      "title": "Severity",
+      "type": "string"
+    },
+    "SourceRange": {
+      "properties": {
+        "startLine": {
+          "minimum": 1,
+          "title": "Startline",
+          "type": "integer"
+        },
+        "startColumn": {
+          "minimum": 1,
+          "title": "Startcolumn",
+          "type": "integer"
+        },
+        "endLine": {
+          "minimum": 1,
+          "title": "Endline",
+          "type": "integer"
+        },
+        "endColumn": {
+          "minimum": 1,
+          "title": "Endcolumn",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "startLine",
+        "startColumn",
+        "endLine",
+        "endColumn"
+      ],
+      "title": "SourceRange",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "source": {
+      "$ref": "#/$defs/DiagnosticSource"
+    },
+    "severity": {
+      "$ref": "#/$defs/Severity"
+    },
+    "category": {
+      "$ref": "#/$defs/Category"
+    },
+    "code": {
+      "description": "Stable identifier, e.g. C_UNDECLARED_IDENTIFIER, RUNTIME_SEGMENTATION_FAULT, UNPARSED",
+      "pattern": "^[A-Z][A-Z0-9_]*$",
+      "title": "Code",
+      "type": "string"
+    },
+    "message": {
+      "title": "Message",
+      "type": "string"
+    },
+    "file": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Workspace-relative path, e.g. main.c",
+      "title": "File"
+    },
+    "range": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SourceRange"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "relatedLocations": {
+      "items": {
+        "$ref": "#/$defs/RelatedLocation"
+      },
+      "title": "Relatedlocations",
+      "type": "array"
+    },
+    "executionId": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Executionid"
+    },
+    "rawOutputReference": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RawOutputReference"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "id",
+    "source",
+    "severity",
+    "category",
+    "code",
+    "message"
+  ],
+  "title": "Diagnostic",
+  "type": "object"
+}

@@ -1,0 +1,20 @@
+main.c: In function 'square':
+main.c:4:16: error: 'm' undeclared (first use in this function)
+    4 |     return n * m;
+      |                ^
+main.c:4:16: note: each undeclared identifier is reported only once for each function it appears in
+main.c: In function 'main':
+main.c:12:30: error: expected ';' before 'return'
+   12 |     printf("%d\n", square(3))
+      |                              ^
+      |                              ;
+   13 |     return 0;
+      |     ~~~~~~                    
+main.c: In function 'square':
+main.c:5:1: warning: control reaches end of non-void function [-Wreturn-type]
+    5 | }
+      | ^
+main.c: At top level:
+main.c:9:12: warning: 'never_called' defined but not used [-Wunused-function]
+    9 | static int never_called(void) { return 2; }
+      |            ^~~~~~~~~~~~

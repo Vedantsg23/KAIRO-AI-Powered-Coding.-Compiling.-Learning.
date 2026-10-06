@@ -1,0 +1,20 @@
+{
+  "toolchain": "1.75.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "error[E0425]: cannot find value `totl` in this scope\n --> main.rs:6:20\n  |\n6 |     println!(\"{}\", totl);\n  |                    ^^^^ help: a local variable with a similar name exists: `total`\n\nerror: aborting due to previous error\n\nFor more information about this error, try `rustc --explain E0425`.\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "toolchain": "3.12.3",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "main.py:2: SyntaxWarning: invalid escape sequence '\\d'\n  pattern = \"\\d+\"\nmain.py:4: SyntaxWarning: \"is\" with 'int' literal. Did you mean \"==\"?\n  if x is 5:\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    },
+    {
+      "name": "run",
+      "termination": "EXITED",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "['1', '22']\n",
+      "stderr": "",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

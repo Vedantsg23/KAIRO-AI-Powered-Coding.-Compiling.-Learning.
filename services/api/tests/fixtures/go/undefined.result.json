@@ -1,0 +1,20 @@
+{
+  "toolchain": "1.23.1",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 2,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "main.go:10:14: undefined: totl\n",
+      "stderr": "",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

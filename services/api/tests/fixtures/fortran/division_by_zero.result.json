@@ -1,0 +1,34 @@
+{
+  "toolchain": "gfortran 13.3.0, nasm 2.16.01, fpc 3.2.2, cobc 3.1.2.0, flex 2.6.4, iverilog 12.0, nim 1.6.14, gdc 13.3.0, gnat 13.3.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    },
+    {
+      "name": "run",
+      "termination": "SIGNALED",
+      "exitCode": 136,
+      "signal": 8,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "\nProgram received signal SIGFPE: Floating-point exception - erroneous arithmetic operation.\n\nBacktrace for this error:\n#0  0x7fb37e140e59 in ???\n#1  0x7fb37e13fe75 in ???\n#2  0x7fb37de6632f in ???\n#3  0x5612c32ff2b8 in MAIN__\n\tat /workspace/main.f90:5\n#4  0x5612c32ff32b in main\n\tat /workspace/main.f90:6\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

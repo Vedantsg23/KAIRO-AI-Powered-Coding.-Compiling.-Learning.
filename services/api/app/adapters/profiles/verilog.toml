@@ -1,0 +1,123 @@
+# Language profile: Verilog (IEEE 1364-2005, with SystemVerilog 2012 extras)
+# with Icarus Verilog 12.
+#
+# iverilog elaborates the design into a vvp program and vvp simulates it.
+# The simulation's $display output is the program output; a testbench module
+# with an `initial` block drives it and ends with $finish.
+
+schema_version = 2
+id = "verilog"
+display_name = "Verilog"
+editor_mode = "verilog"
+source_file = "main.v"
+code_prefix = "VERILOG"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "Icarus Verilog"
+declared_version = "12"
+image = "compiler-copilot/sandbox-native:24.04"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+label = "Elaborate"
+argv = ["iverilog", "-g2012", "-Wall", "-Wno-timescale", "-Wno-sensitivity-entire-array", "-o", "main.vvp", "main.v"]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { LC_ALL = "C" }
+grammar = "iverilog"
+[steps.limits]
+wall_time_ms = 20000
+cpu_time_s = 20
+memory_mb = 512
+pids = 32
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 64
+
+[[steps]]
+name = "run"
+kind = "run"
+label = "Simulate"
+argv = ["vvp", "-n", "/workspace/main.vvp"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "vvp-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "unknown-module"
+pattern = '''^Unknown module type'''
+category = "name"
+code = "VERILOG_MODULE_NOT_FOUND"
+
+[[classify]]
+id = "unbound"
+pattern = '''^Unable to bind (?:wire|reg|memory|parameter|variable)|^Unable to bind|^Unknown identifier|is not declared|^Undefined variable'''
+category = "name"
+code = "VERILOG_UNDEFINED"
+
+[[classify]]
+id = "implicit"
+pattern = '''^implicit definition of wire'''
+category = "other"
+code = "VERILOG_IMPLICIT_NET"
+
+[[classify]]
+id = "redeclared"
+pattern = '''has already been declared in this scope|already declared|^Duplicate declaration'''
+category = "name"
+code = "VERILOG_REDEFINITION"
+
+[[classify]]
+id = "lvalue"
+pattern = '''is not a valid l-value|^Invalid l-value|^reg .+; cannot be driven by primitives or continuous assignment|cannot be driven by primitives or continuous assignment'''
+category = "type"
+code = "VERILOG_INVALID_LVALUE"
+
+[[classify]]
+id = "port-count"
+pattern = '''^Wrong number of ports|^port [`'"]+.+[`'"]+ is not a port of|expects \d+ arguments?|^Too many ports'''
+category = "type"
+code = "VERILOG_WRONG_ARGUMENTS"
+
+[[classify]]
+id = "width"
+pattern = '''expects \d+ bits, got \d+|^Port \d+ \(.+\) of .+ expects|Padding \d+ high bits|^Operand of .+ is too wide'''
+category = "type"
+code = "VERILOG_WIDTH_MISMATCH"
+
+[[classify]]
+id = "syntax"
+pattern = '''^syntax error|^[Mm]alformed statement|^Invalid module (?:instantiation|item)|^invalid module item|^Syntax in assignment statement l-value|^Incomprehensible|^Errors in port declarations|^missing |^Unexpected|^unmatched|^Invalid (?:variable list|module item|event control)'''
+category = "syntax"
+code = "VERILOG_SYNTAX_ERROR"
+
+[[classify]]
+id = "no-top"
+pattern = '''^No top level modules'''
+category = "build"
+code = "VERILOG_NO_TOP_MODULE"
+
+[[classify]]
+id = "divide"
+pattern = '''(?i)division by zero|divide by zero'''
+category = "runtime"
+code = "VERILOG_DIVISION_BY_ZERO"
+
+[[classify]]
+id = "array-index"
+pattern = '''(?i)index .+ out of (?:bounds|range)|out of bound'''
+category = "runtime"
+code = "VERILOG_INDEX_OUT_OF_BOUNDS"

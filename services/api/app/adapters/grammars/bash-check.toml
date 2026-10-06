@@ -1,0 +1,18 @@
+# Bash syntax check: bash -n main.sh
+#   main.sh: line 4: syntax error near unexpected token `fi'
+#   main.sh: line 4: `fi'
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = true
+
+[[rules]]
+id = "bash.echo-line"        # the offending line, repeated in backquotes
+action = "ignore"
+pattern = '''^[^:]+: line \d+: `.*'$'''
+
+[[rules]]
+id = "bash.syntax"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<file>[^:]+): line (?P<line>\d+): (?P<message>.+)$'''

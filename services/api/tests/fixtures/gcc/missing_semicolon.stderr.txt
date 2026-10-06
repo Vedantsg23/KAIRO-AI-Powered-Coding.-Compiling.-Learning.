@@ -1,0 +1,7 @@
+main.c: In function 'main':
+main.c:5:5: error: expected ',' or ';' before 'printf'
+    5 |     printf("%d\n", x);
+      |     ^~~~~~
+main.c:4:9: warning: unused variable 'x' [-Wunused-variable]
+    4 |     int x = 5
+      |         ^

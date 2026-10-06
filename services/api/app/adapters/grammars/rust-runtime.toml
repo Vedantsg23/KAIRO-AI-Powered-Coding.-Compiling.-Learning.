@@ -1,0 +1,36 @@
+# Runtime output of Rust programs: panics, stack overflows and failed allocations.
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "rust.panic"            # thread 'main' panicked at main.rs:4:25:  (message on the next line)
+action = "block"
+parser = "rust-panic"
+pattern = '''^thread '(?P<thread>[^']*)' panicked at (?P<file>[^:]+):(?P<line>\d+):(?P<column>\d+):$'''
+
+[[rules]]
+id = "rust.panic-old"        # Rust < 1.73: thread 'main' panicked at 'message', main.rs:4:25
+action = "diagnostic"
+severity = "error"
+template = "panicked: {message}"
+pattern = '''^thread '[^']*' panicked at '(?P<message>.*)', (?P<file>[^:]+):(?P<line>\d+):(?P<column>\d+)$'''
+
+[[rules]]
+id = "rust.alloc-failed"     # memory allocation of 17179869184 bytes failed   (then SIGABRT)
+action = "diagnostic"
+severity = "error"
+template = "{message}: the program asked for more memory than it is allowed to use"
+pattern = '''^(?P<message>memory allocation of \d+ bytes failed)$'''
+
+[[rules]]
+id = "rust.stack-overflow"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<message>thread '[^']*' has overflowed its stack)$'''
+
+[[rules]]
+id = "rust.noise"
+action = "ignore"
+pattern = '''^(?:note: run with `RUST_BACKTRACE=|fatal runtime error: stack overflow)'''

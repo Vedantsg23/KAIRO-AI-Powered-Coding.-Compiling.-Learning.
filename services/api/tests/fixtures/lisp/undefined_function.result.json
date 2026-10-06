@@ -1,0 +1,20 @@
+{
+  "toolchain": "R (2024-02-29), perl v5.38.2, swipl 9.0.4, tcl 8.6.14, guile 3.0.9, sbcl 2.2.9.debian, erlang 25, elixir 1.14.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "run",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "Unhandled UNDEFINED-FUNCTION in thread #<SB-THREAD:THREAD \"main thread\" RUNNING\n                                          {1001348003}>:\n  The function COMMON-LISP-USER::SQAURE is undefined.\n\nBacktrace for: #<SB-THREAD:THREAD \"main thread\" RUNNING {1001348003}>\n0: (\"undefined function\" 5)\n1: (SB-INT:SIMPLE-EVAL-IN-LEXENV (SQAURE 5) #<NULL-LEXENV>)\n2: (SB-INT:SIMPLE-EVAL-IN-LEXENV (FORMAT T \"~a~%\" (SQAURE 5)) #<NULL-LEXENV>)\n3: (EVAL-TLF (FORMAT T \"~a~%\" (SQAURE 5)) 1 NIL)\n4: ((LABELS SB-FASL::EVAL-FORM :IN SB-INT:LOAD-AS-SOURCE) (FORMAT T \"~a~%\" (SQAURE 5)) 1)\n5: ((LAMBDA (SB-KERNEL:FORM &KEY :CURRENT-INDEX &ALLOW-OTHER-KEYS) :IN SB-INT:LOAD-AS-SOURCE) (FORMAT T \"~a~%\" (SQAURE 5)) :CURRENT-INDEX 1)\n6: (SB-C::%DO-FORMS-FROM-INFO #<FUNCTION (LAMBDA (SB-KERNEL:FORM &KEY :CURRENT-INDEX &ALLOW-OTHER-KEYS) :IN SB-INT:LOAD-AS-SOURCE) {1001337A8B}> #<SB-C::SOURCE-INFO {1001337A53}> SB-C::INPUT-ERROR-IN-LOAD)\n7: (SB-INT:LOAD-AS-SOURCE #<SB-SYS:FD-STREAM for \"file /workspace/main.lisp\" {1001336F53}> :VERBOSE NIL :PRINT NIL :CONTEXT \"loading\")\n8: ((LABELS SB-FASL::LOAD-STREAM-1 :IN LOAD) #<SB-SYS:FD-STREAM for \"file /workspace/main.lisp\" {1001336F53}> NIL)\n9: (SB-FASL::CALL-WITH-LOAD-BINDINGS #<FUNCTION (LABELS SB-FASL::LOAD-STREAM-1 :IN LOAD) {7F43EE67782B}> #<SB-SYS:FD-STREAM for \"file /workspace/main.lisp\" {1001336F53}> NIL #<SB-SYS:FD-STREAM for \"file /workspace/main.lisp\" {1001336F53}>)\n10: (LOAD #<SB-SYS:FD-STREAM for \"file /workspace/main.lisp\" {1001336F53}> :VERBOSE NIL :PRINT NIL :IF-DOES-NOT-EXIST :ERROR :EXTERNAL-FORMAT :DEFAULT)\n11: ((FLET SB-IMPL::LOAD-SCRIPT :IN SB-IMPL::PROCESS-SCRIPT) #<SB-SYS:FD-STREAM for \"file /workspace/main.lisp\" {1001336F53}>)\n12: ((FLET SB-UNIX::BODY :IN SB-IMPL::PROCESS-SCRIPT))\n13: ((FLET \"WITHOUT-INTERRUPTS-BODY-11\" :IN SB-IMPL::PROCESS-SCRIPT))\n14: (SB-IMPL::PROCESS-SCRIPT \"/workspace/main.lisp\")\n15: (SB-IMPL::TOPLEVEL-INIT)\n16: ((FLET SB-UNIX::BODY :IN SB-IMPL::START-LISP))\n17: ((FLET \"WITHOUT-INTERRUPTS-BODY-3\" :IN SB-IMPL::START-LISP))\n18: (SB-IMPL::%START-LISP)\n\nunhandled condition in --disable-debugger mode, quitting\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

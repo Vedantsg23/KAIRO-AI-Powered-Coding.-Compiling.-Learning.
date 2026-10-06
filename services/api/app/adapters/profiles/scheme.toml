@@ -1,0 +1,92 @@
+# Language profile: Scheme (R7RS, with Guile extensions) with GNU Guile 3.0.
+#
+# The program is interpreted without Guile's compile cache
+# (--no-auto-compile), so nothing is written outside /tmp. Reading a line of
+# input needs (use-modules (ice-9 rdelim)) for read-line; (read) reads a datum.
+
+schema_version = 2
+id = "scheme"
+display_name = "Scheme"
+editor_mode = "scheme"
+source_file = "main.scm"
+code_prefix = "SCM"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "GNU Guile"
+declared_version = "3.0"
+image = "compiler-copilot/sandbox-extra:24.04"
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["guile", "--no-auto-compile", "/workspace/main.scm"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+env = { GUILE_AUTO_COMPILE = "0" }
+grammar = "guile"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "unbound"
+pattern = '''[Uu]nbound variable'''
+category = "name"
+code = "SCM_UNBOUND_VARIABLE"
+
+[[classify]]
+id = "end-of-input"
+pattern = '''unexpected end of input|end of file while'''
+category = "syntax"
+code = "SCM_UNEXPECTED_END_OF_INPUT"
+
+[[classify]]
+id = "syntax"
+pattern = '''missing close paren|unexpected "\)"|^In procedure (?:scm-error|read|%read-syntax)|[Ss]yntax error|source expression failed to match any pattern|end of file'''
+category = "syntax"
+code = "SCM_SYNTAX_ERROR"
+
+[[classify]]
+id = "wrong-args"
+pattern = '''Wrong number of arguments'''
+category = "type"
+code = "SCM_WRONG_ARGUMENTS"
+
+[[classify]]
+id = "divide"
+pattern = '''numerical-overflow|Numerical overflow|[Dd]ivision by zero'''
+category = "runtime"
+code = "SCM_DIVISION_BY_ZERO"
+
+[[classify]]
+id = "type"
+pattern = '''Wrong type(?: argument)?|[Ww]rong type to apply|Not a (?:pair|list|number)'''
+category = "type"
+code = "SCM_TYPE_ERROR"
+
+[[classify]]
+id = "index"
+pattern = '''[Aa]rgument \d+ out of range|[Vv]alue out of range|out of range'''
+category = "runtime"
+code = "SCM_INDEX_OUT_OF_BOUNDS"
+
+[[classify]]
+id = "stack"
+pattern = '''[Ss]tack overflow'''
+category = "memory"
+code = "SCM_STACK_OVERFLOW"
+
+[[classify]]
+id = "memory"
+pattern = '''[Oo]ut of memory'''
+category = "memory"
+code = "SCM_OUT_OF_MEMORY"

@@ -1,0 +1,119 @@
+# Language profile: Erlang/OTP 25 (Ubuntu 24.04).
+#
+# erlc compiles the module; erl then runs main:main() without a shell and
+# stops. The file must start with -module(main). and export main/0.
+# One scheduler thread keeps the VM inside the sandbox's process limit.
+
+schema_version = 2
+id = "erlang"
+display_name = "Erlang"
+editor_mode = "erlang"
+source_file = "main.erl"
+code_prefix = "ERL"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "Erlang/OTP"
+declared_version = "25"
+image = "compiler-copilot/sandbox-extra:24.04"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = ["erlc", "+warn_unused_vars", "main.erl"]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { ERL_CRASH_DUMP_SECONDS = "0" }
+grammar = "erlc"
+[steps.limits]
+wall_time_ms = 20000
+cpu_time_s = 20
+memory_mb = 512
+pids = 64
+output_kb = 64
+tmp_mb = 32
+file_size_mb = 32
+
+[[steps]]
+name = "run"
+kind = "run"
+# -s main main calls main:main(), -s init stop then shuts the VM down cleanly.
+argv = [
+  "erl", "-noshell", "+S", "1:1", "+SDcpu", "1:1", "+SDio", "1", "+A", "1",
+  "-pa", "/workspace", "-s", "main", "main", "-s", "init", "stop",
+]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+env = { ERL_CRASH_DUMP_SECONDS = "0" }
+grammar = "erlang-runtime"
+[steps.limits]
+wall_time_ms = 10000
+cpu_time_s = 10
+memory_mb = 256
+pids = 64
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "module-name"
+pattern = '''^Module name '[^']+' does not match file name'''
+category = "build"
+code = "ERL_MODULE_NAME_MISMATCH"
+
+[[classify]]
+id = "undefined-function"
+pattern = '''^function .+ undefined|^undefined function|^Uncaught error: undef$'''
+category = "name"
+code = "ERL_UNDEFINED_FUNCTION"
+
+[[classify]]
+id = "unbound"
+pattern = '''^variable '[^']+' is unbound'''
+category = "name"
+code = "ERL_UNBOUND_VARIABLE"
+
+[[classify]]
+id = "unused"
+pattern = '''^variable '[^']+' is unused|^function .+ is unused|^Warning: variable'''
+category = "other"
+code = "ERL_UNUSED"
+
+[[classify]]
+id = "syntax"
+pattern = '''^syntax error before|^illegal |^unterminated|^no module definition|^head mismatch'''
+category = "syntax"
+code = "ERL_SYNTAX_ERROR"
+
+[[classify]]
+id = "badarith"
+pattern = '''^Uncaught error: badarith'''
+category = "runtime"
+code = "ERL_ARITHMETIC_EXCEPTION"
+
+[[classify]]
+id = "badmatch"
+pattern = '''^Uncaught error: badmatch'''
+category = "runtime"
+code = "ERL_BADMATCH"
+
+[[classify]]
+id = "clause"
+pattern = '''^Uncaught error: (?:function_clause|case_clause|if_clause)'''
+category = "runtime"
+code = "ERL_NO_MATCHING_FUNCTION"
+
+[[classify]]
+id = "badarg"
+pattern = '''^Uncaught error: badarg'''
+category = "type"
+code = "ERL_ARGUMENT_ERROR"
+
+[[classify]]
+id = "memory"
+pattern = '''^Uncaught error: system_limit|Cannot allocate \d+ bytes of memory|out of memory'''
+category = "memory"
+code = "ERL_OUT_OF_MEMORY"

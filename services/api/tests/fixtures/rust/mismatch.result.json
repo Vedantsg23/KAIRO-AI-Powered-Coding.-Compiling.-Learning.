@@ -1,0 +1,20 @@
+{
+  "toolchain": "1.75.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "error[E0308]: mismatched types\n --> main.rs:6:18\n  |\n6 |     let n: i32 = \"5\";\n  |            ---   ^^^ expected `i32`, found `&str`\n  |            |\n  |            expected due to this\n\nerror: aborting due to previous error\n\nFor more information about this error, try `rustc --explain E0308`.\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

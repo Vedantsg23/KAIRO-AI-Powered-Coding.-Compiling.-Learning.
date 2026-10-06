@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Node / web
+node_modules/
+*.tsbuildinfo
+apps/web/dist/
+apps/web/test-results/
+apps/web/playwright-report/
+
+# Environment and secrets
+.env
+*.local
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

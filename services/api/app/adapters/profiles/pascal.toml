@@ -1,0 +1,188 @@
+# Language profile: Pascal with Free Pascal 3.2 (Ubuntu 24.04).
+#
+# Compiled with range and overflow checks (-Cr -Co) and line information
+# (-gl), so an array index outside its bounds stops the program with
+# "Runtime error 201" and the line, instead of corrupting memory.
+
+schema_version = 2
+id = "pascal"
+display_name = "Pascal"
+editor_mode = "pascal"
+source_file = "main.pas"
+code_prefix = "PAS"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "Free Pascal"
+declared_version = "3.2"
+image = "compiler-copilot/sandbox-native:24.04"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = ["fpc", "-vewn", "-gl", "-Cr", "-Co", "-Sa", "-omain", "main.pas"]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { LC_ALL = "C" }
+grammar = "fpc"
+[steps.limits]
+wall_time_ms = 20000
+cpu_time_s = 20
+memory_mb = 512
+pids = 32
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 64
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["/workspace/main"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "pascal-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "missing-semicolon"
+pattern = '''^Syntax error, ";" expected'''
+category = "syntax"
+code = "PAS_MISSING_SEMICOLON"
+hint = "previous_line_end"
+hint_message = "The missing ';' probably belongs at the end of this line."
+
+[[classify]]
+id = "end-of-file"
+pattern = '''^Unexpected end of file|expected but "end of file" found'''
+category = "syntax"
+code = "PAS_UNEXPECTED_END_OF_FILE"
+
+[[classify]]
+id = "syntax"
+pattern = '''^Syntax error|^Illegal (?:expression|character|character constant)|^String exceeds line|^Unterminated'''
+category = "syntax"
+code = "PAS_SYNTAX_ERROR"
+
+[[classify]]
+id = "not-found"
+pattern = '''^Identifier not found'''
+category = "name"
+code = "PAS_UNDEFINED"
+
+[[classify]]
+id = "unit-not-found"
+pattern = '''^Can't find unit'''
+category = "build"
+code = "PAS_UNIT_NOT_FOUND"
+
+[[classify]]
+id = "duplicate"
+pattern = '''^Duplicate identifier'''
+category = "name"
+code = "PAS_REDEFINITION"
+
+[[classify]]
+id = "argument-count"
+pattern = '''^Wrong number of parameters'''
+category = "type"
+code = "PAS_WRONG_ARGUMENT_COUNT"
+
+[[classify]]
+id = "type-mismatch"
+pattern = '''^Incompatible type|^Operator is not overloaded|^Type mismatch|^Can't read or write variables of this type|^Variable identifier expected|^Illegal type conversion|^Ordinal expression expected|^Integer expression expected|^Boolean expression expected'''
+category = "type"
+code = "PAS_TYPE_MISMATCH"
+
+[[classify]]
+id = "uninitialized"
+pattern = '''does not seem to be initialized'''
+category = "other"
+code = "PAS_UNINITIALIZED_VARIABLE"
+
+[[classify]]
+id = "unused"
+pattern = '''(?:variable|parameter|type|const|procedure|function) "[^"]+" (?:not used|is assigned but never used)|^Local variable "[^"]+" not used'''
+category = "other"
+code = "PAS_UNUSED"
+
+[[classify]]
+id = "unreachable"
+pattern = '''^unreachable code'''
+category = "other"
+code = "PAS_UNREACHABLE_CODE"
+
+[[classify]]
+id = "range-constant"
+pattern = '''^range check error while evaluating constants|^range check error in set constructor'''
+category = "other"
+code = "PAS_ARRAY_BOUNDS"
+
+[[classify]]
+id = "division"
+pattern = '''^Division by zero|^Runtime error 200:'''
+category = "runtime"
+code = "PAS_DIVISION_BY_ZERO"
+
+[[classify]]
+id = "range"
+pattern = '''^Runtime error 201:'''
+category = "runtime"
+code = "PAS_INDEX_OUT_OF_BOUNDS"
+
+[[classify]]
+id = "stack"
+pattern = '''^Runtime error 202:'''
+category = "memory"
+code = "PAS_STACK_OVERFLOW"
+
+[[classify]]
+id = "heap"
+pattern = '''^Runtime error 203:'''
+category = "memory"
+code = "PAS_OUT_OF_MEMORY"
+
+[[classify]]
+id = "invalid-pointer"
+pattern = '''^Runtime error (?:204|210|216):'''
+category = "memory"
+code = "PAS_NULL_POINTER"
+
+[[classify]]
+id = "overflow"
+pattern = '''^Runtime error (?:205|206|207|215):'''
+category = "runtime"
+code = "PAS_ARITHMETIC_EXCEPTION"
+
+[[classify]]
+id = "numeric-input"
+pattern = '''^Runtime error 106:'''
+category = "runtime"
+code = "PAS_INPUT_MISMATCH"
+
+[[classify]]
+id = "read-past-end"
+pattern = '''^Runtime error 100:'''
+category = "runtime"
+code = "PAS_EOF_ERROR"
+
+[[classify]]
+id = "assertion"
+pattern = '''^Runtime error 227:'''
+category = "runtime"
+code = "PAS_ASSERTION_FAILED"
+
+[[classify]]
+id = "unhandled"
+pattern = '''^Runtime error 217:'''
+category = "runtime"
+code = "PAS_UNHANDLED_EXCEPTION"

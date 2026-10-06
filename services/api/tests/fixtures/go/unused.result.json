@@ -1,0 +1,20 @@
+{
+  "toolchain": "1.23.1",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 2,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "main.go:5:2: \"os\" imported and not used\nmain.go:9:2: declared and not used: x\n",
+      "stderr": "",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

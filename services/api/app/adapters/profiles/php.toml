@@ -1,0 +1,107 @@
+# Language profile: PHP 8.3 (command line, Ubuntu 24.04 package).
+#
+# `php -l` checks the syntax; the program then runs with every error level
+# reported on stderr (-n: no php.ini, so the settings here are the only ones).
+
+schema_version = 2
+id = "php"
+display_name = "PHP"
+editor_mode = "php"
+source_file = "main.php"
+code_prefix = "PHP"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "PHP"
+declared_version = "8.3"
+image = "compiler-copilot/sandbox-scripting:24.04"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+label = "Syntax check"
+argv = ["php", "-n", "-d", "display_errors=stderr", "-d", "log_errors=0", "-l", "main.php"]
+workdir = "/workspace"
+workspace_mode = "ro"
+grammar = "php-check"
+[steps.limits]
+wall_time_ms = 10000
+cpu_time_s = 10
+memory_mb = 256
+pids = 16
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["php", "-n", "-d", "display_errors=stderr", "-d", "log_errors=0", "-d", "error_reporting=E_ALL", "-d", "memory_limit=160M", "/workspace/main.php"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "php-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "syntax"
+pattern = '''^syntax error'''
+category = "syntax"
+code = "PHP_SYNTAX_ERROR"
+
+[[classify]]
+id = "undefined-variable"
+pattern = '''^Undefined variable'''
+category = "name"
+code = "PHP_UNDEFINED_VARIABLE"
+
+[[classify]]
+id = "undefined-function"
+pattern = '''Call to undefined (?:function|method)'''
+category = "name"
+code = "PHP_UNDEFINED_FUNCTION"
+
+[[classify]]
+id = "undefined-index"
+pattern = '''^Undefined (?:array key|offset|index)'''
+category = "runtime"
+code = "PHP_UNDEFINED_INDEX"
+
+[[classify]]
+id = "division"
+pattern = '''^DivisionByZeroError|Division by zero'''
+category = "runtime"
+code = "PHP_DIVISION_BY_ZERO"
+
+[[classify]]
+id = "type"
+pattern = '''^TypeError|^ArgumentCountError'''
+category = "type"
+code = "PHP_TYPE_ERROR"
+
+[[classify]]
+id = "memory"
+pattern = '''Allowed memory size of \d+ bytes exhausted'''
+category = "memory"
+code = "PHP_MEMORY_LIMIT"
+
+[[classify]]
+id = "deprecated"
+pattern = '''is deprecated|^Deprecated'''
+category = "other"
+code = "PHP_DEPRECATED"
+
+[[classify]]
+id = "uncaught"
+pattern = '''^\w*(?:Error|Exception)\b'''
+category = "runtime"
+code = "PHP_UNCAUGHT_ERROR"

@@ -1,0 +1,24 @@
+# Output of Go's compiler (go tool compile), which prints to stdout:
+#   main.go:10:14: undefined: totl
+# Columns are byte offsets (converted to UTF-16 by the normalizer).
+
+streams = ["stdout", "stderr"]
+column_unit = "byte"
+report_unmatched = true
+
+[[rules]]
+id = "go.too-many"           # main.go:30:2: too many errors
+action = "ignore"
+pattern = '''^[^\s:][^:]*:\d+:\d+: too many errors$'''
+
+[[rules]]
+id = "go.located"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<file>[^\s:][^:]*\.go):(?P<line>\d+):(?P<column>\d+): (?P<message>.+)$'''
+
+[[rules]]
+id = "go.line-only"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<file>[^\s:][^:]*\.go):(?P<line>\d+): (?P<message>.+)$'''

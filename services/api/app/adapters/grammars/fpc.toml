@@ -1,0 +1,23 @@
+# Free Pascal 3.2 compiler (fpc -vew): errors, warnings, notes and hints.
+#   main.pas(5,3) Fatal: Syntax error, ";" expected but "identifier WRITELN" found
+#   main.pas(6,11) Error: Identifier not found "m"
+
+streams = ["stdout", "stderr"]
+column_unit = "byte"
+report_unmatched = false
+severity_map = { "Fatal" = "error", "Error" = "error", "Warning" = "warning", "Note" = "info", "Hint" = "info" }
+
+[[rules]]
+id = "fpc.located"
+action = "diagnostic"
+pattern = '''^(?P<file>[^\s(][^(]*)\((?P<line>\d+),(?P<column>\d+)\) (?P<severity>Fatal|Error|Warning|Note|Hint): (?P<message>.+)$'''
+
+[[rules]]
+id = "fpc.noise"
+action = "ignore"
+pattern = '''^(?:Free Pascal Compiler version|Copyright \(c\)|Target OS:|Compiling |Linking |Assembling |\d+ lines compiled|Fatal: Compilation aborted|Error: /usr/bin/ppc\w+ returned an error exitcode)'''
+
+[[rules]]
+id = "fpc.unlocated"
+action = "diagnostic"
+pattern = '''^(?P<severity>Fatal|Error): (?P<message>.+)$'''

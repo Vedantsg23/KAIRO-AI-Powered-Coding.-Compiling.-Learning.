@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>My first page</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 36rem; margin: 2rem auto; padding: 0 1rem; }
+    h1 { color: #16a34a; }
+    button { padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #16a34a; background: #dcfce7; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <!-- Welcome to HTML! The preview updates as you type. -->
+  <h1>Hello from KAIRO</h1>
+  <p>Edit this page and watch the preview change.</p>
+  <button id="counter">Clicked 0 times</button>
+
+  <script>
+    let clicks = 0;
+    const button = document.getElementById("counter");
+    button.addEventListener("click", () => {
+      clicks++;
+      button.textContent = `Clicked ${clicks} times`;
+      console.log("clicks:", clicks);
+    });
+  </script>
+</body>
+</html>

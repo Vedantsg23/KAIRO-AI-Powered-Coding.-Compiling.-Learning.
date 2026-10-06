@@ -1,0 +1,20 @@
+# Runtime errors of D programs (GDC 13):
+#   core.exception.ArrayIndexError@main.d(5): index [5] is out of bounds for array of length 3
+#   ----------------
+#   ??:? _d_throw [0x7fbc548b7e54]
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = false
+
+[[rules]]
+id = "d.exception"
+action = "diagnostic"
+severity = "error"
+template = "{type}: {message}"
+pattern = '''^(?:[\w]+\.)*(?P<type>\w+)@(?P<file>[^(\s]+)\((?P<line>\d+)\): (?P<message>.+)$'''
+
+[[rules]]
+id = "d.trace"
+action = "ignore"
+pattern = '''^(?:-{8,}|\?\?:\? |\S+:\d+ \S+ \[0x)'''

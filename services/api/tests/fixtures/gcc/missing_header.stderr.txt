@@ -1,0 +1,4 @@
+main.c:1:10: fatal error: stdioo.h: No such file or directory
+    1 | #include <stdioo.h>
+      |          ^~~~~~~~~~
+compilation terminated.

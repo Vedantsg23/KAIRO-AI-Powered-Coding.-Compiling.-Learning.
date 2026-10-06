@@ -1,0 +1,84 @@
+# Output grammar for javac (OpenJDK 21).
+#
+#   Main.java:7: error: cannot find symbol
+#           System.out.println(totl);
+#                              ^
+#     symbol:   variable totl
+#     location: class Main
+#   1 error
+#
+# javac prints no column number: the column is the position of the '^' under
+# the copied source line (caret = true). Columns count Java chars, which are
+# UTF-16 code units, exactly like the editor.
+
+streams = ["stderr"]
+column_unit = "utf16"
+report_unmatched = true
+
+[[rules]]
+id = "javac.located"
+action = "diagnostic"
+caret = true
+pattern = '''^(?P<file>[^\s:][^:]*\.java):(?P<line>\d+): (?P<severity>error|warning): (?P<message>.+)$'''
+
+[[rules]]
+id = "javac.symbol"
+action = "detail"
+append = ": {detail}"
+pattern = '''^\s+symbol:\s+(?P<detail>.+)$'''
+
+[[rules]]
+id = "javac.location"
+action = "detail"
+append = " (in {detail})"
+pattern = '''^\s+location:\s+(?P<detail>.+)$'''
+
+[[rules]]
+id = "javac.required"
+action = "detail"
+append = "; required: {detail}"
+pattern = '''^\s+required:\s+(?P<detail>.+)$'''
+
+[[rules]]
+id = "javac.found"
+action = "detail"
+append = "; found: {detail}"
+pattern = '''^\s+found:\s+(?P<detail>.+)$'''
+
+[[rules]]
+id = "javac.reason"
+action = "detail"
+append = " ({detail})"
+pattern = '''^\s+reason:\s+(?P<detail>.+)$'''
+
+[[rules]]
+id = "javac.explanation"     # "  missing type arguments ...", "  where E is a type-variable:", "    E extends ..."
+action = "ignore"
+pattern = '''^\s+\S'''
+
+[[rules]]
+id = "javac.summary"
+action = "ignore"
+pattern = '''^\d+ (?:error|warning)s?$'''
+
+[[rules]]
+id = "javac.recompile-note"
+action = "ignore"
+pattern = '''^Note: (?:Some messages have been simplified|Recompile with)'''
+
+[[rules]]
+id = "javac.note"            # Note: Main.java uses unchecked or unsafe operations.
+action = "diagnostic"
+severity = "info"
+pattern = '''^Note: (?P<message>.+)$'''
+
+[[rules]]
+id = "javac.unlocated"       # error: file not found: Main.java
+action = "diagnostic"
+pattern = '''^(?P<severity>error|warning): (?P<message>.+)$'''
+
+[[rules]]
+id = "jvm.vm-warning"        # the JVM that runs javac can print its own warnings
+action = "diagnostic"
+severity = "info"
+pattern = '''^OpenJDK 64-Bit Server VM warning: (?P<message>.+)$'''

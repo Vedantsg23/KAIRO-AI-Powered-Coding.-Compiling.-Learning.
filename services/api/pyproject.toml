@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "code-drishti-api"
+version = "0.1.0"
+description = "KAIRO API: languages, sandboxed executions, diagnostics and the Saarthi assistant"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.141,<0.142",
+  "starlette>=1.7,<1.8",  # pinned: its TestClient still accepts httpx 0.28
+  "uvicorn[standard]>=0.54,<0.55",
+  "pydantic>=2.13,<2.14",
+  "pydantic-settings>=2.15,<2.16",
+  "httpx>=0.28,<0.29",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=9.1,<10",
+  "pytest-asyncio>=1.4,<2",
+  "ruff>=0.16,<0.17",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.setuptools.package-data]
+"app.adapters" = ["profiles/*.toml", "grammars/*.toml"]
+
+[tool.pytest.ini_options]
+# starlette is pinned (see dependencies); its TestClient still works with httpx 0.28.
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient` is deprecated"]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+# Fixture programs are deliberately broken student code, not project code.
+extend-exclude = ["tests/fixtures", "tests/programs"]

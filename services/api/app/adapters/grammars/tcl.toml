@@ -1,0 +1,15 @@
+# Tcl 8.6 (tclsh main.tcl). The message comes first, then where it happened:
+#   divide by zero
+#       while executing
+#   "expr {$x / 0}"
+#       (file "main.tcl" line 2)
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "tcl.error"
+action = "block"
+parser = "tcl-error"
+pattern = '''^\s+\(file "(?P<file>[^"]+)" line (?P<line>\d+)\)$'''

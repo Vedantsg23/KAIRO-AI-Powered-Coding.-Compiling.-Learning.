@@ -1,0 +1,20 @@
+{
+  "toolchain": "21.0.12.1",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "Main.java:7: error: cannot find symbol\n        System.out.println(totl);\n                           ^\n  symbol:   variable totl\n  location: class Main\n1 error\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

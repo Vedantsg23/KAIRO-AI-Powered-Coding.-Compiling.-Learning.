@@ -1,0 +1,33 @@
+# Elixir 1.14 (syntax check, then elixir main.exs).
+#   ** (TokenMissingError) main.exs:3:1: missing terminator: ) (for "(" starting at line 2)
+#   ** (ArithmeticError) bad argument in arithmetic expression: 10 / 0
+#       main.exs:2: (file)
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "elixir.located"
+action = "diagnostic"
+severity = "error"
+template = "{type}: {message}"
+pattern = '''^\*\* \((?:\w+\.)*(?P<type>\w+)\) (?P<file>[^\s:][^:]*\.exs?):(?P<line>\d+):(?:(?P<column>\d+):)? (?P<message>.+)$'''
+
+[[rules]]
+id = "elixir.error"
+action = "block"
+parser = "elixir-error"
+pattern = '''^\*\* \((?P<type>[\w.]+)\) (?P<message>.+)$'''
+
+[[rules]]
+id = "elixir.warning"          # "warning: ..." + "  /workspace/main.exs:2" on the next line
+action = "block"
+parser = "elixir-warning"
+pattern = '''^warning: (?P<message>.+)$'''
+
+[[rules]]
+id = "beam.out-of-memory"      # "eheap_alloc: Cannot allocate 3280272 bytes of memory (of type "heap")."
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<message>\w+: Cannot allocate \d+ bytes of memory.*)$'''

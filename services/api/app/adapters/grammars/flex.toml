@@ -1,0 +1,24 @@
+# flex 2.6 (lex specification errors).
+#   main.l:3: bad character class
+#   main.l:3: unrecognized rule
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = true
+
+[[rules]]
+id = "flex.fatal-summary"
+action = "ignore"
+pattern = '''^[^\s:][^:]*:\d+: fatal parse error$'''
+
+[[rules]]
+id = "flex.located"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<file>[^\s:][^:]*\.l):(?P<line>\d+): (?:(?P<severity>warning|error), )?(?P<message>.+)$'''
+
+[[rules]]
+id = "flex.unlocated"
+action = "diagnostic"
+severity = "error"
+pattern = '''^flex: (?P<message>.+)$'''

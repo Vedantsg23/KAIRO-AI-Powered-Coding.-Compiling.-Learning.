@@ -1,0 +1,18 @@
+# Runtime output of PHP 8.3: uncaught exceptions/errors (with their stack
+# trace), warnings, notices and deprecations. Other stderr is not reported.
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+severity_map = { "Parse error" = "error", "Fatal error" = "error", "Warning" = "warning", "Notice" = "info", "Deprecated" = "warning" }
+
+[[rules]]
+id = "php.uncaught"          # Fatal error: Uncaught DivisionByZeroError: Division by zero in /workspace/main.php:3
+action = "block"
+parser = "php-fatal"
+pattern = '''^(?:PHP )?Fatal error: Uncaught (?P<type>[\w\\]+): (?P<message>.*) in (?P<file>\S+?):(?P<line>\d+)$'''
+
+[[rules]]
+id = "php.message"
+action = "diagnostic"
+pattern = '''^(?:PHP )?(?P<severity>Parse error|Fatal error|Warning|Notice|Deprecated): (?P<message>.+) in (?P<file>\S+) on line (?P<line>\d+)$'''

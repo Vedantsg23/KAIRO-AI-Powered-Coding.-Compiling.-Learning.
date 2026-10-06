@@ -1,0 +1,26 @@
+/* Keyframe animations: a pulsing button and cards that slide in */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn {
+  animation: pulse 1.6s ease-in-out infinite;
+  background: #f97316;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+}
+
+.card {
+  animation: slide-in 0.6s ease-out both;
+}
+
+.card:nth-child(2) { animation-delay: 0.15s; }
+.card:nth-child(3) { animation-delay: 0.3s; }

@@ -1,0 +1,278 @@
+# Language profile: Java with OpenJDK 21 (javac + java).
+#
+# A language adapter is this file plus the shared output grammars it names
+# (adapters/grammars/*.toml): "javac" for the compiler and "jvm-runtime" for
+# uncaught exceptions and launcher errors.
+#
+# Source file rule: the program lives in Main.java, so a public class must be
+# called Main and hold `public static void main(String[] args)`. javac
+# reports any other public class name (JAVA_PUBLIC_CLASS_NAME), and the
+# launcher reports a missing Main class or main method.
+
+schema_version = 2
+id = "java"
+display_name = "Java"
+editor_mode = "java"         # Monaco language id
+source_file = "Main.java"
+code_prefix = "JAVA"         # default codes: JAVA_COMPILER_ERROR, JAVA_COMPILER_WARNING, ...
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "OpenJDK"
+declared_version = "21"
+image = "compiler-copilot/sandbox-java:21"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = [
+  "javac",
+  # JVM options for javac itself: small heap, fast start, no /tmp perf files,
+  # English messages (the grammar and the notes expect them).
+  "-J-Xmx256m", "-J-XX:+UseSerialGC", "-J-XX:TieredStopAtLevel=1", "-J-XX:-UsePerfData",
+  "-J-Duser.language=en", "-J-Duser.country=US",
+  "-encoding", "UTF-8",
+  "-g",                                   # local variable names in NullPointerException messages
+  "-Xlint:all,-serial,-processing,-options,-this-escape",
+  "-Xmaxerrs", "50", "-Xmaxwarns", "50",
+  "-d", "/workspace/classes",
+  "Main.java",
+]
+workdir = "/workspace"
+workspace_mode = "rw"
+grammar = "javac"
+[steps.limits]
+wall_time_ms = 20000                 # javac is itself a JVM: about 1 s per compile
+cpu_time_s = 20
+memory_mb = 512
+pids = 64                            # JVM threads count against the process limit
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 64
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = [
+  "java",
+  "-Xmx192m",                          # an OutOfMemoryError with a stack trace, before the sandbox limit
+  "-XX:+UseSerialGC", "-XX:TieredStopAtLevel=1", "-XX:-UsePerfData",
+  "-Xlog:disable",                     # JVM warnings would otherwise land in the program's stdout
+  "-Duser.language=en", "-Duser.country=US",
+  "-cp", "/workspace/classes",
+  "Main",
+]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "jvm-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 10                      # JIT and GC threads use CPU next to the program
+memory_mb = 384                      # heap + metaspace + code cache + thread stacks
+pids = 64
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "missing-semicolon"     # ';' expected
+pattern = '''^';' expected'''
+category = "syntax"
+code = "JAVA_MISSING_SEMICOLON"
+
+[[classify]]
+id = "end-of-file"           # reached end of file while parsing
+pattern = '''^reached end of file while parsing'''
+category = "syntax"
+code = "JAVA_UNEXPECTED_END_OF_FILE"
+
+[[classify]]
+id = "unclosed-literal"
+pattern = '''^unclosed (?:string|character|text block) literal|^unclosed comment'''
+category = "syntax"
+code = "JAVA_UNCLOSED_LITERAL"
+
+[[classify]]
+id = "not-a-statement"
+pattern = '''^not a statement'''
+category = "syntax"
+code = "JAVA_NOT_A_STATEMENT"
+
+[[classify]]
+id = "illegal-start"
+pattern = '''^illegal start of (?:expression|type|statement)|^class, interface, enum, or record expected'''
+category = "syntax"
+code = "JAVA_ILLEGAL_START"
+
+[[classify]]
+id = "expected-token"        # ')' expected, <identifier> expected
+pattern = '''^(?:'.+'|<identifier>|.+ or .+) expected'''
+category = "syntax"
+code = "JAVA_EXPECTED_TOKEN"
+
+[[classify]]
+id = "cannot-find-symbol"
+pattern = '''^cannot find symbol'''
+category = "name"
+code = "JAVA_CANNOT_FIND_SYMBOL"
+
+[[classify]]
+id = "already-defined"       # variable x is already defined in method main(String[])
+pattern = '''is already defined in'''
+category = "name"
+code = "JAVA_DUPLICATE_DEFINITION"
+
+[[classify]]
+id = "static-context"
+pattern = '''cannot be referenced from a static context'''
+category = "name"
+code = "JAVA_STATIC_CONTEXT"
+
+[[classify]]
+id = "public-class-name"     # class HelloWorld is public, should be declared in a file named HelloWorld.java
+pattern = '''^class \S+ is public, should be declared in a file named'''
+category = "build"
+code = "JAVA_PUBLIC_CLASS_NAME"
+
+[[classify]]
+id = "incompatible-types"    # incompatible types: String cannot be converted to int
+pattern = '''^incompatible types'''
+category = "type"
+code = "JAVA_INCOMPATIBLE_TYPES"
+
+[[classify]]
+id = "wrong-arguments"       # method add in class Main cannot be applied to given types
+pattern = '''cannot be applied to given types|^no suitable (?:method|constructor) found|^constructor .+ cannot be applied'''
+category = "type"
+code = "JAVA_WRONG_ARGUMENTS"
+
+[[classify]]
+id = "bad-operands"
+pattern = '''^bad operand types? for'''
+category = "type"
+code = "JAVA_BAD_OPERANDS"
+
+[[classify]]
+id = "unreported-exception"
+pattern = '''^unreported exception'''
+category = "type"
+code = "JAVA_UNREPORTED_EXCEPTION"
+
+[[classify]]
+id = "missing-return"
+pattern = '''^missing return statement'''
+category = "other"
+code = "JAVA_MISSING_RETURN"
+
+[[classify]]
+id = "uninitialized"         # variable x might not have been initialized
+pattern = '''might not have been initialized'''
+category = "other"
+code = "JAVA_UNINITIALIZED_VARIABLE"
+
+[[classify]]
+id = "unreachable"
+pattern = '''^unreachable statement'''
+category = "other"
+code = "JAVA_UNREACHABLE_CODE"
+
+[[classify]]
+id = "raw-type"              # [rawtypes] found raw type: List
+pattern = '''^\[(?:rawtypes|unchecked)\]'''
+category = "type"
+code = "JAVA_RAW_TYPE"
+
+[[classify]]
+id = "deprecated"            # [removal] Integer(int) in Integer has been deprecated ...
+pattern = '''^\[(?:deprecation|removal)\]'''
+category = "other"
+code = "JAVA_DEPRECATED_API"
+
+[[classify]]
+id = "lint"                  # any other -Xlint category, e.g. [fallthrough], [divzero]
+pattern = '''^\[[\w-]+\]'''
+category = "other"
+code = "JAVA_LINT_WARNING"
+
+# Runtime (uncaught exceptions and launcher errors)
+
+[[classify]]
+id = "arithmetic"            # ArithmeticException: / by zero
+pattern = '''^ArithmeticException'''
+category = "runtime"
+code = "JAVA_ARITHMETIC_EXCEPTION"
+
+[[classify]]
+id = "index-out-of-bounds"
+pattern = '''^(?:Array|String)?IndexOutOfBoundsException'''
+category = "runtime"
+code = "JAVA_INDEX_OUT_OF_BOUNDS"
+
+[[classify]]
+id = "null-pointer"
+pattern = '''^NullPointerException'''
+category = "runtime"
+code = "JAVA_NULL_POINTER"
+
+[[classify]]
+id = "number-format"         # NumberFormatException: For input string: "twenty"
+pattern = '''^NumberFormatException'''
+category = "runtime"
+code = "JAVA_NUMBER_FORMAT"
+
+[[classify]]
+id = "input-mismatch"        # Scanner.nextInt() read something that is not a number
+pattern = '''^InputMismatchException'''
+category = "runtime"
+code = "JAVA_INPUT_MISMATCH"
+
+[[classify]]
+id = "no-input"              # Scanner read past the end of the input
+pattern = '''^NoSuchElementException'''
+category = "runtime"
+code = "JAVA_NO_MORE_INPUT"
+
+[[classify]]
+id = "class-cast"
+pattern = '''^ClassCastException'''
+category = "type"
+code = "JAVA_CLASS_CAST"
+
+[[classify]]
+id = "stack-overflow"
+pattern = '''^StackOverflowError'''
+category = "memory"
+code = "JAVA_STACK_OVERFLOW"
+
+[[classify]]
+id = "thread-limit"          # OutOfMemoryError: unable to create native thread: ... resource limits reached
+pattern = '''^OutOfMemoryError: unable to create native thread'''
+category = "runtime"
+code = "JAVA_THREAD_LIMIT"
+
+[[classify]]
+id = "out-of-memory"         # OutOfMemoryError: Java heap space / unable to create native thread
+pattern = '''^OutOfMemoryError'''
+category = "memory"
+code = "JAVA_OUT_OF_MEMORY"
+
+[[classify]]
+id = "main-class"            # Could not find or load main class Main
+pattern = '''^Could not find or load main class'''
+category = "build"
+code = "JAVA_MAIN_CLASS_NOT_FOUND"
+
+[[classify]]
+id = "main-method"
+pattern = '''^Main method not found'''
+category = "build"
+code = "JAVA_MAIN_METHOD_NOT_FOUND"
+
+[[classify]]
+id = "uncaught"              # any other exception or error
+pattern = '''^\w+(?:Exception|Error)\b'''
+category = "runtime"
+code = "JAVA_UNCAUGHT_EXCEPTION"

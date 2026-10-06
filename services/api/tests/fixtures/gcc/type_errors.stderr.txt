@@ -1,0 +1,22 @@
+main.c: In function 'main':
+main.c:9:13: error: incompatible types when initializing type 'int' using type 'struct point'
+    9 |     int n = p;
+      |             ^
+main.c:10:15: warning: initialization of 'char *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+   10 |     char *s = 42;
+      |               ^~
+main.c:11:14: warning: format '%d' expects argument of type 'int', but argument 2 has type 'char *' [-Wformat=]
+   11 |     printf("%d %s\n", "oops", s);
+      |             ~^        ~~~~~~
+      |              |        |
+      |              int      char *
+      |             %s
+main.c:12:12: error: too few arguments to function 'add'
+   12 |     return add(1);
+      |            ^~~
+main.c:5:5: note: declared here
+    5 | int add(int a, int b) { return a + b; }
+      |     ^~~
+main.c:9:9: warning: unused variable 'n' [-Wunused-variable]
+    9 |     int n = p;
+      |         ^

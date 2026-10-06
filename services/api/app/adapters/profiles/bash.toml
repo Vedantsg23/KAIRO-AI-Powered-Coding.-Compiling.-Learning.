@@ -1,0 +1,97 @@
+# Language profile: Bash 5.2 shell scripts (Ubuntu 24.04).
+#
+# `bash -n` checks the syntax. The script is always run from its file
+# (never with `bash -c`), inside the same sandbox as every other language:
+# the usual commands (echo, cat, grep, sort, ...) are available, but there
+# is no network and nothing outside /tmp is writable.
+
+schema_version = 2
+id = "bash"
+display_name = "Bash"
+editor_mode = "shell"
+source_file = "main.sh"
+code_prefix = "SH"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "Bash"
+declared_version = "5.2"
+image = "compiler-copilot/sandbox-scripting:24.04"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+label = "Syntax check"
+argv = ["bash", "-n", "main.sh"]
+workdir = "/workspace"
+workspace_mode = "ro"
+grammar = "bash-check"
+[steps.limits]
+wall_time_ms = 10000
+cpu_time_s = 10
+memory_mb = 128
+pids = 16
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["bash", "/workspace/main.sh"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "bash-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "syntax"
+pattern = '''^syntax error'''
+category = "syntax"
+code = "SH_SYNTAX_ERROR"
+
+[[classify]]
+id = "not-found"
+pattern = '''command not found$'''
+category = "name"
+code = "SH_COMMAND_NOT_FOUND"
+
+[[classify]]
+id = "no-such-file"
+pattern = '''No such file or directory$'''
+category = "runtime"
+code = "SH_NO_SUCH_FILE"
+
+[[classify]]
+id = "division"
+pattern = '''division by 0'''
+category = "runtime"
+code = "SH_DIVISION_BY_ZERO"
+
+[[classify]]
+id = "bad-number"
+pattern = '''integer expression expected|value too great for base|syntax error: operand expected|invalid arithmetic operator'''
+category = "type"
+code = "SH_BAD_NUMBER"
+
+[[classify]]
+id = "unbound"
+pattern = '''unbound variable$'''
+category = "name"
+code = "SH_UNBOUND_VARIABLE"
+
+[[classify]]
+id = "permission"
+pattern = '''Permission denied$|Read-only file system$'''
+category = "runtime"
+code = "SH_PERMISSION_DENIED"

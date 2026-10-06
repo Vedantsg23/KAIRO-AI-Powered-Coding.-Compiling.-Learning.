@@ -1,0 +1,656 @@
+{
+  "title": "API <-> runner wire contract (NDJSON job stream)",
+  "JobSpec": {
+    "$defs": {
+      "SourceFile": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "description": "File name relative to /workspace, e.g. main.c",
+            "title": "Path",
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ],
+        "title": "SourceFile",
+        "type": "object"
+      },
+      "StepLimits": {
+        "additionalProperties": false,
+        "properties": {
+          "wallTimeMs": {
+            "description": "Wall-clock limit, measured by the runner.",
+            "minimum": 100,
+            "title": "Walltimems",
+            "type": "integer"
+          },
+          "cpuTimeS": {
+            "description": "RLIMIT_CPU for the step's processes.",
+            "minimum": 1,
+            "title": "Cputimes",
+            "type": "integer"
+          },
+          "memoryMb": {
+            "description": "cgroup memory limit (swap disabled).",
+            "minimum": 16,
+            "title": "Memorymb",
+            "type": "integer"
+          },
+          "pids": {
+            "description": "cgroup PID/thread limit.",
+            "minimum": 4,
+            "title": "Pids",
+            "type": "integer"
+          },
+          "outputKb": {
+            "description": "Cap per stream (stdout and stderr each).",
+            "minimum": 1,
+            "title": "Outputkb",
+            "type": "integer"
+          },
+          "tmpMb": {
+            "description": "Size of the writable /tmp tmpfs.",
+            "minimum": 1,
+            "title": "Tmpmb",
+            "type": "integer"
+          },
+          "fileSizeMb": {
+            "description": "RLIMIT_FSIZE: largest file a process may write.",
+            "minimum": 1,
+            "title": "Filesizemb",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "wallTimeMs",
+          "cpuTimeS",
+          "memoryMb",
+          "pids",
+          "outputKb",
+          "tmpMb",
+          "fileSizeMb"
+        ],
+        "title": "StepLimits",
+        "type": "object"
+      },
+      "StepSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "examples": [
+              "compile",
+              "run"
+            ],
+            "pattern": "^[a-z][a-z0-9_-]{0,31}$",
+            "title": "Name",
+            "type": "string"
+          },
+          "argv": {
+            "description": "Argument array, never a shell string.",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 64,
+            "minItems": 1,
+            "title": "Argv",
+            "type": "array"
+          },
+          "workdir": {
+            "default": "/workspace",
+            "description": "Working directory inside the sandbox.",
+            "title": "Workdir",
+            "type": "string"
+          },
+          "workspaceMode": {
+            "default": "rw",
+            "description": "How /workspace is mounted.",
+            "pattern": "^(rw|ro)$",
+            "title": "Workspacemode",
+            "type": "string"
+          },
+          "env": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Env",
+            "type": "object"
+          },
+          "stdin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Stdin"
+          },
+          "limits": {
+            "$ref": "#/$defs/StepLimits"
+          }
+        },
+        "required": [
+          "name",
+          "argv",
+          "limits"
+        ],
+        "title": "StepSpec",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "jobId": {
+        "pattern": "^[A-Za-z0-9_-]{1,64}$",
+        "title": "Jobid",
+        "type": "string"
+      },
+      "image": {
+        "title": "Image",
+        "type": "string"
+      },
+      "files": {
+        "items": {
+          "$ref": "#/$defs/SourceFile"
+        },
+        "minItems": 1,
+        "title": "Files",
+        "type": "array"
+      },
+      "steps": {
+        "items": {
+          "$ref": "#/$defs/StepSpec"
+        },
+        "minItems": 1,
+        "title": "Steps",
+        "type": "array"
+      }
+    },
+    "required": [
+      "jobId",
+      "image",
+      "files",
+      "steps"
+    ],
+    "title": "JobSpec",
+    "type": "object"
+  },
+  "JobResult": {
+    "$defs": {
+      "StepResult": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "termination": {
+            "$ref": "#/$defs/Termination"
+          },
+          "exitCode": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exit status reported by Docker (128+N means signal N).",
+            "title": "Exitcode"
+          },
+          "signal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Signal number when termination is SIGNALED.",
+            "title": "Signal"
+          },
+          "durationMs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Process lifetime from Docker's start/finish timestamps.",
+            "title": "Durationms"
+          },
+          "wallMs": {
+            "description": "Runner-measured time from start to exit, including container overhead.",
+            "title": "Wallms",
+            "type": "integer"
+          },
+          "stdout": {
+            "default": "",
+            "title": "Stdout",
+            "type": "string"
+          },
+          "stderr": {
+            "default": "",
+            "title": "Stderr",
+            "type": "string"
+          },
+          "stdoutTruncated": {
+            "default": false,
+            "title": "Stdouttruncated",
+            "type": "boolean"
+          },
+          "stderrTruncated": {
+            "default": false,
+            "title": "Stderrtruncated",
+            "type": "boolean"
+          },
+          "oomKilled": {
+            "default": false,
+            "title": "Oomkilled",
+            "type": "boolean"
+          },
+          "peakMemoryBytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Not measured yet in Phase 1 (always null); see docs/architecture.md.",
+            "title": "Peakmemorybytes"
+          }
+        },
+        "required": [
+          "name",
+          "termination",
+          "exitCode",
+          "wallMs"
+        ],
+        "title": "StepResult",
+        "type": "object"
+      },
+      "Termination": {
+        "enum": [
+          "EXITED",
+          "SIGNALED",
+          "TIMEOUT",
+          "MEMORY_LIMIT",
+          "OUTPUT_LIMIT",
+          "INTERNAL_ERROR"
+        ],
+        "title": "Termination",
+        "type": "string"
+      },
+      "ToolchainInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "languages": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Languages",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "version"
+        ],
+        "title": "ToolchainInfo",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "jobId": {
+        "title": "Jobid",
+        "type": "string"
+      },
+      "image": {
+        "title": "Image",
+        "type": "string"
+      },
+      "imageId": {
+        "description": "Content-addressed image ID actually used (reproducibility key).",
+        "title": "Imageid",
+        "type": "string"
+      },
+      "toolchain": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ToolchainInfo"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "steps": {
+        "description": "Executed steps in order; execution stops after the first failing step.",
+        "items": {
+          "$ref": "#/$defs/StepResult"
+        },
+        "title": "Steps",
+        "type": "array"
+      },
+      "error": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Set when the runner itself failed.",
+        "title": "Error"
+      }
+    },
+    "required": [
+      "jobId",
+      "image",
+      "imageId",
+      "steps"
+    ],
+    "title": "JobResult",
+    "type": "object"
+  },
+  "JobEvent": {
+    "$defs": {
+      "JobResult": {
+        "additionalProperties": false,
+        "properties": {
+          "jobId": {
+            "title": "Jobid",
+            "type": "string"
+          },
+          "image": {
+            "title": "Image",
+            "type": "string"
+          },
+          "imageId": {
+            "description": "Content-addressed image ID actually used (reproducibility key).",
+            "title": "Imageid",
+            "type": "string"
+          },
+          "toolchain": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ToolchainInfo"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "steps": {
+            "description": "Executed steps in order; execution stops after the first failing step.",
+            "items": {
+              "$ref": "#/$defs/StepResult"
+            },
+            "title": "Steps",
+            "type": "array"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Set when the runner itself failed.",
+            "title": "Error"
+          }
+        },
+        "required": [
+          "jobId",
+          "image",
+          "imageId",
+          "steps"
+        ],
+        "title": "JobResult",
+        "type": "object"
+      },
+      "StepResult": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "termination": {
+            "$ref": "#/$defs/Termination"
+          },
+          "exitCode": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exit status reported by Docker (128+N means signal N).",
+            "title": "Exitcode"
+          },
+          "signal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Signal number when termination is SIGNALED.",
+            "title": "Signal"
+          },
+          "durationMs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Process lifetime from Docker's start/finish timestamps.",
+            "title": "Durationms"
+          },
+          "wallMs": {
+            "description": "Runner-measured time from start to exit, including container overhead.",
+            "title": "Wallms",
+            "type": "integer"
+          },
+          "stdout": {
+            "default": "",
+            "title": "Stdout",
+            "type": "string"
+          },
+          "stderr": {
+            "default": "",
+            "title": "Stderr",
+            "type": "string"
+          },
+          "stdoutTruncated": {
+            "default": false,
+            "title": "Stdouttruncated",
+            "type": "boolean"
+          },
+          "stderrTruncated": {
+            "default": false,
+            "title": "Stderrtruncated",
+            "type": "boolean"
+          },
+          "oomKilled": {
+            "default": false,
+            "title": "Oomkilled",
+            "type": "boolean"
+          },
+          "peakMemoryBytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Not measured yet in Phase 1 (always null); see docs/architecture.md.",
+            "title": "Peakmemorybytes"
+          }
+        },
+        "required": [
+          "name",
+          "termination",
+          "exitCode",
+          "wallMs"
+        ],
+        "title": "StepResult",
+        "type": "object"
+      },
+      "Termination": {
+        "enum": [
+          "EXITED",
+          "SIGNALED",
+          "TIMEOUT",
+          "MEMORY_LIMIT",
+          "OUTPUT_LIMIT",
+          "INTERNAL_ERROR"
+        ],
+        "title": "Termination",
+        "type": "string"
+      },
+      "ToolchainInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "languages": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Languages",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "version"
+        ],
+        "title": "ToolchainInfo",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "description": "One line of the runner's NDJSON response stream.\n\nstep_started / step_finished report progress so the API can show\nCOMPILING / RUNNING; the last line is always job_finished with the result.",
+    "properties": {
+      "type": {
+        "enum": [
+          "step_started",
+          "step_finished",
+          "job_finished"
+        ],
+        "title": "Type",
+        "type": "string"
+      },
+      "jobId": {
+        "title": "Jobid",
+        "type": "string"
+      },
+      "step": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Step"
+      },
+      "termination": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Termination"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "exitCode": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Exitcode"
+      },
+      "result": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/JobResult"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      }
+    },
+    "required": [
+      "type",
+      "jobId"
+    ],
+    "title": "JobEvent",
+    "type": "object"
+  }
+}

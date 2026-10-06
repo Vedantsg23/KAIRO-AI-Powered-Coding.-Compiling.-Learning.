@@ -1,0 +1,34 @@
+{
+  "toolchain": "gfortran 13.3.0, nasm 2.16.01, fpc 3.2.2, cobc 3.1.2.0, flex 2.6.4, iverilog 12.0, nim 1.6.14, gdc 13.3.0, gnat 13.3.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "main.f90:5:6: Warning: (1)\nmain.f90:4:13: Warning: Array reference at (1) out of bounds (4 > 3) in loop beginning at (2)\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    },
+    {
+      "name": "run",
+      "termination": "EXITED",
+      "exitCode": 2,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "At line 5 of file main.f90\nFortran runtime error: Index '4' of dimension 1 of array 'a' above upper bound of 3\n\nError termination. Backtrace:\n#0  0x7f33fda5ee59 in ???\n#1  0x7f33fda5fa71 in ???\n#2  0x7f33fda60082 in ???\n#3  0x560bafe2d264 in MAIN__\n\tat /workspace/main.f90:5\n#4  0x560bafe2d3c1 in main\n\tat /workspace/main.f90:8\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

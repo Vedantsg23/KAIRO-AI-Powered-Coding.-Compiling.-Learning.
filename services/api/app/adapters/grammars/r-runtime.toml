@@ -1,0 +1,23 @@
+# Rscript run-time errors and warnings (stderr).
+#   Error in log(-1:"a") : non-numeric argument to mathematical function
+#   Calls: print -> f
+#   Execution halted
+#   Warning message:
+#   In sqrt(-1) : NaNs produced
+# R prints no line numbers at run time; see the r-error parser.
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "r.error"
+action = "block"
+parser = "r-error"
+pattern = '''^Error(?: in .+? :|:)'''
+
+[[rules]]
+id = "r.warnings"
+action = "block"
+parser = "r-error"
+pattern = '''^(?:In addition: )?Warning messages?:\s*$'''

@@ -1,0 +1,3 @@
+/usr/bin/ld: /tmp/ccCySJNg.o: in function `main':
+/workspace/main.c:6:(.text+0xe): undefined reference to `helper'
+collect2: error: ld returned 1 exit status

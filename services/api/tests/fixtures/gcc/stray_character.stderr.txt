@@ -1,0 +1,7 @@
+main.c: In function 'main':
+main.c:4:15: error: stray '@' in program
+    4 |     int x = 5 @ 3;
+      |               ^
+main.c:4:17: error: expected ',' or ';' before numeric constant
+    4 |     int x = 5 @ 3;
+      |                 ^

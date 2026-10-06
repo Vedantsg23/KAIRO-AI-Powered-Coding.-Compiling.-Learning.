@@ -1,0 +1,20 @@
+# Runtime output of .NET 8 programs: unhandled exceptions with stack traces.
+#   Unhandled exception. System.DivideByZeroException: Attempted to divide by zero.
+#      at Program.<Main>$(String[] args) in /workspace/main.cs:line 6
+
+streams = ["stderr"]
+column_unit = "utf16"
+report_unmatched = false
+
+[[rules]]
+id = "dotnet.exception"
+action = "block"
+parser = "dotnet-exception"
+pattern = '''^Unhandled exception\. (?P<type>[\w.`]+)(?:: (?P<message>.*))?$'''
+
+[[rules]]
+id = "dotnet.fatal-oom"      # Out of memory.   (the runtime gives up, then SIGABRT)
+action = "diagnostic"
+severity = "error"
+template = "{message}: the program used more memory than it is allowed to use"
+pattern = '''^(?P<message>Out of memory)\.$'''

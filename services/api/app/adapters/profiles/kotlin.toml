@@ -1,0 +1,150 @@
+# Language profile: Kotlin 2.4 (the official compiler, published by JetBrains
+# on npm) running on OpenJDK 21.
+#
+# kotlinc compiles main.kt into a runnable jar with the Kotlin runtime
+# included; java runs it. The compiler JVM starts from a class-data sharing
+# archive made when the image was built, which saves about a second.
+
+schema_version = 2
+id = "kotlin"
+display_name = "Kotlin"
+editor_mode = "kotlin"
+source_file = "main.kt"
+code_prefix = "KT"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "Kotlin"
+declared_version = "2.4"
+image = "compiler-copilot/sandbox-kotlin:2.4"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = ["kotlinc", "-J-Xmx512m", "-J-XX:+UseSerialGC", "-J-XX:TieredStopAtLevel=1", "-J-XX:-UsePerfData", "-J-XX:SharedArchiveFile=/opt/kotlinc/kotlinc.jsa", "-J-Xlog:disable", "-J-Dkotlin.colors.enabled=false", "-J-Duser.language=en", "-J-Duser.country=US", "main.kt", "-include-runtime", "-d", "/workspace/main.jar"]
+workdir = "/workspace"
+workspace_mode = "rw"
+grammar = "kotlinc"
+[steps.limits]
+wall_time_ms = 45000
+cpu_time_s = 45
+memory_mb = 1024
+pids = 64
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 64
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["java", "-Xmx192m", "-XX:+UseSerialGC", "-XX:TieredStopAtLevel=1", "-XX:-UsePerfData", "-Xlog:disable", "-Duser.language=en", "-Duser.country=US", "-jar", "/workspace/main.jar"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "jvm-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 10
+memory_mb = 384
+pids = 64
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "unresolved"
+pattern = '''^unresolved reference'''
+category = "name"
+code = "KT_UNRESOLVED_REFERENCE"
+
+[[classify]]
+id = "null-safety"
+pattern = '''only safe \(\?\.\) or non-null asserted \(!!\.\) calls are allowed|nullable'''
+category = "type"
+code = "KT_NULL_SAFETY"
+
+[[classify]]
+id = "type-mismatch"
+pattern = '''type mismatch|^argument type mismatch|^initializer type mismatch|^return type mismatch'''
+category = "type"
+code = "KT_TYPE_MISMATCH"
+
+[[classify]]
+id = "val-reassign"
+pattern = '''^'val' cannot be reassigned'''
+category = "type"
+code = "KT_VAL_REASSIGNED"
+
+[[classify]]
+id = "arguments"
+pattern = '''^no value passed for parameter|^too many arguments'''
+category = "type"
+code = "KT_WRONG_ARGUMENTS"
+
+[[classify]]
+id = "syntax"
+pattern = '''^syntax error|^expecting '''
+category = "syntax"
+code = "KT_SYNTAX_ERROR"
+
+[[classify]]
+id = "unused"
+pattern = '''is never used|^unused variable'''
+category = "other"
+code = "KT_UNUSED"
+
+[[classify]]
+id = "arithmetic"
+pattern = '''^ArithmeticException'''
+category = "runtime"
+code = "KT_ARITHMETIC_EXCEPTION"
+
+[[classify]]
+id = "index"
+pattern = '''^(?:Array|String)?IndexOutOfBoundsException'''
+category = "runtime"
+code = "KT_INDEX_OUT_OF_BOUNDS"
+
+[[classify]]
+id = "npe"
+pattern = '''^NullPointerException'''
+category = "runtime"
+code = "KT_NULL_POINTER"
+
+[[classify]]
+id = "number-format"
+pattern = '''^NumberFormatException'''
+category = "runtime"
+code = "KT_NUMBER_FORMAT"
+
+[[classify]]
+id = "no-input"
+pattern = '''^(?:NoSuchElementException|ReadAfterEOFException|RuntimeException: EOF)'''
+category = "runtime"
+code = "KT_NO_MORE_INPUT"
+
+[[classify]]
+id = "stack"
+pattern = '''^StackOverflowError'''
+category = "memory"
+code = "KT_STACK_OVERFLOW"
+
+[[classify]]
+id = "thread-limit"          # OutOfMemoryError: unable to create native thread: ... resource limits reached
+pattern = '''^OutOfMemoryError: unable to create native thread'''
+category = "runtime"
+code = "KT_THREAD_LIMIT"
+
+[[classify]]
+id = "oom"
+pattern = '''^OutOfMemoryError'''
+category = "memory"
+code = "KT_OUT_OF_MEMORY"
+
+[[classify]]
+id = "uncaught"
+pattern = '''^\w+(?:Exception|Error)\b'''
+category = "runtime"
+code = "KT_UNCAUGHT_EXCEPTION"

@@ -1,0 +1,26 @@
+# Output of the Kotlin 2.4 compiler (kotlinc):
+#   main.kt:6:13: error: unresolved reference 'totl'.
+#       println(totl)
+#               ^^^^
+# The ^^^^ run under the copied source line gives the exact range.
+
+streams = ["stderr"]
+column_unit = "utf16"
+report_unmatched = true
+
+[[rules]]
+id = "kotlinc.located"
+action = "diagnostic"
+caret = true
+pattern = '''^(?P<file>[^\s:][^:]*\.kts?):(?P<line>\d+):(?P<column>\d+): (?P<severity>error|warning|info): (?P<message>.+)$'''
+
+[[rules]]
+id = "kotlinc.unlocated"
+action = "diagnostic"
+pattern = '''^(?P<severity>error|warning|info): (?P<message>.+)$'''
+
+[[rules]]
+id = "jvm.vm-warning"
+action = "diagnostic"
+severity = "info"
+pattern = '''^OpenJDK 64-Bit Server VM warning: (?P<message>.+)$'''

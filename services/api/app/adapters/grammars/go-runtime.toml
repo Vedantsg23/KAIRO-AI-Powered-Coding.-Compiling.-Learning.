@@ -1,0 +1,24 @@
+# Runtime output of Go programs: panics and fatal errors with goroutine
+# traces. The program's own stderr is not reported.
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = false
+
+[[rules]]
+id = "go.thread-limit"       # runtime: failed to create new OS thread (have 5 already; errno=11)
+action = "diagnostic"        # (the PID limit refused another thread or process)
+severity = "error"
+template = "{message}: the program started more threads or processes than the sandbox allows"
+pattern = '''^runtime: (?P<message>failed to create new OS thread) \(have \d+ already; errno=\d+\)$'''
+
+[[rules]]
+id = "go.thread-limit-noise" # the advice and the fatal error that follow it
+action = "ignore"
+pattern = '''^(?:runtime: may need to increase max user processes|fatal error: newosproc$)'''
+
+[[rules]]
+id = "go.panic"              # panic: runtime error: index out of range [3] with length 3
+action = "block"             # fatal error: all goroutines are asleep - deadlock!
+parser = "go-panic"
+pattern = '''^(?P<kind>panic|fatal error): (?P<message>.+?)(?: \[recovered\])?$'''

@@ -1,0 +1,213 @@
+# Language profile: Python with CPython 3.12.
+#
+# A language adapter is this file plus the shared output grammars it names
+# (adapters/grammars/*.toml): "cpython-check" for the syntax check and
+# "cpython-runtime" for tracebacks.
+#
+# Python has no separate compiler, but compiling to bytecode without running
+# (the image's check_syntax.py) finds every syntax error before the program
+# starts, so Python uses the same Check -> Run pipeline as the other
+# languages. Only the standard library is available (no pip, no network).
+
+schema_version = 2
+id = "python"
+display_name = "Python"
+editor_mode = "python"       # Monaco language id
+source_file = "main.py"
+code_prefix = "PY"           # default codes: PY_COMPILER_ERROR, PY_COMPILER_WARNING, ...
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "CPython"
+declared_version = "3.12"
+image = "compiler-copilot/sandbox-python:3.12"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+label = "Syntax check"
+# -I: isolated mode (ignore PYTHON* variables and user site-packages).
+# -B: do not write .pyc files.
+argv = ["python3", "-I", "-B", "/opt/code-drishti/check_syntax.py", "main.py"]
+workdir = "/workspace"
+workspace_mode = "ro"                # checking never needs to write anything
+grammar = "cpython-check"
+[steps.limits]
+wall_time_ms = 10000
+cpu_time_s = 10
+memory_mb = 256
+pids = 16
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+[[steps]]
+name = "run"
+kind = "run"
+# -u: unbuffered output, so text printed before a crash is not lost.
+# SyntaxWarnings were already reported by the syntax check.
+argv = ["python3", "-I", "-B", "-u", "-W", "ignore::SyntaxWarning", "/workspace/main.py"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "cpython-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "unexpected-indent"
+pattern = '''^IndentationError: unexpected indent'''
+category = "syntax"
+code = "PY_UNEXPECTED_INDENT"
+
+[[classify]]
+id = "indentation"           # IndentationError: expected an indented block after ...
+pattern = '''^IndentationError'''
+category = "syntax"
+code = "PY_INDENTATION_ERROR"
+
+[[classify]]
+id = "tabs"
+pattern = '''^TabError'''
+category = "syntax"
+code = "PY_TAB_ERROR"
+
+[[classify]]
+id = "missing-colon"         # SyntaxError: expected ':'
+pattern = '''^SyntaxError: expected ':'$'''
+category = "syntax"
+code = "PY_MISSING_COLON"
+
+[[classify]]
+id = "unclosed-bracket"      # SyntaxError: '(' was never closed
+pattern = '''^SyntaxError: '[(\[{]' was never closed|^SyntaxError: unmatched|^SyntaxError: closing parenthesis'''
+category = "syntax"
+code = "PY_UNBALANCED_BRACKETS"
+
+[[classify]]
+id = "unterminated-string"
+pattern = '''^SyntaxError: unterminated (?:triple-quoted )?string literal|^SyntaxError: unterminated f-string'''
+category = "syntax"
+code = "PY_UNTERMINATED_STRING"
+
+[[classify]]
+id = "print-statement"       # Missing parentheses in call to 'print'. Did you mean print(...)?
+pattern = '''^SyntaxError: Missing parentheses in call to'''
+category = "syntax"
+code = "PY_PRINT_STATEMENT"
+
+[[classify]]
+id = "syntax"
+pattern = '''^SyntaxError'''
+category = "syntax"
+code = "PY_SYNTAX_ERROR"
+
+[[classify]]
+id = "invalid-escape"        # SyntaxWarning: invalid escape sequence '\d'
+pattern = '''^invalid escape sequence'''
+category = "other"
+code = "PY_INVALID_ESCAPE"
+
+[[classify]]
+id = "is-literal"            # SyntaxWarning: "is" with 'int' literal. Did you mean "=="?
+pattern = '''^"is(?: not)?" with '''
+category = "other"
+code = "PY_IS_LITERAL"
+
+[[classify]]
+id = "name-error"            # NameError: name 'totl' is not defined. Did you mean: 'total'?
+pattern = '''^NameError'''
+category = "name"
+code = "PY_NAME_ERROR"
+
+[[classify]]
+id = "unbound-local"
+pattern = '''^UnboundLocalError'''
+category = "name"
+code = "PY_UNBOUND_LOCAL"
+
+[[classify]]
+id = "attribute-error"       # AttributeError: 'list' object has no attribute 'push'
+pattern = '''^AttributeError'''
+category = "name"
+code = "PY_ATTRIBUTE_ERROR"
+
+[[classify]]
+id = "type-error"
+pattern = '''^TypeError'''
+category = "type"
+code = "PY_TYPE_ERROR"
+
+[[classify]]
+id = "zero-division"
+pattern = '''^ZeroDivisionError'''
+category = "runtime"
+code = "PY_ZERO_DIVISION"
+
+[[classify]]
+id = "index-error"
+pattern = '''^IndexError'''
+category = "runtime"
+code = "PY_INDEX_ERROR"
+
+[[classify]]
+id = "key-error"
+pattern = '''^KeyError'''
+category = "runtime"
+code = "PY_KEY_ERROR"
+
+[[classify]]
+id = "value-error"           # ValueError: invalid literal for int() with base 10: 'twenty'
+pattern = '''^ValueError'''
+category = "runtime"
+code = "PY_VALUE_ERROR"
+
+[[classify]]
+id = "eof-error"             # EOFError: EOF when reading a line (input() with no input left)
+pattern = '''^EOFError'''
+category = "runtime"
+code = "PY_EOF_ERROR"
+
+[[classify]]
+id = "recursion"
+pattern = '''^RecursionError'''
+category = "memory"
+code = "PY_RECURSION_ERROR"
+
+[[classify]]
+id = "memory-error"
+pattern = '''^MemoryError'''
+category = "memory"
+code = "PY_MEMORY_ERROR"
+
+[[classify]]
+id = "import-error"          # ModuleNotFoundError: No module named 'numpy'
+pattern = '''^(?:ModuleNotFoundError|ImportError)'''
+category = "build"
+code = "PY_IMPORT_ERROR"
+
+[[classify]]
+id = "assertion"
+pattern = '''^AssertionError'''
+category = "runtime"
+code = "PY_ASSERTION_ERROR"
+
+[[classify]]
+id = "os-error"
+pattern = '''^(?:FileNotFoundError|PermissionError|IsADirectoryError|NotADirectoryError|BlockingIOError|ConnectionError|ConnectionRefusedError|TimeoutError|OSError)'''
+category = "runtime"
+code = "PY_OS_ERROR"
+
+[[classify]]
+id = "uncaught"              # any other exception
+pattern = '''^[\w.]+(?:Error|Exception)\b'''
+category = "runtime"
+code = "PY_UNCAUGHT_EXCEPTION"

@@ -1,0 +1,18 @@
+# Icarus Verilog simulator (vvp): run-time messages on standard error.
+#   ERROR: main.v:5: $readmemh: Unable to open data.hex for reading.
+
+streams = ["stdout", "stderr"]   # $fatal and $error print to stdout
+column_unit = "byte"
+report_unmatched = false
+severity_map = { "ERROR" = "error", "FATAL" = "error", "WARNING" = "warning" }
+
+[[rules]]
+id = "vvp.located"
+action = "diagnostic"
+pattern = '''^(?P<severity>ERROR|WARNING|FATAL): (?P<file>[^\s:][^:]*):(?P<line>\d+): (?P<message>.+)$'''
+
+[[rules]]
+id = "vvp.unlocated"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?:ERROR|FATAL): (?P<message>.+)$'''

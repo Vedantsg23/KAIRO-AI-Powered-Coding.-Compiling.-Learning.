@@ -1,0 +1,20 @@
+{
+  "toolchain": "21.0.12.1",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "Main.java:3: error: cannot find symbol\n        String s = \"नमस्ते\"; int y = undefinedVar;\n                                     ^\n  symbol:   variable undefinedVar\n  location: class Main\n1 error\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

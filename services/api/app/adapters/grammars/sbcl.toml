@@ -1,0 +1,20 @@
+# SBCL 2.2 (sbcl --script main.lisp): unhandled conditions.
+#   Unhandled DIVISION-BY-ZERO in thread #<SB-THREAD:THREAD "main thread" RUNNING
+#                                           {1001348003}>:
+#     arithmetic error DIVISION-BY-ZERO signalled
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "sbcl.unhandled"
+action = "block"
+parser = "sbcl-error"
+pattern = '''^Unhandled (?P<type>[\w:*+-]+) in thread'''
+
+[[rules]]
+id = "sbcl.heap-exhausted"     # the last resort when SBCL cannot even signal the condition
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<message>Heap exhausted, game over\.)$'''

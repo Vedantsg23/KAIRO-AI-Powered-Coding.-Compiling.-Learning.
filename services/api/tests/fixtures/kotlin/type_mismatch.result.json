@@ -1,0 +1,20 @@
+{
+  "toolchain": "2.4.20",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "main.kt:2:20: error: initializer type mismatch: expected 'Int', actual 'String'.\n    val count: Int = \"five\"\n                   ^\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

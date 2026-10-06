@@ -1,0 +1,20 @@
+{
+  "toolchain": "13.3.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "main.cpp: In function 'int main()':\nmain.cpp:6:16: error: no matching function for call to 'push_back(const char [6])'\n    6 |     v.push_back(\"hello\");\n      |     ~~~~~~~~~~~^~~~~~~~~\nIn file included from /usr/include/c++/13/vector:66,\n                 from main.cpp:1:\n/usr/include/c++/13/bits/stl_vector.h:1281:7: note: candidate: 'constexpr void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = int; _Alloc = std::allocator<int>; value_type = int]' (near match)\n 1281 |       push_back(const value_type& __x)\n      |       ^~~~~~~~~\n/usr/include/c++/13/bits/stl_vector.h:1281:7: note:   conversion of argument 1 would be ill-formed:\nmain.cpp:6:17: error: invalid conversion from 'const char*' to 'std::vector<int>::value_type' {aka 'int'} [-fpermissive]\n    6 |     v.push_back(\"hello\");\n      |                 ^~~~~~~\n      |                 |\n      |                 const char*\n/usr/include/c++/13/bits/stl_vector.h:1298:7: note: candidate: 'constexpr void std::vector<_Tp, _Alloc>::push_back(value_type&&) [with _Tp = int; _Alloc = std::allocator<int>; value_type = int]' (near match)\n 1298 |       push_back(value_type&& __x)\n      |       ^~~~~~~~~\n/usr/include/c++/13/bits/stl_vector.h:1298:7: note:   conversion of argument 1 would be ill-formed:\nmain.cpp:6:17: error: invalid conversion from 'const char*' to 'std::vector<int>::value_type' {aka 'int'} [-fpermissive]\n    6 |     v.push_back(\"hello\");\n      |                 ^~~~~~~\n      |                 |\n      |                 const char*\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+main.c: In function 'sign':
+main.c:5:1: warning: control reaches end of non-void function [-Wreturn-type]
+    5 | }
+      | ^

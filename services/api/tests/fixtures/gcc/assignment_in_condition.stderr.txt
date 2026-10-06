@@ -1,0 +1,10 @@
+main.c: In function 'main':
+main.c:5:9: warning: suggest parentheses around assignment used as truth value [-Wparentheses]
+    5 |     if (x = 5) {
+      |         ^
+main.c:9:5: warning: 'y' is used uninitialized [-Wuninitialized]
+    9 |     printf("%d\n", y);
+      |     ^~~~~~~~~~~~~~~~~
+main.c:8:9: note: 'y' was declared here
+    8 |     int y;
+      |         ^

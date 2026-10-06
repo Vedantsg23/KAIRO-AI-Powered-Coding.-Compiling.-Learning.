@@ -1,0 +1,235 @@
+@import "tailwindcss";
+
+/* KAIRO design tokens.
+   Light "signal" theme (the default: white panels, crisp green) and a
+   restrained graphite dark theme. Components use semantic names (surface,
+   fg, brand, ai...); the values below switch with the theme class on <html>.
+     brand  = green: run, build, success, online
+     ai     = cyan: everything Saarthi says or does
+     accent = amber-gold: XP, streaks, badges
+     warn / danger / info = amber / red / blue statuses
+   Every text token reaches 4.5:1 on canvas, surface, raised and sunken in
+   both themes (checked by scripts in docs/ui.md). */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --font-sans: "Geist Variable", "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", "Cascadia Code", "Fira Code", Consolas, "SFMono-Regular", Menlo, ui-monospace, monospace;
+
+  --color-canvas: var(--cd-canvas);
+  --color-surface: var(--cd-surface);
+  --color-raised: var(--cd-raised);
+  --color-sunken: var(--cd-sunken);
+  --color-line: var(--cd-line);
+  --color-line-strong: var(--cd-line-strong);
+  --color-fg: var(--cd-fg);
+  --color-muted: var(--cd-muted);
+  --color-faint: var(--cd-faint);
+  --color-brand: var(--cd-brand);
+  --color-brand-fg: var(--cd-brand-fg);
+  --color-on-brand: var(--cd-on-brand);
+  --color-ai: var(--cd-ai);
+  --color-ai-fg: var(--cd-ai-fg);
+  --color-accent: var(--cd-accent);
+  --color-accent-fg: var(--cd-accent-fg);
+  --color-warn: var(--cd-warn);
+  --color-warn-fg: var(--cd-warn-fg);
+  --color-danger: var(--cd-danger);
+  --color-danger-fg: var(--cd-danger-fg);
+  --color-info: var(--cd-info);
+  --color-info-fg: var(--cd-info-fg);
+}
+
+@theme {
+  --animate-fade-in: fade-in 160ms ease-out both;
+  --animate-pop-in: pop-in 200ms cubic-bezier(0.2, 0.9, 0.3, 1.05) both;
+  --animate-slide-up: slide-up 240ms ease-out both;
+  --animate-pulse-dot: pulse-dot 1.8s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.2s linear infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(6px) scale(0.985); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.75); }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+}
+
+:root {
+  color-scheme: light;
+  --cd-canvas: #f3f6f4;
+  --cd-surface: #ffffff;
+  --cd-raised: #f7f9f8;
+  --cd-sunken: #f0f4f1;
+  --cd-line: #e2e8e4;
+  --cd-line-strong: #c9d3cc;
+  --cd-fg: #0b1510;
+  --cd-muted: #435049;
+  --cd-faint: #5f6b64;
+  --cd-brand: #22c55e;
+  --cd-brand-fg: #137a3a;
+  --cd-on-brand: #03200f;
+  --cd-ai: #06b6d4;
+  --cd-ai-fg: #0b7185;
+  --cd-accent: #f59e0b;
+  --cd-accent-fg: #a14e07;
+  --cd-warn: #f59e0b;
+  --cd-warn-fg: #a14e07;
+  --cd-danger: #dc2626;
+  --cd-danger-fg: #b91c1c;
+  --cd-info: #2563eb;
+  --cd-info-fg: #1d4ed8;
+  /* Non-text surfaces */
+  --cd-editor: #ffffff;
+  --cd-terminal: #fbfcfb;
+  --cd-grid: rgb(11 21 16 / 0.045);
+  --cd-panel: rgb(255 255 255 / 0.94);
+  --cd-glass: #ffffff;
+  --cd-shadow: 0 16px 40px -18px rgb(9 30 18 / 0.28), 0 2px 6px -2px rgb(9 30 18 / 0.08);
+  --cd-shadow-soft: 0 1px 2px rgb(9 30 18 / 0.06);
+  --cd-glow: rgb(34 197 94 / 0.28);
+  --cd-scrim: rgb(9 20 14 / 0.42);
+}
+
+.dark {
+  color-scheme: dark;
+  --cd-canvas: #0a0a0a;
+  --cd-surface: #101010;
+  --cd-raised: #161616;
+  --cd-sunken: #0c0c0c;
+  --cd-line: #222222;
+  --cd-line-strong: #2e2e2e;
+  --cd-fg: #e8e8e8;
+  --cd-muted: #a8a8a8;
+  --cd-faint: #8a8a8a;
+  --cd-brand: #22c55e;
+  --cd-brand-fg: #4ade80;
+  --cd-on-brand: #03200f;
+  --cd-ai: #22d3ee;
+  --cd-ai-fg: #67e8f9;
+  --cd-accent: #f59e0b;
+  --cd-accent-fg: #fbbf24;
+  --cd-warn: #f59e0b;
+  --cd-warn-fg: #fbbf24;
+  --cd-danger: #dc2626;
+  --cd-danger-fg: #f87171;
+  --cd-info: #3b82f6;
+  --cd-info-fg: #60a5fa;
+  --cd-editor: #0c0c0c;
+  --cd-terminal: #080808;
+  --cd-grid: rgb(255 255 255 / 0.035);
+  --cd-panel: rgb(16 16 16 / 0.94);
+  --cd-glass: #141414;
+  --cd-shadow: 0 20px 48px -16px rgb(0 0 0 / 0.8), 0 2px 6px -2px rgb(0 0 0 / 0.5);
+  --cd-shadow-soft: 0 1px 2px rgb(0 0 0 / 0.5);
+  --cd-glow: rgb(34 197 94 / 0.22);
+  --cd-scrim: rgb(0 0 0 / 0.62);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-canvas font-sans text-fg antialiased;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* A visible, 3:1-or-better focus ring in both themes. In the base layer, so a
+   control that draws its own focus style (outline-none + a ring) can opt out. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--cd-brand-fg);
+    outline-offset: 2px;
+  }
+}
+
+::selection {
+  background: color-mix(in oklab, var(--cd-brand) 28%, transparent);
+}
+
+/* Components live in a cascade layer so utility classes can still override them. */
+@layer components {
+  /* Floating layers (dialogs, menus, bubbles): solid enough to read on anything. */
+  .cd-glass {
+    background: var(--cd-glass);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow: var(--cd-shadow);
+  }
+
+  /* A thin green signal line across the top edge (the element must be positioned). */
+  .cd-specular::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--cd-brand) 70%, transparent), transparent);
+    pointer-events: none;
+  }
+
+  /* Saarthi cards: a cyan edge on the left, the assistant's colour. */
+  .cd-ai-border {
+    border: 1px solid var(--cd-line);
+    background:
+      linear-gradient(90deg, color-mix(in oklab, var(--cd-ai) 7%, transparent), transparent 42%) padding-box,
+      var(--cd-surface);
+    box-shadow: inset 2px 0 0 var(--cd-ai);
+  }
+}
+
+@utility glow-brand {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--cd-brand) 22%, transparent);
+}
+@utility glow-ai {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--cd-ai) 14%, transparent);
+}
+
+/* Thin, theme-aware scrollbars for panels. */
+.cd-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cd-line-strong) transparent;
+}
+
+/* Editor decorations */
+.cd-flash-line {
+  animation: cd-flash 1.5s ease-out forwards;
+}
+@keyframes cd-flash {
+  0% { background: color-mix(in oklab, var(--cd-brand) 30%, transparent); }
+  100% { background: transparent; }
+}
+
+/* Indeterminate progress bar used while a run is in flight. */
+.cd-progress {
+  background-image: linear-gradient(90deg, transparent 0%, var(--cd-brand) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}

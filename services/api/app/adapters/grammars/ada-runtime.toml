@@ -1,0 +1,20 @@
+# Runtime errors of Ada programs (GNAT):
+#   raised CONSTRAINT_ERROR : main.adb:6 range check failed
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = false
+
+[[rules]]
+id = "ada.raised"
+action = "diagnostic"
+severity = "error"
+template = "{type}: {message}"
+pattern = '''^raised (?P<type>[\w.]+) : (?P<file>[^\s:][^:]*):(?P<line>\d+) (?P<message>.+)$'''
+
+[[rules]]
+id = "ada.raised-unlocated"
+action = "diagnostic"
+severity = "error"
+template = "{type}{message}"
+pattern = '''^raised (?P<type>[\w.]+)(?P<message>(?: : .+)?)$'''

@@ -1,0 +1,126 @@
+# One-command demo (Linux, GitHub Codespaces, or Windows/macOS with Docker Desktop):
+#
+#   cp .env.example .env                    # then set RUNNER_TOKEN (and the AI key, optional)
+#   docker compose --profile images build   # the sandbox images (about 8 GB) + api + runner
+#   docker compose up -d
+#   open http://localhost:8080
+#
+# Trust boundaries: only `runner` can reach the Docker socket; only `api` is
+# published to the host; student code runs in separate sandbox containers
+# that the runner creates with no network at all.
+name: compiler-copilot
+
+services:
+  # Build-only: the images student code runs in. Never started by `up`.
+  sandbox-gcc:            # C and C++
+    profiles: ["images"]
+    build: infra/containers/gcc
+    image: compiler-copilot/sandbox-gcc:13
+
+  sandbox-java:           # Java
+    profiles: ["images"]
+    build: infra/containers/java
+    image: compiler-copilot/sandbox-java:21
+
+  sandbox-python:         # Python
+    profiles: ["images"]
+    build: infra/containers/python
+    image: compiler-copilot/sandbox-python:3.12
+
+  sandbox-node:           # JavaScript and TypeScript
+    profiles: ["images"]
+    build: infra/containers/node
+    image: compiler-copilot/sandbox-node:18
+
+  sandbox-go:             # Go
+    profiles: ["images"]
+    build: infra/containers/go
+    image: compiler-copilot/sandbox-go:1.23
+
+  sandbox-rust:           # Rust
+    profiles: ["images"]
+    build: infra/containers/rust
+    image: compiler-copilot/sandbox-rust:1.75
+
+  sandbox-dotnet:         # C#
+    profiles: ["images"]
+    build: infra/containers/dotnet
+    image: compiler-copilot/sandbox-dotnet:8.0
+
+  sandbox-kotlin:         # Kotlin
+    profiles: ["images"]
+    build: infra/containers/kotlin
+    image: compiler-copilot/sandbox-kotlin:2.4
+
+  sandbox-scripting:      # PHP, Ruby, Lua, Bash and SQL (SQLite)
+    profiles: ["images"]
+    build: infra/containers/scripting
+    image: compiler-copilot/sandbox-scripting:24.04
+
+  sandbox-native:         # Fortran, Assembly (NASM), Pascal, COBOL, Lex, Verilog, Nim, D, Ada
+    profiles: ["images"]
+    build: infra/containers/native
+    image: compiler-copilot/sandbox-native:24.04
+
+  sandbox-extra:          # R, Perl, Prolog, Tcl, Scheme, Common Lisp, Erlang, Elixir
+    profiles: ["images"]
+    build: infra/containers/extra
+    image: compiler-copilot/sandbox-extra:24.04
+
+  # Experimental, not built by default: `docker compose --profile swift build`,
+  # then add the image to RUNNER_ALLOWED_IMAGES below. See docs/languages.md.
+  sandbox-swift:
+    profiles: ["swift"]
+    build: infra/containers/swift
+    image: compiler-copilot/sandbox-swift:6.1
+
+  runner:
+    build: services/runner
+    environment:
+      RUNNER_TOKEN: ${RUNNER_TOKEN:?Set RUNNER_TOKEN in .env (see .env.example)}
+      RUNNER_WORKERS: ${RUNNER_WORKERS:-4}
+      # The only images the runner will ever start (JSON list).
+      RUNNER_ALLOWED_IMAGES: >-
+        ["compiler-copilot/sandbox-gcc:13", "compiler-copilot/sandbox-java:21",
+         "compiler-copilot/sandbox-python:3.12", "compiler-copilot/sandbox-node:18",
+         "compiler-copilot/sandbox-go:1.23", "compiler-copilot/sandbox-rust:1.75",
+         "compiler-copilot/sandbox-dotnet:8.0", "compiler-copilot/sandbox-kotlin:2.4",
+         "compiler-copilot/sandbox-scripting:24.04", "compiler-copilot/sandbox-native:24.04",
+         "compiler-copilot/sandbox-extra:24.04"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks: [internal]
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+      args:
+        # Optional account sign-in (docs/accounts.md); empty = guests only.
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY:-}
+    environment:
+      CC_RUNNER_URL: http://runner:8081
+      CC_RUNNER_TOKEN: ${RUNNER_TOKEN:?Set RUNNER_TOKEN in .env (see .env.example)}
+      CC_DISPATCH_WORKERS: ${RUNNER_WORKERS:-4}
+      # Saarthi, the AI assistant (optional). Without a key the rest of the
+      # app works and Saarthi says it is not configured. Keys stay on the server.
+      CC_AI_PROVIDER: ${CC_AI_PROVIDER:-anthropic}
+      CC_AI_MODEL: ${CC_AI_MODEL:-}
+      CC_AI_BASE_URL: ${CC_AI_BASE_URL:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CC_AI_API_KEY: ${CC_AI_API_KEY:-}
+    ports:
+      # Only this computer can open the app by default. To let other machines
+      # on a trusted lab network in, set WEB_BIND=0.0.0.0 in .env.
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8080}:8000"
+    depends_on: [runner]
+    # The API needs outbound HTTPS only for the AI provider; it never runs code.
+    networks: [internal, egress]
+    restart: unless-stopped
+
+networks:
+  internal:
+    internal: true   # runner <-> api only; no route to the internet
+  egress: {}

@@ -1,0 +1,246 @@
+# Language profile: C++ with G++ 13 (same sandbox image as C).
+#
+# A language adapter is this file plus the shared output grammars it names
+# (adapters/grammars/*.toml): "gcc" for the compiler and linker, and
+# "cxx-runtime" for uncaught exceptions and C library messages.
+
+schema_version = 2
+id = "cpp"
+display_name = "C++"
+editor_mode = "cpp"          # Monaco language id
+source_file = "main.cpp"     # one file per program, entry point int main()
+code_prefix = "CPP"          # default codes: CPP_COMPILER_ERROR, CPP_COMPILER_WARNING, ...
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "G++"
+declared_version = "13"
+image = "compiler-copilot/sandbox-gcc:13"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = [
+  "g++", "-std=gnu++20", "-O0", "-g", "-Wall",
+  "-fdiagnostics-color=never",
+  "-fdiagnostics-urls=never",
+  "-fdiagnostics-column-unit=byte",   # converted to UTF-16 columns by the normalizer
+  "-fmessage-length=0",               # one diagnostic per line, no wrapping
+  "-fmax-errors=50",                  # template errors can be very long
+  "-o", "main", "main.cpp",
+]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { LC_ALL = "C" }
+grammar = "gcc"
+[steps.limits]
+wall_time_ms = 20000                 # <iostream> and templates compile slower than C
+cpu_time_s = 20
+memory_mb = 512
+pids = 64
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 64
+
+[[steps]]
+name = "run"
+kind = "run"
+# std::cout writes through C stdio (sync_with_stdio), so stdbuf keeps output
+# line-buffered and text printed before a crash is not lost.
+argv = ["stdbuf", "-oL", "/workspace/main"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "cxx-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "undeclared"            # 'totl' was not declared in this scope; did you mean 'total'?
+pattern = '''was not declared in this scope'''
+category = "name"
+code = "CPP_UNDECLARED_IDENTIFIER"
+
+[[classify]]
+id = "not-a-member"          # 'vector' is not a member of 'std'
+pattern = '''^'[^']+' is not a member of '''
+category = "name"
+code = "CPP_NOT_A_MEMBER"
+
+[[classify]]
+id = "no-member"             # 'struct Point' has no member named 'z'
+pattern = '''has no member named'''
+category = "name"
+code = "CPP_NO_MEMBER"
+
+[[classify]]
+id = "unknown-type"          # 'strng' does not name a type
+pattern = '''does not name a type|^'[^']+' was not declared in this scope.*type'''
+category = "name"
+code = "CPP_UNKNOWN_TYPE"
+
+[[classify]]
+id = "inaccessible"          # 'int A::x' is private within this context
+pattern = '''is (?:private|protected) within this context'''
+category = "name"
+code = "CPP_INACCESSIBLE_MEMBER"
+
+[[classify]]
+id = "redefinition"
+pattern = '''^(?:redefinition|redeclaration) of|^conflicting declaration'''
+category = "name"
+code = "CPP_REDEFINITION"
+
+[[classify]]
+id = "missing-header"
+pattern = '''No such file or directory$'''
+category = "build"
+code = "CPP_MISSING_HEADER"
+
+[[classify]]
+id = "undefined-reference"
+pattern = '''^undefined reference to'''
+category = "build"
+code = "CPP_UNDEFINED_REFERENCE"
+
+[[classify]]
+id = "toolchain-limit"
+pattern = '''(?:File size limit exceeded|Killed) signal terminated program'''
+category = "build"
+code = "TOOLCHAIN_RESOURCE_LIMIT"
+
+[[classify]]
+id = "stray-character"
+pattern = '''^stray '.+' in program'''
+category = "syntax"
+code = "CPP_STRAY_CHARACTER"
+
+[[classify]]
+id = "unterminated-literal"
+pattern = '''^missing terminating .+ character'''
+category = "syntax"
+code = "CPP_UNTERMINATED_LITERAL"
+
+[[classify]]
+id = "missing-semicolon"     # expected ',' or ';' before 'std'
+pattern = '''^expected (?:'[,)]' or )?';''''
+category = "syntax"
+code = "CPP_MISSING_SEMICOLON"
+hint = "previous_line_end"
+hint_message = "The missing ';' probably belongs at the end of this line."
+
+[[classify]]
+id = "end-of-input"
+pattern = '''at end of input$'''
+category = "syntax"
+code = "CPP_UNEXPECTED_END_OF_INPUT"
+
+[[classify]]
+id = "expected-token"
+pattern = '''^expected '''
+category = "syntax"
+code = "CPP_EXPECTED_TOKEN"
+
+[[classify]]
+id = "argument-count"
+pattern = '''^too (?:few|many) arguments to function'''
+category = "type"
+code = "CPP_WRONG_ARGUMENT_COUNT"
+
+[[classify]]
+id = "no-matching-function"  # no matching function for call to 'push_back(const char [6])'
+pattern = '''^no matching (?:function|constructor) for call to'''
+category = "type"
+code = "CPP_NO_MATCHING_FUNCTION"
+
+[[classify]]
+id = "no-matching-operator"  # no match for 'operator<' (operand types are ...)
+pattern = '''^no match for '(?:operator|call to)'''
+category = "type"
+code = "CPP_NO_MATCHING_OPERATOR"
+
+[[classify]]
+id = "type-mismatch"
+pattern = '''^invalid conversion from|^cannot convert|^invalid operands|^conversion from .+ to non-scalar type|^invalid initialization|^cannot bind|^binding reference|incompatible types|^could not convert'''
+category = "type"
+code = "CPP_TYPE_MISMATCH"
+
+[[classify]]
+id = "return-mismatch"       # return-statement with no value, in function returning 'int'
+pattern = '''^return-statement with (?:no value|a value)'''
+category = "type"
+code = "CPP_RETURN_MISMATCH"
+
+[[classify]]
+id = "missing-return"
+pattern = '''^control reaches end of non-void function|^no return statement in function returning non-void'''
+category = "other"
+code = "CPP_MISSING_RETURN"
+
+[[classify]]
+id = "uninitialized"
+pattern = '''is used uninitialized|may be used uninitialized'''
+category = "other"
+code = "CPP_UNINITIALIZED_VARIABLE"
+
+[[classify]]
+id = "assignment-in-condition"
+pattern = '''^suggest parentheses around assignment used as truth value'''
+category = "other"
+code = "CPP_ASSIGNMENT_IN_CONDITION"
+
+[[classify]]
+id = "sign-compare"          # comparison of integer expressions of different signedness
+pattern = '''^comparison of integer expressions of different signedness'''
+category = "other"
+code = "CPP_SIGN_COMPARE"
+
+[[classify]]
+id = "unused"
+pattern = '''^unused (?:variable|parameter|function|label)|defined but not used|set but not used'''
+category = "other"
+code = "CPP_UNUSED"
+
+[[classify]]
+id = "array-bounds"
+pattern = '''array subscript .+ is (?:above|below|outside) array bounds'''
+category = "other"
+code = "CPP_ARRAY_BOUNDS"
+
+[[classify]]
+id = "assertion"
+pattern = '''^Assertion `.*' failed'''
+category = "runtime"
+code = "CPP_ASSERTION_FAILED"
+
+[[classify]]
+id = "stack-smashing"
+pattern = '''stack smashing detected'''
+category = "memory"
+code = "CPP_STACK_BUFFER_OVERFLOW"
+
+[[classify]]
+id = "heap-corruption"
+pattern = '''^(?:free|malloc|realloc|munmap_chunk|malloc_consolidate)\(\)|^double free or corruption|^corrupted '''
+category = "memory"
+code = "CPP_HEAP_CORRUPTION"
+
+[[classify]]
+id = "uncaught-exception"    # Uncaught exception of type std::out_of_range: vector::_M_range_check ...
+pattern = '''^Uncaught exception of type'''
+category = "runtime"
+code = "CPP_UNCAUGHT_EXCEPTION"
+
+[[classify]]
+id = "terminate"
+pattern = '''^terminate called'''
+category = "runtime"
+code = "CPP_TERMINATE"

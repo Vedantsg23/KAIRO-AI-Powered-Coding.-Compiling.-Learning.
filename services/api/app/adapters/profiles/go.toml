@@ -1,0 +1,187 @@
+# Language profile: Go 1.23 (Ubuntu 24.04 package).
+#
+# The image carries the standard library already compiled (see
+# infra/containers/go/prepare-std.sh), so the program is compiled and linked
+# with Go's own compile and link tools and an import configuration, instead
+# of `go build` rebuilding fmt and runtime in every fresh sandbox. Only the
+# standard library can be imported (no modules, no network).
+
+schema_version = 2
+id = "go"
+display_name = "Go"
+editor_mode = "go"
+source_file = "main.go"
+code_prefix = "GO"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "Go"
+declared_version = "1.23"
+image = "compiler-copilot/sandbox-go:1.23"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = ["/opt/go-std/bin/compile", "-o", "/workspace/main.a", "-p", "main", "-lang=go1.23", "-complete", "-nolocalimports", "-importcfg", "/opt/go-std/importcfg", "-pack", "-c=1", "main.go"]
+workdir = "/workspace"
+workspace_mode = "rw"
+grammar = "go-compile"
+[steps.limits]
+wall_time_ms = 20000
+cpu_time_s = 20
+memory_mb = 512
+pids = 32
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 128
+
+[[steps]]
+name = "link"
+kind = "compile"
+label = "Link"
+argv = ["/opt/go-std/bin/link", "-o", "/workspace/main", "-importcfg", "/opt/go-std/importcfg", "-buildmode=exe", "/workspace/main.a"]
+workdir = "/workspace"
+workspace_mode = "rw"
+grammar = "go-link"
+[steps.limits]
+wall_time_ms = 20000
+cpu_time_s = 20
+memory_mb = 512
+pids = 32
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 128
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["/workspace/main"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+env = { GOMAXPROCS = "2" }
+grammar = "go-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "undefined"
+pattern = '''^undefined: '''
+category = "name"
+code = "GO_UNDEFINED"
+
+[[classify]]
+id = "unused-variable"
+pattern = '''^declared and not used'''
+category = "other"
+code = "GO_UNUSED_VARIABLE"
+
+[[classify]]
+id = "unused-import"
+pattern = '''imported and not used$'''
+category = "build"
+code = "GO_UNUSED_IMPORT"
+
+[[classify]]
+id = "import-unavailable"
+pattern = '''^could not import |^package .+ is not in std|cannot find package'''
+category = "build"
+code = "GO_IMPORT_UNAVAILABLE"
+
+[[classify]]
+id = "type-mismatch"
+pattern = '''^cannot use |^invalid operation|^mismatched types|^cannot convert'''
+category = "type"
+code = "GO_TYPE_MISMATCH"
+
+[[classify]]
+id = "argument-count"
+pattern = '''^(?:not enough|too many) arguments in call'''
+category = "type"
+code = "GO_WRONG_ARGUMENT_COUNT"
+
+[[classify]]
+id = "missing-return"
+pattern = '''^missing return'''
+category = "other"
+code = "GO_MISSING_RETURN"
+
+[[classify]]
+id = "redeclared"
+pattern = '''redeclared in this block|no new variables on left side of :='''
+category = "name"
+code = "GO_REDECLARED"
+
+[[classify]]
+id = "syntax"
+pattern = '''^syntax error'''
+category = "syntax"
+code = "GO_SYNTAX_ERROR"
+
+[[classify]]
+id = "no-main"
+pattern = '''function main is undeclared in the main package'''
+category = "build"
+code = "GO_NO_MAIN"
+
+[[classify]]
+id = "index"
+pattern = '''index out of range'''
+category = "runtime"
+code = "GO_INDEX_OUT_OF_RANGE"
+
+[[classify]]
+id = "nil"
+pattern = '''invalid memory address or nil pointer dereference'''
+category = "memory"
+code = "GO_NIL_POINTER"
+
+[[classify]]
+id = "nil-map"
+pattern = '''assignment to entry in nil map'''
+category = "runtime"
+code = "GO_NIL_MAP"
+
+[[classify]]
+id = "divide"
+pattern = '''integer divide by zero'''
+category = "runtime"
+code = "GO_DIVIDE_BY_ZERO"
+
+[[classify]]
+id = "deadlock"
+pattern = '''all goroutines are asleep - deadlock'''
+category = "runtime"
+code = "GO_DEADLOCK"
+
+[[classify]]
+id = "stack"
+pattern = '''stack overflow|goroutine stack exceeds'''
+category = "memory"
+code = "GO_STACK_OVERFLOW"
+
+[[classify]]
+id = "thread-limit"
+pattern = '''^failed to create new OS thread'''
+category = "runtime"
+code = "GO_THREAD_LIMIT"
+
+[[classify]]
+id = "oom"
+pattern = '''out of memory'''
+category = "memory"
+code = "GO_OUT_OF_MEMORY"
+
+[[classify]]
+id = "panic"
+pattern = '''^(?:panic|fatal error): '''
+category = "runtime"
+code = "GO_PANIC"

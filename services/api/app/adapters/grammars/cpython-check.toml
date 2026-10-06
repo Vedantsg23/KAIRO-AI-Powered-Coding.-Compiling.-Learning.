@@ -1,0 +1,37 @@
+# Output of the Python syntax check (the "compile" step, which runs the
+# image's check_syntax.py: compile() without executing, errors printed in
+# CPython's own format).
+#
+#     File "main.py", line 2
+#       if score >= 40
+#                     ^
+#   SyntaxError: expected ':'
+#
+#   main.py:2: SyntaxWarning: invalid escape sequence '\d'
+#     pattern = "\d+"
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = true
+
+[[rules]]
+id = "python.syntax-error"
+action = "block"
+parser = "python-traceback"
+pattern = '''^  File "(?P<file>[^"]+)", line (?P<line>\d+)$'''
+
+[[rules]]
+id = "python.traceback"
+action = "block"
+parser = "python-traceback"
+pattern = '''^Traceback \(most recent call last\):$'''
+
+[[rules]]
+id = "python.warning"        # main.py:2: SyntaxWarning: invalid escape sequence '\d'
+action = "diagnostic"
+pattern = '''^(?P<file>[^\s:][^:]*\.py):(?P<line>\d+): (?P<severity>\w*Warning): (?P<message>.+)$'''
+
+[[rules]]
+id = "python.warning-source" # the source line printed under a warning
+action = "ignore"
+pattern = '''^  \S'''

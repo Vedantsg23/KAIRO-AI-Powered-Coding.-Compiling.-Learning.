@@ -1,0 +1,26 @@
+# Icarus Verilog 12 compiler (iverilog).
+#   main.v:3: syntax error
+#   main.v:1: error: Syntax error in variable list.
+#   main.v:3: error: Unable to bind wire/reg/memory `missing' in `main'
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = false
+severity_map = { "sorry" = "error" }
+
+[[rules]]
+id = "iverilog.summary"
+action = "ignore"
+pattern = '''^(?:I give up\.|\d+ error\(s\) during elaboration\.|Elaboration failed)'''
+
+[[rules]]
+id = "iverilog.follow-up"      # the parser's second line about the same syntax error
+action = "detail"
+pattern = '''^[^\s:][^:]*:\d+: error: (?P<detail>Malformed statement|Invalid module item\.?|Invalid module instantiation|Syntax in assignment statement l-value\.?|Errors in port declarations\.?)$'''
+append = ": {detail}"
+
+[[rules]]
+id = "iverilog.located"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+): (?:(?P<severity>error|warning|sorry): )?(?P<message>.+)$'''

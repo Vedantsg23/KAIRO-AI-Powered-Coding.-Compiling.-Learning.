@@ -1,0 +1,2229 @@
+{
+  "c": {
+    "starter": "starter.c",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.c",
+        "title": "Hello, input",
+        "description": "Reads your name from the Input tab and greets you.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant! Welcome to C."
+        }
+      },
+      {
+        "id": "factorial",
+        "file": "factorial.c",
+        "title": "Factorial with recursion",
+        "description": "A function that calls itself, fed by a number from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "recursion",
+          "functions"
+        ],
+        "stdin": "10\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "10! = 3628800"
+        }
+      },
+      {
+        "id": "missing-semicolon",
+        "file": "missing-semicolon.c",
+        "title": "Missing semicolon",
+        "description": "The classic: the error is reported on the line AFTER the mistake.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "C_MISSING_SEMICOLON"
+        }
+      },
+      {
+        "id": "typo",
+        "file": "typo.c",
+        "title": "Typo in a variable name",
+        "description": "Using a name that was never declared; GCC even suggests the fix.",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables and scope"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "C_UNDECLARED_IDENTIFIER"
+        }
+      },
+      {
+        "id": "arguments",
+        "file": "arguments.c",
+        "title": "Wrong number of arguments",
+        "description": "A call that does not match the function's parameter list.",
+        "outcome": "compile-error",
+        "concepts": [
+          "functions"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "C_WRONG_ARGUMENT_COUNT"
+        }
+      },
+      {
+        "id": "null-pointer",
+        "file": "null-pointer.c",
+        "title": "NULL pointer crash",
+        "description": "Compiles fine, then crashes with a segmentation fault at run time.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "pointers"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "RUNTIME_SEGMENTATION_FAULT"
+        }
+      },
+      {
+        "id": "divide-by-zero",
+        "file": "divide-by-zero.c",
+        "title": "Division by zero",
+        "description": "Reads a divisor from the Input tab. Try 4, then 0.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arithmetic",
+          "input validation"
+        ],
+        "stdin": "0\n",
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "RUNTIME_ARITHMETIC_ERROR"
+        }
+      },
+      {
+        "id": "assertion",
+        "file": "assertion.c",
+        "title": "Failed assertion",
+        "description": "assert() stops the program and reports the exact line.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "debugging"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "C_ASSERTION_FAILED"
+        }
+      },
+      {
+        "id": "infinite-loop",
+        "file": "infinite-loop.c",
+        "title": "Loop that never ends",
+        "description": "The loop condition is never false, so the time limit stops it.",
+        "outcome": "time-limit",
+        "concepts": [
+          "loops"
+        ],
+        "expect": {
+          "state": "TIMEOUT",
+          "code": "LIMIT_TIMEOUT"
+        }
+      }
+    ]
+  },
+  "cpp": {
+    "starter": "starter.cpp",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.cpp",
+        "title": "Hello, input",
+        "description": "Reads a whole line from the Input tab with getline.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output",
+          "strings"
+        ],
+        "stdin": "Vedant Gadage\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant Gadage!"
+        }
+      },
+      {
+        "id": "undeclared",
+        "file": "undeclared.cpp",
+        "title": "Typo in a variable name",
+        "description": "g++ reports the unknown name and suggests the one you meant.",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables and scope"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "CPP_UNDECLARED_IDENTIFIER"
+        }
+      },
+      {
+        "id": "out-of-range",
+        "file": "out-of-range.cpp",
+        "title": "Index out of range",
+        "description": "vector::at() checks the index and throws an exception.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "vectors",
+          "exceptions"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "CPP_UNCAUGHT_EXCEPTION"
+        }
+      },
+      {
+        "id": "infinite-loop",
+        "file": "infinite-loop.cpp",
+        "title": "Loop that never ends",
+        "description": "An unsigned counter can never go below zero.",
+        "outcome": "time-limit",
+        "concepts": [
+          "loops",
+          "unsigned numbers"
+        ],
+        "expect": {
+          "state": "TIMEOUT",
+          "code": "LIMIT_TIMEOUT"
+        }
+      }
+    ]
+  },
+  "java": {
+    "starter": "starter.java",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.java",
+        "title": "Hello, input",
+        "description": "Reads your name with a Scanner from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-semicolon",
+        "file": "missing-semicolon.java",
+        "title": "Missing semicolon",
+        "description": "javac points at the exact spot where ';' is expected.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "JAVA_MISSING_SEMICOLON"
+        }
+      },
+      {
+        "id": "index-out-of-bounds",
+        "file": "index-out-of-bounds.java",
+        "title": "Index out of bounds",
+        "description": "Arrays start at index 0; the loop goes one step too far.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arrays",
+          "loops"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "JAVA_INDEX_OUT_OF_BOUNDS"
+        }
+      },
+      {
+        "id": "null-pointer",
+        "file": "null-pointer.java",
+        "title": "NullPointerException",
+        "description": "Calling a method on a variable that holds null.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "objects",
+          "null"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "JAVA_NULL_POINTER"
+        }
+      }
+    ]
+  },
+  "python": {
+    "starter": "starter.py",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.py",
+        "title": "Hello, input",
+        "description": "Reads your name with input() from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-colon",
+        "file": "missing-colon.py",
+        "title": "Missing colon",
+        "description": "Blocks start with ':'. The syntax check catches it before running.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax",
+          "blocks"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "PY_MISSING_COLON"
+        }
+      },
+      {
+        "id": "name-error",
+        "file": "name-error.py",
+        "title": "Typo in a variable name",
+        "description": "Python finds the unknown name only when that line runs.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "PY_NAME_ERROR"
+        }
+      },
+      {
+        "id": "recursion",
+        "file": "recursion.py",
+        "title": "Recursion without a base case",
+        "description": "The function calls itself forever until Python stops it.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "recursion"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "PY_RECURSION_ERROR"
+        }
+      }
+    ]
+  },
+  "javascript": {
+    "starter": "starter.js",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.js",
+        "title": "Hello, input",
+        "description": "Reads all of the Input tab (standard input) at once.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "syntax-error",
+        "file": "syntax-error.js",
+        "title": "Unclosed bracket",
+        "description": "node --check finds the syntax error before the program runs.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "JS_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "not-defined",
+        "file": "not-defined.js",
+        "title": "Typo in a variable name",
+        "description": "A ReferenceError, reported at the exact line and column.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "JS_NOT_DEFINED"
+        }
+      },
+      {
+        "id": "undefined-property",
+        "file": "undefined-property.js",
+        "title": "Reading a property of undefined",
+        "description": "find() returns undefined when nothing matches.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "objects",
+          "undefined"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "JS_UNDEFINED_PROPERTY"
+        }
+      }
+    ]
+  },
+  "typescript": {
+    "starter": "starter.ts",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.ts",
+        "title": "Hello, input",
+        "description": "Reads the Input tab and greets you, with types.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "type-error",
+        "file": "type-error.ts",
+        "title": "Wrong type",
+        "description": "The type checker stops the program before it runs.",
+        "outcome": "compile-error",
+        "concepts": [
+          "types"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "TS_TYPE_MISMATCH"
+        }
+      },
+      {
+        "id": "wrong-arguments",
+        "file": "wrong-arguments.ts",
+        "title": "Missing argument",
+        "description": "Calling a function with fewer values than it needs.",
+        "outcome": "compile-error",
+        "concepts": [
+          "functions"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "TS_WRONG_ARGUMENT_COUNT"
+        }
+      },
+      {
+        "id": "runtime-error",
+        "file": "runtime-error.ts",
+        "title": "Error while running",
+        "description": "Types cannot catch everything: find() may return undefined.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "undefined",
+          "non-null assertion"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "JS_UNDEFINED_PROPERTY"
+        }
+      }
+    ]
+  },
+  "go": {
+    "starter": "starter.go",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.go",
+        "title": "Hello, input",
+        "description": "Reads your name with fmt.Scanln from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "unused-variable",
+        "file": "unused-variable.go",
+        "title": "Unused variable",
+        "description": "In Go an unused variable is an error, not just a warning.",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "GO_UNUSED_VARIABLE"
+        }
+      },
+      {
+        "id": "undefined",
+        "file": "undefined.go",
+        "title": "Typo in a name",
+        "description": "The compiler reports the unknown name with its line and column.",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables and scope"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "GO_UNDEFINED"
+        }
+      },
+      {
+        "id": "index-panic",
+        "file": "index-panic.go",
+        "title": "Index out of range",
+        "description": "Go stops the program with a panic and shows the line.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "slices"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "GO_INDEX_OUT_OF_RANGE"
+        }
+      }
+    ]
+  },
+  "rust": {
+    "starter": "starter.rs",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.rs",
+        "title": "Hello, input",
+        "description": "Reads a line from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output",
+          "strings"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "mismatched-types",
+        "file": "mismatched-types.rs",
+        "title": "Mismatched types",
+        "description": "rustc explains what it expected and what it found.",
+        "outcome": "compile-error",
+        "concepts": [
+          "types"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "RS_TYPE_MISMATCH"
+        }
+      },
+      {
+        "id": "use-after-move",
+        "file": "use-after-move.rs",
+        "title": "Value used after move",
+        "description": "Ownership: after a move the old variable cannot be used.",
+        "outcome": "compile-error",
+        "concepts": [
+          "ownership",
+          "borrowing"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "RS_USE_AFTER_MOVE"
+        }
+      },
+      {
+        "id": "index-panic",
+        "file": "index-panic.rs",
+        "title": "Index out of bounds",
+        "description": "Rust checks every index and panics instead of reading garbage.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "vectors"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "RS_INDEX_OUT_OF_BOUNDS"
+        }
+      }
+    ]
+  },
+  "csharp": {
+    "starter": "starter.cs",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.cs",
+        "title": "Hello, input",
+        "description": "Reads your name with Console.ReadLine from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-semicolon",
+        "file": "missing-semicolon.cs",
+        "title": "Missing semicolon",
+        "description": "The C# compiler reports '; expected' with the exact spot.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "CS_MISSING_SEMICOLON"
+        }
+      },
+      {
+        "id": "undeclared",
+        "file": "undeclared.cs",
+        "title": "Typo in a variable name",
+        "description": "Error CS0103: the name does not exist in the current context.",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables and scope"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "CS_NAME_NOT_FOUND"
+        }
+      },
+      {
+        "id": "divide-by-zero",
+        "file": "divide-by-zero.cs",
+        "title": "Division by zero",
+        "description": "Integer division by zero throws an exception while running.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arithmetic",
+          "exceptions"
+        ],
+        "stdin": "0\n",
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "CS_DIVIDE_BY_ZERO"
+        }
+      }
+    ]
+  },
+  "kotlin": {
+    "starter": "starter.kt",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.kt",
+        "title": "Hello, input",
+        "description": "Reads your name with readLine() from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "unresolved",
+        "file": "unresolved.kt",
+        "title": "Typo in a name",
+        "description": "Kotlin reports an unresolved reference at compile time.",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables and scope"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "KT_UNRESOLVED_REFERENCE"
+        }
+      },
+      {
+        "id": "null-safety",
+        "file": "null-safety.kt",
+        "title": "Null safety",
+        "description": "A String cannot hold null; String? can. The compiler checks this.",
+        "outcome": "compile-error",
+        "concepts": [
+          "null safety",
+          "types"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "KT_TYPE_MISMATCH"
+        }
+      },
+      {
+        "id": "index-error",
+        "file": "index-error.kt",
+        "title": "Index out of bounds",
+        "description": "Lists start at index 0; the loop goes one step too far.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "lists",
+          "loops"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "KT_INDEX_OUT_OF_BOUNDS"
+        }
+      }
+    ]
+  },
+  "swift": {
+    "starter": "starter.swift",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.swift",
+        "title": "Hello, input",
+        "description": "Reads your name with readLine() from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "not-in-scope",
+        "file": "not-in-scope.swift",
+        "title": "Typo in a name",
+        "description": "The compiler reports a name that is not in scope.",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables and scope"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR"
+        }
+      },
+      {
+        "id": "force-unwrap",
+        "file": "force-unwrap.swift",
+        "title": "Unwrapping nil",
+        "description": "Int(\"12a\") is nil, and ! stops the program.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "optionals"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR"
+        }
+      }
+    ]
+  },
+  "php": {
+    "starter": "starter.php",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.php",
+        "title": "Hello, input",
+        "description": "Reads a line from the Input tab with fgets(STDIN).",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "syntax-error",
+        "file": "syntax-error.php",
+        "title": "Missing semicolon",
+        "description": "php -l finds the syntax error before the program runs.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "PHP_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "undefined-function",
+        "file": "undefined-function.php",
+        "title": "Unknown function",
+        "description": "Calling a function that does not exist (a typo).",
+        "outcome": "runtime-error",
+        "concepts": [
+          "functions"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "PHP_UNDEFINED_FUNCTION"
+        }
+      },
+      {
+        "id": "division-by-zero",
+        "file": "division-by-zero.php",
+        "title": "Division by zero",
+        "description": "intdiv() by zero throws DivisionByZeroError.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arithmetic"
+        ],
+        "stdin": "0\n",
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "PHP_DIVISION_BY_ZERO"
+        }
+      }
+    ]
+  },
+  "ruby": {
+    "starter": "starter.rb",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.rb",
+        "title": "Hello, input",
+        "description": "Reads your name with gets from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-end",
+        "file": "missing-end.rb",
+        "title": "Missing end",
+        "description": "Every def, if and do block needs its own end.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax",
+          "blocks"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "RB_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "name-error",
+        "file": "name-error.rb",
+        "title": "Typo in a variable name",
+        "description": "Ruby even suggests the name you probably meant.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "RB_NAME_ERROR"
+        }
+      },
+      {
+        "id": "nil-error",
+        "file": "nil-error.rb",
+        "title": "Method called on nil",
+        "description": "A hash lookup for a missing key gives nil.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "nil",
+          "hashes"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "RB_NO_METHOD_ERROR"
+        }
+      }
+    ]
+  },
+  "lua": {
+    "starter": "starter.lua",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.lua",
+        "title": "Hello, input",
+        "description": "Reads a line from the Input tab with io.read.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-then",
+        "file": "missing-then.lua",
+        "title": "Missing then",
+        "description": "luac checks the syntax before the program runs.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "LUA_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "call-nil",
+        "file": "call-nil.lua",
+        "title": "Calling a misspelled function",
+        "description": "A misspelled name is nil, and nil cannot be called.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "functions",
+          "nil"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "LUA_CALL_NIL"
+        }
+      },
+      {
+        "id": "nil-arithmetic",
+        "file": "nil-arithmetic.lua",
+        "title": "Arithmetic on nil",
+        "description": "A missing table entry is nil, and nil is not a number.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "tables",
+          "nil"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "LUA_ARITHMETIC_ON_INVALID"
+        }
+      }
+    ]
+  },
+  "bash": {
+    "starter": "starter.sh",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.sh",
+        "title": "Hello, input",
+        "description": "Reads your name with read from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-then",
+        "file": "missing-then.sh",
+        "title": "Missing then",
+        "description": "bash -n checks the syntax before the script runs.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "SH_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "command-not-found",
+        "file": "command-not-found.sh",
+        "title": "Command not found",
+        "description": "set -e stops the script at the first failing command.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "commands",
+          "errors"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "SH_COMMAND_NOT_FOUND"
+        }
+      },
+      {
+        "id": "unbound-variable",
+        "file": "unbound-variable.sh",
+        "title": "Unset variable",
+        "description": "set -u turns a typo in a variable name into an error.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "SH_UNBOUND_VARIABLE"
+        }
+      }
+    ]
+  },
+  "sql": {
+    "starter": "starter.sql",
+    "examples": [
+      {
+        "id": "group-by",
+        "file": "group-by.sql",
+        "title": "Grouping rows",
+        "description": "Totals per department with GROUP BY and a JOIN.",
+        "outcome": "runs",
+        "concepts": [
+          "joins",
+          "aggregates"
+        ],
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Computer"
+        }
+      },
+      {
+        "id": "syntax-error",
+        "file": "syntax-error.sql",
+        "title": "Syntax error",
+        "description": "A misspelled keyword; statements before it still ran.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "syntax"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "SQL_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "no-such-column",
+        "file": "no-such-column.sql",
+        "title": "Unknown column",
+        "description": "Asking for a column the table does not have.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "tables",
+          "columns"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "SQL_NO_SUCH_COLUMN"
+        }
+      },
+      {
+        "id": "constraint",
+        "file": "constraint.sql",
+        "title": "Constraint failed",
+        "description": "NOT NULL and UNIQUE rules protect the data.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "constraints"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "SQL_CONSTRAINT_FAILED"
+        }
+      }
+    ]
+  },
+  "fortran": {
+    "starter": "starter.f90",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.f90",
+        "title": "Hello, input",
+        "description": "Reads a line from the Input tab with read(*, '(A)').",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-operand",
+        "file": "missing-operand.f90",
+        "title": "Missing operand",
+        "description": "An expression ends with '+': gfortran stops at compile time.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax",
+          "expressions"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "FORTRAN_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "no-implicit-type",
+        "file": "no-implicit-type.f90",
+        "title": "Misspelled variable",
+        "description": "With implicit none, every name must be declared.",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "FORTRAN_UNDEFINED"
+        }
+      },
+      {
+        "id": "array-bounds",
+        "file": "array-bounds.f90",
+        "title": "Index past the end",
+        "description": "The loop runs to 4 but the array has 3 elements.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arrays",
+          "loops"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "FORTRAN_INDEX_OUT_OF_BOUNDS"
+        }
+      }
+    ]
+  },
+  "asm": {
+    "starter": "starter.asm",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.asm",
+        "title": "Hello, input",
+        "description": "read(0, ...) takes the Input tab, write(1, ...) prints it back.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output",
+          "system calls"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant"
+        }
+      },
+      {
+        "id": "typo-mnemonic",
+        "file": "typo-mnemonic.asm",
+        "title": "Misspelled instruction",
+        "description": "mvo is not an instruction: NASM stops before linking.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax",
+          "instructions"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "ASM_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "undefined-label",
+        "file": "undefined-label.asm",
+        "title": "Calling a missing label",
+        "description": "call helper, but helper is never defined.",
+        "outcome": "compile-error",
+        "concepts": [
+          "labels",
+          "procedures"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "ASM_UNDEFINED"
+        }
+      },
+      {
+        "id": "segfault",
+        "file": "segfault.asm",
+        "title": "Reading address 0",
+        "description": "mov rax, [0] reads memory the program does not own.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "memory",
+          "addressing"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "RUNTIME_SEGMENTATION_FAULT"
+        }
+      }
+    ]
+  },
+  "pascal": {
+    "starter": "starter.pas",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.pas",
+        "title": "Hello, input",
+        "description": "readln takes a line from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-semicolon",
+        "file": "missing-semicolon.pas",
+        "title": "Missing semicolon",
+        "description": "Free Pascal notices at the next statement.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax",
+          "statements"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "PAS_MISSING_SEMICOLON"
+        }
+      },
+      {
+        "id": "range-error",
+        "file": "range-error.pas",
+        "title": "Index past the end",
+        "description": "The loop writes a[4] into an array[1..3].",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arrays",
+          "loops"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "PAS_INDEX_OUT_OF_BOUNDS"
+        }
+      },
+      {
+        "id": "division-by-zero",
+        "file": "division-by-zero.pas",
+        "title": "Division by zero",
+        "description": "div by 0 stops the program with run-time error 200.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arithmetic"
+        ],
+        "stdin": "10 0\n",
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "PAS_DIVISION_BY_ZERO"
+        }
+      }
+    ]
+  },
+  "cobol": {
+    "starter": "starter.cob",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.cob",
+        "title": "Hello, input",
+        "description": "ACCEPT reads a line from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "unknown-statement",
+        "file": "unknown-statement.cob",
+        "title": "Misspelled verb",
+        "description": "DISPLY is not a COBOL statement.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax",
+          "statements"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "COB_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "undefined-item",
+        "file": "undefined-item.cob",
+        "title": "Undefined data item",
+        "description": "WS-TOTL is used but only WS-TOTAL is defined.",
+        "outcome": "compile-error",
+        "concepts": [
+          "data division"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "COB_UNDEFINED"
+        }
+      },
+      {
+        "id": "subscript",
+        "file": "subscript.cob",
+        "title": "Subscript out of range",
+        "description": "WS-ITEM OCCURS 3 TIMES, but the subscript is 4.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "tables",
+          "OCCURS"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "COB_INDEX_OUT_OF_BOUNDS"
+        }
+      }
+    ]
+  },
+  "lex": {
+    "starter": "starter.l",
+    "examples": [
+      {
+        "id": "word-count",
+        "file": "word-count.l",
+        "title": "Count words and numbers",
+        "description": "Two patterns and two counters, run on the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "tokens",
+          "regular expressions"
+        ],
+        "stdin": "KAIRO compiles 15 languages in 2026\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "words=4 numbers=2"
+        }
+      },
+      {
+        "id": "bad-pattern",
+        "file": "bad-pattern.l",
+        "title": "Unclosed character class",
+        "description": "[0-9+ never closes, so flex cannot read the rule.",
+        "outcome": "compile-error",
+        "concepts": [
+          "regular expressions"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "LEX_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "undeclared-counter",
+        "file": "undeclared-counter.l",
+        "title": "Misspelled counter in an action",
+        "description": "The C code in an action is compiled by GCC.",
+        "outcome": "compile-error",
+        "concepts": [
+          "actions",
+          "C code"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "LEX_UNDECLARED_IDENTIFIER"
+        }
+      }
+    ]
+  },
+  "verilog": {
+    "starter": "starter.v",
+    "examples": [
+      {
+        "id": "and-gate",
+        "file": "and-gate.v",
+        "title": "AND gate truth table",
+        "description": "A module, a testbench and $display.",
+        "outcome": "runs",
+        "concepts": [
+          "modules",
+          "testbench"
+        ],
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "1 AND 1 = 1"
+        }
+      },
+      {
+        "id": "missing-semicolon",
+        "file": "missing-semicolon.v",
+        "title": "Missing semicolon",
+        "description": "Icarus reports the statement after the missing ';'.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "VERILOG_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "unbound-name",
+        "file": "unbound-name.v",
+        "title": "Misspelled signal",
+        "description": "totl is not declared, so it cannot be bound.",
+        "outcome": "compile-error",
+        "concepts": [
+          "signals",
+          "declarations"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "VERILOG_UNDEFINED"
+        }
+      }
+    ]
+  },
+  "nim": {
+    "starter": "starter.nim",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.nim",
+        "title": "Hello, input",
+        "description": "readLine(stdin) takes a line from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "undeclared",
+        "file": "undeclared.nim",
+        "title": "Misspelled name",
+        "description": "totl was never declared.",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "NIM_UNDECLARED_IDENTIFIER"
+        }
+      },
+      {
+        "id": "type-mismatch",
+        "file": "type-mismatch.nim",
+        "title": "String into an int",
+        "description": "Nim's types are checked at compile time.",
+        "outcome": "compile-error",
+        "concepts": [
+          "types"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "NIM_TYPE_MISMATCH"
+        }
+      },
+      {
+        "id": "index-error",
+        "file": "index-error.nim",
+        "title": "Index past the end",
+        "description": "0 .. 3 includes 3, one past the last index.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "sequences",
+          "loops"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "NIM_INDEX_OUT_OF_BOUNDS"
+        }
+      }
+    ]
+  },
+  "d": {
+    "starter": "starter.d",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.d",
+        "title": "Hello, input",
+        "description": "readln takes a line from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-semicolon",
+        "file": "missing-semicolon.d",
+        "title": "Missing semicolon",
+        "description": "GDC points at the declaration that needs one.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "D_MISSING_SEMICOLON"
+        }
+      },
+      {
+        "id": "undefined",
+        "file": "undefined.d",
+        "title": "Misspelled name",
+        "description": "GDC suggests the name you probably meant.",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "D_UNDEFINED"
+        }
+      },
+      {
+        "id": "index-error",
+        "file": "index-error.d",
+        "title": "Index past the end",
+        "description": "Array bounds are checked while the program runs.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arrays",
+          "loops"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "D_INDEX_OUT_OF_BOUNDS"
+        }
+      }
+    ]
+  },
+  "ada": {
+    "starter": "starter.adb",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.adb",
+        "title": "Hello, input",
+        "description": "Get_Line takes a line from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-semicolon",
+        "file": "missing-semicolon.adb",
+        "title": "Missing semicolon",
+        "description": "GNAT points right after the declaration.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax",
+          "declarations"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "ADA_MISSING_SEMICOLON"
+        }
+      },
+      {
+        "id": "undefined",
+        "file": "undefined.adb",
+        "title": "Misspelled name",
+        "description": "GNAT suggests the name you probably meant.",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "ADA_UNDEFINED"
+        }
+      },
+      {
+        "id": "index-check",
+        "file": "index-check.adb",
+        "title": "Index check failed",
+        "description": "Enter 4 for an array (1 .. 3): CONSTRAINT_ERROR.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arrays",
+          "run-time checks"
+        ],
+        "stdin": "4\n",
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "ADA_INDEX_OUT_OF_BOUNDS"
+        }
+      }
+    ]
+  },
+  "r": {
+    "starter": "starter.R",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.R",
+        "title": "Hello, input",
+        "description": "readLines(file(\"stdin\")) takes a line from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "syntax",
+        "file": "syntax.R",
+        "title": "Two operators in a row",
+        "description": "R parses the whole file before it runs anything.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax",
+          "operators"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "R_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "object-not-found",
+        "file": "object-not-found.R",
+        "title": "Misspelled variable",
+        "description": "totl was never assigned.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "R_OBJECT_NOT_FOUND"
+        }
+      },
+      {
+        "id": "stop",
+        "file": "stop.R",
+        "title": "stop() in a function",
+        "description": "A function refuses a negative age with stop().",
+        "outcome": "runtime-error",
+        "concepts": [
+          "functions",
+          "errors"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "R_RUNTIME_ERROR"
+        }
+      }
+    ]
+  },
+  "perl": {
+    "starter": "starter.pl",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.pl",
+        "title": "Hello, input",
+        "description": "<STDIN> reads a line from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "strict-vars",
+        "file": "strict-vars.pl",
+        "title": "Undeclared variable",
+        "description": "use strict wants every variable declared with my.",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables",
+          "strict"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "PERL_UNDECLARED_IDENTIFIER"
+        }
+      },
+      {
+        "id": "division-by-zero",
+        "file": "division-by-zero.pl",
+        "title": "Division by zero",
+        "description": "Perl stops with \"Illegal division by zero\".",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arithmetic"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "PERL_DIVISION_BY_ZERO"
+        }
+      }
+    ]
+  },
+  "prolog": {
+    "starter": "starter.pro",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.pro",
+        "title": "Hello, input",
+        "description": "read_term reads a term ending with a full stop.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output",
+          "terms"
+        ],
+        "stdin": "vedant.\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, vedant!"
+        }
+      },
+      {
+        "id": "syntax",
+        "file": "syntax.pro",
+        "title": "Operator without an operand",
+        "description": "1 + , is not a term: loading stops.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "syntax"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "PROLOG_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "unknown-procedure",
+        "file": "unknown-procedure.pro",
+        "title": "Unknown procedure",
+        "description": "greet/1 is called but never defined.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "predicates"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "PROLOG_UNDEFINED"
+        }
+      },
+      {
+        "id": "zero-divisor",
+        "file": "zero-divisor.pro",
+        "title": "Division by zero",
+        "description": "is/2 cannot evaluate 10 / 0.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arithmetic"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "PROLOG_DIVISION_BY_ZERO"
+        }
+      }
+    ]
+  },
+  "tcl": {
+    "starter": "starter.tcl",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.tcl",
+        "title": "Hello, input",
+        "description": "gets stdin reads a line from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "no-such-variable",
+        "file": "no-such-variable.tcl",
+        "title": "Misspelled variable",
+        "description": "$totl was never set.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "TCL_UNDEFINED_VARIABLE"
+        }
+      },
+      {
+        "id": "divide-by-zero",
+        "file": "divide-by-zero.tcl",
+        "title": "Division by zero",
+        "description": "expr cannot divide an integer by 0.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arithmetic"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "TCL_DIVISION_BY_ZERO"
+        }
+      }
+    ]
+  },
+  "scheme": {
+    "starter": "starter.scm",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.scm",
+        "title": "Hello, input",
+        "description": "read-line from (ice-9 rdelim) reads the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-paren",
+        "file": "missing-paren.scm",
+        "title": "Missing close paren",
+        "description": "The reader reaches the end of the file inside a list.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "syntax",
+          "lists"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "SCM_UNEXPECTED_END_OF_INPUT"
+        }
+      },
+      {
+        "id": "unbound",
+        "file": "unbound.scm",
+        "title": "Unbound variable",
+        "description": "totl was never defined.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "SCM_UNBOUND_VARIABLE"
+        }
+      }
+    ]
+  },
+  "lisp": {
+    "starter": "starter.lisp",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.lisp",
+        "title": "Hello, input",
+        "description": "read-line reads a line from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "undefined-function",
+        "file": "undefined-function.lisp",
+        "title": "Misspelled function",
+        "description": "sqaure is not the function you defined.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "functions"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "LISP_UNDEFINED_FUNCTION"
+        }
+      },
+      {
+        "id": "division-by-zero",
+        "file": "division-by-zero.lisp",
+        "title": "Division by zero",
+        "description": "(/ 10 0) signals DIVISION-BY-ZERO.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arithmetic",
+          "conditions"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "LISP_DIVISION_BY_ZERO"
+        }
+      }
+    ]
+  },
+  "erlang": {
+    "starter": "starter.erl",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.erl",
+        "title": "Hello, input",
+        "description": "io:get_line reads a line from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-comma",
+        "file": "missing-comma.erl",
+        "title": "Missing comma",
+        "description": "Expressions in a body are separated by commas.",
+        "outcome": "compile-error",
+        "concepts": [
+          "syntax"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "ERL_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "unbound",
+        "file": "unbound.erl",
+        "title": "Unbound variable",
+        "description": "Totl was never bound (variables start with a capital).",
+        "outcome": "compile-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "COMPILE_ERROR",
+          "code": "ERL_UNBOUND_VARIABLE"
+        }
+      },
+      {
+        "id": "badarith",
+        "file": "badarith.erl",
+        "title": "Division by zero",
+        "description": "Enter 0: 10 div 0 raises badarith.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arithmetic"
+        ],
+        "stdin": "0\n",
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "ERL_ARITHMETIC_EXCEPTION"
+        }
+      }
+    ]
+  },
+  "elixir": {
+    "starter": "starter.exs",
+    "examples": [
+      {
+        "id": "hello-input",
+        "file": "hello-input.exs",
+        "title": "Hello, input",
+        "description": "IO.gets reads a line from the Input tab.",
+        "outcome": "runs",
+        "concepts": [
+          "input and output"
+        ],
+        "stdin": "Vedant\n",
+        "expect": {
+          "state": "SUCCEEDED",
+          "stdout": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "missing-end",
+        "file": "missing-end.exs",
+        "title": "Missing end",
+        "description": "Every do needs an end.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "syntax",
+          "modules"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "EX_SYNTAX_ERROR"
+        }
+      },
+      {
+        "id": "undefined",
+        "file": "undefined.exs",
+        "title": "Misspelled variable",
+        "description": "totl is not a variable, so Elixir looks for a function.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "variables"
+        ],
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "EX_UNDEFINED_VARIABLE"
+        }
+      },
+      {
+        "id": "arithmetic",
+        "file": "arithmetic.exs",
+        "title": "Division by zero",
+        "description": "Enter 0: div(10, 0) raises ArithmeticError.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "arithmetic"
+        ],
+        "stdin": "0\n",
+        "expect": {
+          "state": "RUNTIME_ERROR",
+          "code": "EX_ARITHMETIC_EXCEPTION"
+        }
+      }
+    ]
+  },
+  "html": {
+    "starter": "starter.html",
+    "runsIn": "browser",
+    "examples": [
+      {
+        "id": "greeting-form",
+        "file": "greeting-form.html",
+        "title": "A form that greets you",
+        "description": "A submit handler updates the page without reloading it.",
+        "outcome": "runs",
+        "concepts": [
+          "forms",
+          "events"
+        ],
+        "expect": {
+          "text": "Hello, Vedant!"
+        }
+      },
+      {
+        "id": "semantic-page",
+        "file": "semantic-page.html",
+        "title": "Tables and lists",
+        "description": "header, main, table, ol and footer on one page.",
+        "outcome": "runs",
+        "concepts": [
+          "semantic HTML",
+          "tables"
+        ],
+        "expect": {
+          "text": "Semester timetable"
+        }
+      },
+      {
+        "id": "script-error",
+        "file": "script-error.html",
+        "title": "A misspelled method",
+        "description": "getElementByID is not a function: the console shows the line.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "DOM",
+          "debugging"
+        ],
+        "expect": {
+          "error": "getElementByID"
+        }
+      }
+    ]
+  },
+  "css": {
+    "starter": "starter.css",
+    "runsIn": "browser",
+    "examples": [
+      {
+        "id": "flexbox-nav",
+        "file": "flexbox-nav.css",
+        "title": "Flexbox navigation",
+        "description": "A dark header with links that light up on hover.",
+        "outcome": "runs",
+        "concepts": [
+          "flexbox",
+          "hover"
+        ],
+        "expect": {
+          "text": "KAIRO Cafe"
+        }
+      },
+      {
+        "id": "dark-theme",
+        "file": "dark-theme.css",
+        "title": "A theme from variables",
+        "description": "Change one CSS variable and the whole page recolours.",
+        "outcome": "runs",
+        "concepts": [
+          "CSS variables",
+          "themes"
+        ],
+        "expect": {
+          "text": "Espresso"
+        }
+      },
+      {
+        "id": "animation",
+        "file": "animation.css",
+        "title": "Keyframe animations",
+        "description": "A pulsing button and cards that slide in.",
+        "outcome": "runs",
+        "concepts": [
+          "animation",
+          "keyframes"
+        ],
+        "expect": {
+          "text": "Order now"
+        }
+      }
+    ]
+  },
+  "react": {
+    "starter": "starter.jsx",
+    "runsIn": "browser",
+    "examples": [
+      {
+        "id": "todo-list",
+        "file": "todo-list.jsx",
+        "title": "To-do list",
+        "description": "State with useState, a form and a list with keys.",
+        "outcome": "runs",
+        "concepts": [
+          "state",
+          "lists"
+        ],
+        "expect": {
+          "text": "Finish the Lex lab"
+        }
+      },
+      {
+        "id": "props",
+        "file": "props.jsx",
+        "title": "Components and props",
+        "description": "One Card component used twice with different props.",
+        "outcome": "runs",
+        "concepts": [
+          "components",
+          "props"
+        ],
+        "expect": {
+          "text": "Operating Systems"
+        }
+      },
+      {
+        "id": "jsx-error",
+        "file": "jsx-error.jsx",
+        "title": "Unclosed tag",
+        "description": "JSX needs every tag closed: the preview shows where.",
+        "outcome": "compile-error",
+        "concepts": [
+          "JSX",
+          "syntax"
+        ],
+        "expect": {
+          "error": "JSX"
+        }
+      },
+      {
+        "id": "runtime-error",
+        "file": "runtime-error.jsx",
+        "title": "Reading a missing property",
+        "description": "data.items is undefined, so .map fails while rendering.",
+        "outcome": "runtime-error",
+        "concepts": [
+          "objects",
+          "debugging"
+        ],
+        "expect": {
+          "error": "map"
+        }
+      }
+    ]
+  }
+}

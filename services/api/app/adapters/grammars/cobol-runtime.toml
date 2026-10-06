@@ -1,0 +1,25 @@
+# Runtime errors of GnuCOBOL programs (compiled with -debug):
+#   libcob: main.cob:9: error: subscript of 'WS-A' out of bounds: 5
+#   note: maximum subscript for 'WS-A': 3
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = false
+
+[[rules]]
+id = "cobol.runtime"
+action = "diagnostic"
+severity = "error"
+pattern = '''^libcob: (?P<file>[^\s:][^:]*):(?P<line>\d+): (?:error: )?(?P<message>.+)$'''
+
+[[rules]]
+id = "cobol.runtime-unlocated"
+action = "diagnostic"
+severity = "error"
+pattern = '''^libcob: (?:error: )?(?P<message>.+)$'''
+
+[[rules]]
+id = "cobol.note"
+action = "diagnostic"
+severity = "note"
+pattern = '''^note: (?P<message>.+)$'''

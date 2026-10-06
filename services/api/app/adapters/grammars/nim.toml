@@ -1,0 +1,24 @@
+# Nim 1.6 compiler (nim c --hints:off).
+#   /workspace/main.nim(2, 6) Error: undeclared identifier: 'y'
+#   candidates (edit distance, scope distance); see '--spellSuggest':
+#    (1, 1): 'x' [let declared in /workspace/main.nim(1, 5)]
+
+streams = ["stdout", "stderr"]
+column_unit = "byte"
+report_unmatched = false
+severity_map = { "Error" = "error", "Warning" = "warning", "Hint" = "info" }
+
+[[rules]]
+id = "nim.located"
+action = "diagnostic"
+pattern = '''^(?P<file>[^\s(][^(]*)\((?P<line>\d+), (?P<column>\d+)\) (?P<severity>Error|Warning|Hint): (?P<message>.+)$'''
+
+[[rules]]
+id = "nim.candidates"
+action = "ignore"
+pattern = '''^(?:candidates \(edit distance|\s\(\d+, \d+\): |\S+\(\d+, \d+\) (?:template|generic)/)'''
+
+[[rules]]
+id = "nim.unlocated"
+action = "diagnostic"
+pattern = '''^(?P<severity>Error): (?P<message>.+)$'''

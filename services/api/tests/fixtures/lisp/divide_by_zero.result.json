@@ -1,0 +1,20 @@
+{
+  "toolchain": "R (2024-02-29), perl v5.38.2, swipl 9.0.4, tcl 8.6.14, guile 3.0.9, sbcl 2.2.9.debian, erlang 25, elixir 1.14.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "run",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "Unhandled DIVISION-BY-ZERO in thread #<SB-THREAD:THREAD \"main thread\" RUNNING\n                                        {1001348003}>:\n  arithmetic error DIVISION-BY-ZERO signalled\nOperation was (/ 10 0).\n\nBacktrace for: #<SB-THREAD:THREAD \"main thread\" RUNNING {1001348003}>\n0: (SB-KERNEL::INTEGER-/-INTEGER 10 0)\n1: (/ 10 0)\n2: (SB-INT:SIMPLE-EVAL-IN-LEXENV (/ 10 *B*) #<NULL-LEXENV>)\n3: (SB-INT:SIMPLE-EVAL-IN-LEXENV (FORMAT T \"~a~%\" (/ 10 *B*)) #<NULL-LEXENV>)\n4: (EVAL-TLF (FORMAT T \"~a~%\" (/ 10 *B*)) 1 NIL)\n5: ((LABELS SB-FASL::EVAL-FORM :IN SB-INT:LOAD-AS-SOURCE) (FORMAT T \"~a~%\" (/ 10 *B*)) 1)\n6: ((LAMBDA (SB-KERNEL:FORM &KEY :CURRENT-INDEX &ALLOW-OTHER-KEYS) :IN SB-INT:LOAD-AS-SOURCE) (FORMAT T \"~a~%\" (/ 10 *B*)) :CURRENT-INDEX 1)\n7: (SB-C::%DO-FORMS-FROM-INFO #<FUNCTION (LAMBDA (SB-KERNEL:FORM &KEY :CURRENT-INDEX &ALLOW-OTHER-KEYS) :IN SB-INT:LOAD-AS-SOURCE) {1001337A8B}> #<SB-C::SOURCE-INFO {1001337A53}> SB-C::INPUT-ERROR-IN-LOAD)\n8: (SB-INT:LOAD-AS-SOURCE #<SB-SYS:FD-STREAM for \"file /workspace/main.lisp\" {1001336F53}> :VERBOSE NIL :PRINT NIL :CONTEXT \"loading\")\n9: ((LABELS SB-FASL::LOAD-STREAM-1 :IN LOAD) #<SB-SYS:FD-STREAM for \"file /workspace/main.lisp\" {1001336F53}> NIL)\n10: (SB-FASL::CALL-WITH-LOAD-BINDINGS #<FUNCTION (LABELS SB-FASL::LOAD-STREAM-1 :IN LOAD) {7F74D149782B}> #<SB-SYS:FD-STREAM for \"file /workspace/main.lisp\" {1001336F53}> NIL #<SB-SYS:FD-STREAM for \"file /workspace/main.lisp\" {1001336F53}>)\n11: (LOAD #<SB-SYS:FD-STREAM for \"file /workspace/main.lisp\" {1001336F53}> :VERBOSE NIL :PRINT NIL :IF-DOES-NOT-EXIST :ERROR :EXTERNAL-FORMAT :DEFAULT)\n12: ((FLET SB-IMPL::LOAD-SCRIPT :IN SB-IMPL::PROCESS-SCRIPT) #<SB-SYS:FD-STREAM for \"file /workspace/main.lisp\" {1001336F53}>)\n13: ((FLET SB-UNIX::BODY :IN SB-IMPL::PROCESS-SCRIPT))\n14: ((FLET \"WITHOUT-INTERRUPTS-BODY-11\" :IN SB-IMPL::PROCESS-SCRIPT))\n15: (SB-IMPL::PROCESS-SCRIPT \"/workspace/main.lisp\")\n16: (SB-IMPL::TOPLEVEL-INIT)\n17: ((FLET SB-UNIX::BODY :IN SB-IMPL::START-LISP))\n18: ((FLET \"WITHOUT-INTERRUPTS-BODY-3\" :IN SB-IMPL::START-LISP))\n19: (SB-IMPL::%START-LISP)\n\nunhandled condition in --disable-debugger mode, quitting\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

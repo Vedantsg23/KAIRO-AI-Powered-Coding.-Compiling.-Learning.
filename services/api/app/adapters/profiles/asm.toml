@@ -1,0 +1,115 @@
+# Language profile: x86-64 assembly with NASM 2.16 and GNU ld (Linux).
+#
+# The program is assembled to an ELF64 object and linked on its own (no C
+# library), the way lab courses teach it: the entry point is _start and the
+# program talks to Linux with `syscall` (1 = write, 0 = read, 60 = exit).
+
+schema_version = 2
+id = "asm"
+display_name = "Assembly (NASM)"
+editor_mode = "nasm"
+source_file = "main.asm"
+code_prefix = "ASM"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "NASM"
+declared_version = "2.16"
+image = "compiler-copilot/sandbox-native:24.04"
+
+[[steps]]
+name = "assemble"
+kind = "compile"
+label = "Assemble"
+argv = ["nasm", "-f", "elf64", "-g", "-F", "dwarf", "-o", "main.o", "main.asm"]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { LC_ALL = "C" }
+grammar = "nasm"
+[steps.limits]
+wall_time_ms = 10000
+cpu_time_s = 10
+memory_mb = 256
+pids = 16
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 32
+
+[[steps]]
+name = "link"
+kind = "compile"
+label = "Link"
+argv = ["ld", "-o", "main", "main.o"]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { LC_ALL = "C" }
+grammar = "nasm"
+[steps.limits]
+wall_time_ms = 10000
+cpu_time_s = 10
+memory_mb = 256
+pids = 16
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 32
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["/workspace/main"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "glibc-runtime"            # crashes are reported from the exit signal
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 128
+pids = 16
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "no-entry"
+pattern = '''cannot find entry symbol _start'''
+category = "build"
+code = "ASM_NO_ENTRY_POINT"
+
+[[classify]]
+id = "undefined-reference"
+pattern = '''^undefined reference to'''
+category = "build"
+code = "ASM_UNDEFINED_REFERENCE"
+
+[[classify]]
+id = "undefined-symbol"
+pattern = '''^symbol [`'].+' (?:not defined|undefined)'''
+category = "name"
+code = "ASM_UNDEFINED"
+
+[[classify]]
+id = "redefined"
+pattern = '''(?:label|symbol) [`'].+' (?:inconsistently )?redefined|^label [`'].+' changed during code generation'''
+category = "name"
+code = "ASM_REDEFINITION"
+
+[[classify]]
+id = "operands"
+pattern = '''^invalid combination of opcode and operands|^mismatch in operand sizes|^operation size not specified|^impossible combination of address sizes|^invalid effective address|^instruction not supported in 64-bit mode'''
+category = "type"
+code = "ASM_INVALID_OPERANDS"
+
+[[classify]]
+id = "orphan-label"
+pattern = '''^label alone on a line without a colon'''
+category = "other"
+code = "ASM_LABEL_WITHOUT_COLON"
+
+[[classify]]
+id = "syntax"
+pattern = '''^parser: |^expression syntax error|expected after operand|^label or instruction expected|^unrecognised directive|^unrecognized directive|^unterminated string|^comma expected|^invalid (?:operand|character)|^unexpected'''
+category = "syntax"
+code = "ASM_SYNTAX_ERROR"

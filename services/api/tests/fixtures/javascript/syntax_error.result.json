@@ -1,0 +1,20 @@
+{
+  "toolchain": "node 18.19.1, tsc 7.0.2",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "/workspace/main.js:2\nfor (const m of marks {\n                      ^\n\nSyntaxError: Unexpected token '{'\n    at internalCompileFunction (node:internal/vm:73:18)\n    at wrapSafe (node:internal/modules/cjs/loader:1274:20)\n    at node:internal/main/check_syntax:84:41\n    at loadESM (node:internal/process/esm_loader:34:13)\n    at checkSyntax (node:internal/main/check_syntax:84:21)\n\nNode.js v18.19.1\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "toolchain": "13.3.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "main.cpp: In function 'int main()':\nmain.cpp:11:20: error: 'struct Point' has no member named 'z'\n   11 |     std::cout << p.z << std::endl;\n      |                    ^\nmain.cpp:13:7: error: 'std::string' {aka 'class std::__cxx11::basic_string<char>'} has no member named 'push'\n   13 |     s.push(1);\n      |       ^~~~\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

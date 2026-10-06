@@ -1,0 +1,26 @@
+# Output of swiftc 6.1 (EXPERIMENTAL: written from the documented format and
+# not yet checked against real compiler output; see docs/languages.md).
+#
+# With -diagnostic-style llvm each diagnostic is one clang-style line, then
+# the source line and a ^~~~ marker:
+#   main.swift:2:7: error: cannot find 'totl' in scope
+#   print(totl)
+#         ^~~~
+# The first line has the same shape in Swift 6's default style, so only that
+# line is parsed; excerpt and marker lines are left out (the raw compiler log
+# keeps them). Columns count bytes, as in clang.
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = false
+severity_map = { remark = "info" }
+
+[[rules]]
+id = "swiftc.diagnostic"
+action = "diagnostic"
+pattern = '''^(?P<file>[^\s:][^:]*\.swift):(?P<line>\d+):(?P<column>\d+): (?P<severity>error|warning|note|remark): (?P<message>.+)$'''
+
+[[rules]]
+id = "swiftc.global"         # error: link command failed ... / <unknown>:0: error: ...
+action = "diagnostic"
+pattern = '''^(?:<unknown>:0: )?(?P<severity>error|warning): (?P<message>.+)$'''

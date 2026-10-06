@@ -1,0 +1,20 @@
+{
+  "toolchain": "2.4.20",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "main.kt:3:5: error: unresolved reference 'println'.\n    println(marks)\n    ^^^^^^^\nmain.kt:3:13: error: unresolved reference 'marks'.\n    println(marks)\n            ^^^^^\nmain.kt:3:19: error: syntax error: Expecting ')'.\n    println(marks)\n                  ^\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

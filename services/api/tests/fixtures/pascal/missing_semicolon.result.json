@@ -1,0 +1,20 @@
+{
+  "toolchain": "gfortran 13.3.0, nasm 2.16.01, fpc 3.2.2, cobc 3.1.2.0, flex 2.6.4, iverilog 12.0, nim 1.6.14, gdc 13.3.0, gnat 13.3.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "Free Pascal Compiler version 3.2.2+dfsg-32 [2024/01/05] for x86_64\nCopyright (c) 1993-2021 by Florian Klaempfl and others\nTarget OS: Linux for x86-64\nCompiling main.pas\nmain.pas(6,3) Fatal: Syntax error, \";\" expected but \"identifier WRITELN\" found\nFatal: Compilation aborted\nError: /usr/bin/ppcx64 returned an error exitcode\n",
+      "stderr": "",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

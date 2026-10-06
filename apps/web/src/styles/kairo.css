@@ -1,0 +1,741 @@
+/* KAIRO interface: the compiler console's shell, panels, the build pipeline,
+   Saarthi's avatar and the floating assistant, the boot sequence and the
+   entry page. Tokens come from index.css.
+
+   Performance rules (the editor must stay smooth while typing):
+   * animations move only transform and opacity;
+   * the app's mood lives in data-mood on .cd-app and only descendant
+     selectors react to it (no inherited custom property changes, which would
+     restyle the whole page);
+   * decorative motion pauses while the student types (data-typing) and is
+     off entirely with data-motion="off" or the system's reduced motion.
+   All rules live in the components layer, so Tailwind utilities (hidden,
+   max-lg:hidden...) still override them. */
+
+@layer components {
+
+/* ------------------------------------------------------------ app shell */
+
+.cd-app {
+  background-color: var(--cd-canvas);
+  background-image:
+    radial-gradient(1100px 420px at 12% -8%, color-mix(in oklab, var(--cd-brand) 7%, transparent), transparent 70%),
+    linear-gradient(var(--cd-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cd-grid) 1px, transparent 1px);
+  background-size: auto, 32px 32px, 32px 32px;
+  background-position: 0 0, -1px -1px, -1px -1px;
+}
+
+/* Mono micro-labels: SYSTEM, COMPILER, DIAGNOSTICS... */
+.k-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cd-faint);
+}
+.k-index {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--cd-brand-fg);
+}
+
+/* Panels: flat surfaces, hairline borders, a header strip with a label. */
+.k-panel {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--cd-line);
+  border-radius: 10px;
+  background: var(--cd-surface);
+  box-shadow: var(--cd-shadow-soft);
+}
+.k-panel-head {
+  display: flex;
+  height: 36px;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--cd-line);
+  background: var(--cd-raised);
+  padding: 0 10px;
+}
+
+/* HUD corner brackets for highlighted frames. */
+.k-hud::before,
+.k-hud::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  border-color: var(--cd-brand);
+  border-style: solid;
+  opacity: 0.9;
+}
+.k-hud::before {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+  border-top-left-radius: 4px;
+}
+.k-hud::after {
+  right: -1px;
+  bottom: -1px;
+  border-width: 0 2px 2px 0;
+  border-bottom-right-radius: 4px;
+}
+
+/* Status chips: "BUILD · READY", "SAARTHI · ONLINE". */
+.k-chip {
+  display: inline-flex;
+  height: 26px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--cd-line);
+  border-radius: 7px;
+  background: var(--cd-surface);
+  padding: 0 9px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--cd-muted);
+}
+.k-chip b {
+  font-weight: 700;
+  color: var(--cd-fg);
+}
+
+/* The caret in the logo and the wordmark. */
+.k-caret {
+  animation: k-caret 1.1s steps(1) infinite;
+}
+@keyframes k-caret {
+  50% { opacity: 0; }
+}
+
+/* ------------------------------------------------------------ the editor */
+
+/* A 2 px signal line along the top of the editor follows the mood. */
+.k-editor-frame {
+  position: relative;
+}
+.k-editor-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 2;
+  height: 2px;
+  background: var(--cd-brand);
+  opacity: 0.55;
+  transition: opacity 0.3s, background-color 0.3s;
+  pointer-events: none;
+}
+.cd-app[data-mood="typing"] .k-editor-frame::before { opacity: 0.9; }
+.cd-app[data-mood="success"] .k-editor-frame::before { opacity: 1; }
+.cd-app[data-mood="warn"] .k-editor-frame::before { background: var(--cd-warn); opacity: 1; }
+.cd-app[data-mood="error"] .k-editor-frame::before { background: var(--cd-danger); opacity: 1; }
+.cd-app[data-mood="running"] .k-editor-frame::before {
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, var(--cd-brand), transparent) 0 0 / 40% 100% no-repeat, color-mix(in oklab, var(--cd-brand) 25%, transparent);
+  animation: k-scan-x 1.1s linear infinite;
+}
+@keyframes k-scan-x {
+  from { background-position: -40% 0, 0 0; }
+  to { background-position: 140% 0, 0 0; }
+}
+
+/* ------------------------------------------------------ build pipeline */
+
+.k-pipeline {
+  position: relative;
+}
+.cd-station {
+  position: relative;
+  display: inline-flex;
+  height: 22px;
+  width: 22px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--cd-line-strong);
+  border-radius: 6px;
+  background: var(--cd-surface);
+  color: var(--cd-faint);
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+.cd-station[data-status="active"] {
+  border-color: var(--cd-brand);
+  color: var(--cd-brand-fg);
+  background: color-mix(in oklab, var(--cd-brand) 10%, var(--cd-surface));
+}
+.cd-station[data-status="active"]::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 1px solid var(--cd-brand);
+  border-radius: 8px;
+  animation: k-ping 1.2s ease-out infinite;
+}
+@keyframes k-ping {
+  from { opacity: 0.8; transform: scale(0.85); }
+  to { opacity: 0; transform: scale(1.25); }
+}
+.cd-station[data-status="done"] {
+  border-color: var(--cd-brand);
+  background: var(--cd-brand);
+  color: var(--cd-on-brand);
+}
+.cd-station[data-status="failed"] {
+  border-color: var(--cd-danger);
+  background: var(--cd-danger);
+  color: #fff;
+}
+.cd-station[data-status="skipped"] {
+  border-style: dashed;
+  opacity: 0.7;
+}
+.k-link {
+  position: relative;
+  height: 2px;
+  min-width: 10px;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--cd-line-strong);
+}
+.k-link[data-state="done"] { background: var(--cd-brand); }
+.k-link[data-state="failed"] { background: color-mix(in oklab, var(--cd-danger) 60%, var(--cd-line-strong)); }
+.k-link[data-state="flow"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, var(--cd-brand), transparent);
+  animation: k-flow 0.9s linear infinite;
+}
+@keyframes k-flow {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(230%); }
+}
+
+/* --------------------------------------------------- Saarthi's avatar */
+
+.k-avatar { overflow: visible; }
+.k-avatar .a-float { animation: a-bob 3.4s ease-in-out infinite alternate; }
+.k-avatar .a-glow { animation: a-glow 3.4s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+@keyframes a-bob {
+  from { transform: translateY(0); }
+  to { transform: translateY(-3.5px); }
+}
+@keyframes a-glow {
+  from { opacity: 0.55; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1.04); }
+}
+.k-avatar .a-eyes {
+  transform: translate(calc(var(--px, 0) * 3.2px), calc(var(--py, 0) * 2.4px));
+  transition: transform 0.12s ease-out;
+}
+.k-avatar .a-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: a-blink 5.6s infinite;
+}
+@keyframes a-blink {
+  0%, 95%, 100% { transform: scaleY(1); }
+  97% { transform: scaleY(0.12); }
+}
+.k-avatar :is(.a-eye-happy, .a-eye-closed, .a-brows, .a-mouth-smile, .a-mouth-flat, .a-eq, .a-holo-explain, .a-holo-idea, .a-holo-alert, .a-think, .a-sparks, .a-zzz, .a-scan) {
+  display: none;
+}
+.k-avatar:is(.mood-happy, .mood-sleeping) .a-eye-open { display: none; }
+.k-avatar.mood-happy :is(.a-eye-happy, .a-mouth-smile, .a-sparks) { display: inline; }
+.k-avatar.mood-sleeping :is(.a-eye-closed, .a-zzz) { display: inline; }
+.k-avatar.mood-sleeping { --eye: #2f8f55; }
+.k-avatar.mood-thinking :is(.a-scan, .a-think) { display: inline; }
+.k-avatar.mood-thinking .a-eye { animation: none; transform: scaleY(0.42) translateY(-5px); }
+.k-avatar.mood-explaining :is(.a-eq, .a-holo-explain) { display: inline; }
+.k-avatar.mood-suggesting :is(.a-holo-idea, .a-mouth-smile) { display: inline; }
+.k-avatar.mood-concerned { --eye: #fbbf24; }
+.k-avatar.mood-concerned :is(.a-brows, .a-mouth-flat, .a-holo-alert) { display: inline; }
+.k-avatar.mood-concerned .a-eye { animation: none; transform: scaleY(0.8); }
+.k-avatar .a-scan { animation: a-scan 1.4s ease-in-out infinite alternate; }
+@keyframes a-scan {
+  from { transform: translateY(0); }
+  to { transform: translateY(30px); }
+}
+.k-avatar .a-eq rect { transform-box: fill-box; transform-origin: center; animation: a-eq 0.7s ease-in-out infinite alternate; }
+.k-avatar .a-eq rect:nth-child(2) { animation-delay: -0.2s; }
+.k-avatar .a-eq rect:nth-child(3) { animation-delay: -0.45s; }
+.k-avatar .a-eq rect:nth-child(4) { animation-delay: -0.1s; }
+.k-avatar .a-eq rect:nth-child(5) { animation-delay: -0.35s; }
+@keyframes a-eq {
+  from { transform: scaleY(0.35); }
+  to { transform: scaleY(1); }
+}
+.k-avatar .a-think circle { animation: a-dot 1.2s ease-in-out infinite; }
+.k-avatar .a-think circle:nth-child(2) { animation-delay: 0.2s; }
+.k-avatar .a-think circle:nth-child(3) { animation-delay: 0.4s; }
+@keyframes a-dot {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+.k-avatar .a-hand-r { transform-origin: 90px 80px; transition: transform 0.3s ease-out; }
+.k-avatar.mood-wave .a-hand-r { animation: a-wave 1s ease-in-out infinite alternate; }
+@keyframes a-wave {
+  from { transform: translate(20px, -40px) rotate(-14deg); }
+  to { transform: translate(21px, -44px) rotate(16deg); }
+}
+.k-avatar:is(.mood-explaining, .mood-suggesting) .a-hand-r { transform: translate(19px, -30px); }
+.k-avatar .a-zzz text { animation: a-dot 2.4s ease-in-out infinite; }
+.k-avatar .a-zzz text:nth-child(2) { animation-delay: 0.6s; }
+
+/* ------------------------------------------------- floating assistant */
+
+.k-float {
+  position: absolute;
+  right: 22px;
+  bottom: 14px;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.k-float > * { pointer-events: auto; }
+.k-float-button {
+  position: relative;
+  border-radius: 50%;
+  filter: drop-shadow(0 10px 14px rgb(9 30 18 / 0.18));
+  transition: transform 0.18s ease-out;
+}
+.k-float-button:hover { transform: translateY(-2px) scale(1.04); }
+.k-float-button:active { transform: scale(0.97); }
+.k-float-ping {
+  position: absolute;
+  top: 6px;
+  right: 4px;
+  height: 10px;
+  width: 10px;
+  border: 2px solid var(--cd-surface);
+  border-radius: 50%;
+}
+.k-bubble {
+  position: relative;
+  margin-bottom: 8px;
+  width: 17.5rem;
+  max-width: calc(100vw - 3rem);
+  animation: k-bubble-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+  transform-origin: 90% 100%;
+}
+@keyframes k-bubble-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+.k-bubble::after {
+  content: "";
+  position: absolute;
+  right: 26px;
+  bottom: -6px;
+  height: 11px;
+  width: 11px;
+  rotate: 45deg;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+  border-color: inherit;
+  background: inherit;
+}
+
+/* --------------------------------------------------------- boot sequence */
+
+.k-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--cd-canvas);
+  background-image:
+    linear-gradient(var(--cd-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cd-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.k-boot[data-leaving="true"] {
+  animation: k-boot-out 0.38s ease-in forwards;
+}
+@keyframes k-boot-out {
+  to { opacity: 0; transform: scale(1.015); }
+}
+.k-boot-line {
+  animation: k-line-in 0.18s ease-out both;
+}
+@keyframes k-line-in {
+  from { opacity: 0; transform: translateX(-4px); }
+  to { opacity: 1; transform: none; }
+}
+.k-boot-bar {
+  transition: width 0.2s ease-out;
+}
+
+/* ------------------------------------------------------- entry motion */
+
+.cd-rise {
+  animation: k-rise 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes k-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.k-enter {
+  animation: k-enter 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes k-enter {
+  from { opacity: 0; transform: translateY(8px) scale(0.995); }
+  to { opacity: 1; transform: none; }
+}
+.k-leave {
+  animation: k-leave 0.5s ease-in forwards;
+}
+@keyframes k-leave {
+  to { opacity: 0; transform: translateY(-10px) scale(0.99); }
+}
+
+/* Floating code cards around the hero avatar. */
+.k-drift {
+  animation: k-drift 6s ease-in-out infinite alternate;
+}
+.k-drift-slow {
+  animation: k-drift 8s ease-in-out infinite alternate-reverse;
+}
+@keyframes k-drift {
+  from { transform: translateY(0); }
+  to { transform: translateY(-8px); }
+}
+
+/* The typing caret in the demo terminal. */
+.cd-caret {
+  display: inline-block;
+  height: 1.05em;
+  width: 0.55em;
+  translate: 0 0.18em;
+  background: var(--cd-brand);
+  animation: k-caret 1s steps(1) infinite;
+}
+
+/* ------------------------------------------------ progress and rewards */
+
+.cd-flame {
+  transform-origin: 50% 90%;
+  animation: k-flicker 1.6s ease-in-out infinite alternate;
+}
+@keyframes k-flicker {
+  from { transform: scale(1) rotate(-3deg); }
+  to { transform: scale(1.08) rotate(3deg); }
+}
+
+/* "+12 XP" rising from the profile chip. */
+.cd-xp-pulse {
+  animation: cd-xp 1.8s ease-out both;
+}
+@keyframes cd-xp {
+  0% { opacity: 0; transform: translateY(4px); }
+  15% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+
+.cd-badge-card {
+  animation: k-badge-in 0.5s cubic-bezier(0.2, 0.9, 0.25, 1.15) both;
+}
+@keyframes k-badge-in {
+  from { opacity: 0; transform: translateY(-14px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+.cd-badge-shine {
+  background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.55) 48%, transparent 62%);
+  background-size: 250% 100%;
+  animation: k-shine 2.8s ease-in-out infinite;
+}
+@keyframes k-shine {
+  0%, 30% { background-position: 150% 0; }
+  70%, 100% { background-position: -100% 0; }
+}
+
+/* Celebration bits: small squares and plus signs that fly out and fade. */
+.cd-particle {
+  position: fixed;
+  left: var(--x);
+  top: var(--y);
+  z-index: 70;
+  height: var(--s);
+  width: var(--s);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  border-radius: var(--r);
+  background: var(--c);
+  pointer-events: none;
+  animation: cd-burst 1.1s cubic-bezier(0.15, 0.7, 0.3, 1) var(--d) both;
+}
+.cd-particle[data-shape="star"] {
+  border-radius: 0;
+  background: none;
+}
+.cd-particle[data-shape="star"]::before,
+.cd-particle[data-shape="star"]::after {
+  content: "";
+  position: absolute;
+  inset: 40% 0;
+  background: var(--c);
+  border-radius: 1px;
+}
+.cd-particle[data-shape="star"]::after {
+  inset: 0 40%;
+}
+@keyframes cd-burst {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0) scale(0.4); }
+  12% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.9); }
+}
+
+/* --------------------------------------------- pauses and motion off */
+
+.cd-app[data-typing="true"] :is(.k-avatar *, .k-caret, .cd-flame, .cd-badge-shine, .k-drift, .k-drift-slow, .animate-pulse-dot) {
+  animation-play-state: paused;
+}
+
+.cd-app[data-motion="off"] *,
+.cd-app[data-motion="off"] *::before,
+.cd-app[data-motion="off"] *::after {
+  animation: none !important;
+  transition-duration: 1ms !important;
+}
+
+/* ------------------------------------------------ editor gutter glyphs */
+
+.k-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.k-glyph::before {
+  content: "";
+  height: 7px;
+  width: 7px;
+  border-radius: 2px;
+}
+.k-glyph-error::before {
+  background: var(--cd-danger);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--cd-danger) 20%, transparent);
+}
+.k-glyph-warning::before {
+  background: var(--cd-warn);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--cd-warn) 22%, transparent);
+}
+.k-glyph-info::before {
+  background: var(--cd-info);
+}
+}
+
+/* ------------------------------------------------------------------
+   Editor extensions: Error Lens messages, TODO highlights, CodeLens.
+   ------------------------------------------------------------------ */
+.k-lens {
+  font-family: var(--font-sans, ui-sans-serif, system-ui);
+  font-size: 0.86em;
+  font-style: italic;
+  opacity: 0.9;
+  padding-left: 0.5em;
+}
+.k-lens-error {
+  color: var(--cd-danger-fg);
+}
+.k-lens-warning {
+  color: var(--cd-warn-fg);
+}
+.k-lens-info {
+  color: var(--cd-info-fg);
+}
+.k-todo {
+  border-radius: 3px;
+  font-weight: 700;
+  background: color-mix(in oklab, var(--cd-warn) 26%, transparent);
+  color: var(--cd-warn-fg) !important;
+}
+.k-todo-fixme,
+.k-todo-hack,
+.k-todo-xxx {
+  background: color-mix(in oklab, var(--cd-danger) 22%, transparent);
+  color: var(--cd-danger-fg) !important;
+}
+.k-todo-note {
+  background: color-mix(in oklab, var(--cd-info) 22%, transparent);
+  color: var(--cd-info-fg) !important;
+}
+.monaco-editor .codelens-decoration,
+.monaco-editor .codelens-decoration a {
+  color: var(--cd-brand-fg) !important;
+  font-family: var(--font-mono, ui-monospace, monospace) !important;
+  font-size: 11px !important;
+}
+
+/* ------------------------------------------------ Saarthi's big hello */
+.k-hello-rings {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 56%, color-mix(in oklab, var(--cd-ai) 20%, transparent), transparent 55%);
+}
+.k-hello-rings::before,
+.k-hello-rings::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: 44vmin;
+  height: 44vmin;
+  margin: -22vmin 0 0 -22vmin;
+  border-radius: 50%;
+  border: 2px solid color-mix(in oklab, var(--cd-ai) 55%, transparent);
+  animation: k-hello-ring 1.7s ease-out infinite;
+}
+.k-hello-rings::after {
+  animation-delay: 0.85s;
+  border-color: color-mix(in oklab, var(--cd-brand) 55%, transparent);
+}
+@keyframes k-hello-ring {
+  from { transform: scale(0.3); opacity: 0.9; }
+  to { transform: scale(2.3); opacity: 0; }
+}
+.k-hello-bubble::after {
+  /* the bubble's tail, pointing down at Saarthi */
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  transform: rotate(45deg);
+  background: inherit;
+  border-right: 1px solid color-mix(in oklab, var(--cd-ai) 40%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--cd-ai) 40%, transparent);
+}
+
+/* ------------------------------------------- entry page: tones by chapter
+   The entry page turns dark or light as you scroll (a chapter's tone is the
+   theme or its opposite). The colour tokens are registered as colours so the
+   whole page cross-fades instead of switching at once. */
+@property --cd-canvas { syntax: "<color>"; inherits: true; initial-value: #f3f6f4; }
+@property --cd-surface { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --cd-raised { syntax: "<color>"; inherits: true; initial-value: #f7f9f8; }
+@property --cd-sunken { syntax: "<color>"; inherits: true; initial-value: #f0f4f1; }
+@property --cd-line { syntax: "<color>"; inherits: true; initial-value: #e2e8e4; }
+@property --cd-line-strong { syntax: "<color>"; inherits: true; initial-value: #c9d3cc; }
+@property --cd-fg { syntax: "<color>"; inherits: true; initial-value: #0b1510; }
+@property --cd-muted { syntax: "<color>"; inherits: true; initial-value: #435049; }
+@property --cd-faint { syntax: "<color>"; inherits: true; initial-value: #5f6b64; }
+@property --cd-brand { syntax: "<color>"; inherits: true; initial-value: #22c55e; }
+@property --cd-brand-fg { syntax: "<color>"; inherits: true; initial-value: #137a3a; }
+@property --cd-on-brand { syntax: "<color>"; inherits: true; initial-value: #03200f; }
+@property --cd-ai { syntax: "<color>"; inherits: true; initial-value: #06b6d4; }
+@property --cd-ai-fg { syntax: "<color>"; inherits: true; initial-value: #0b7185; }
+@property --cd-accent { syntax: "<color>"; inherits: true; initial-value: #f59e0b; }
+@property --cd-accent-fg { syntax: "<color>"; inherits: true; initial-value: #a14e07; }
+@property --cd-warn { syntax: "<color>"; inherits: true; initial-value: #f59e0b; }
+@property --cd-warn-fg { syntax: "<color>"; inherits: true; initial-value: #a14e07; }
+@property --cd-danger { syntax: "<color>"; inherits: true; initial-value: #dc2626; }
+@property --cd-danger-fg { syntax: "<color>"; inherits: true; initial-value: #b91c1c; }
+@property --cd-info { syntax: "<color>"; inherits: true; initial-value: #2563eb; }
+@property --cd-info-fg { syntax: "<color>"; inherits: true; initial-value: #1d4ed8; }
+@property --cd-editor { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --cd-terminal { syntax: "<color>"; inherits: true; initial-value: #fbfcfb; }
+@property --cd-grid { syntax: "<color>"; inherits: true; initial-value: rgb(11 21 16 / 0.045); }
+@property --cd-panel { syntax: "<color>"; inherits: true; initial-value: rgb(255 255 255 / 0.94); }
+@property --cd-glass { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --cd-glow { syntax: "<color>"; inherits: true; initial-value: rgb(34 197 94 / 0.28); }
+@property --cd-scrim { syntax: "<color>"; inherits: true; initial-value: rgb(9 20 14 / 0.42); }
+.k-tone-light {
+  --cd-canvas: #f3f6f4;
+  --cd-surface: #ffffff;
+  --cd-raised: #f7f9f8;
+  --cd-sunken: #f0f4f1;
+  --cd-line: #e2e8e4;
+  --cd-line-strong: #c9d3cc;
+  --cd-fg: #0b1510;
+  --cd-muted: #435049;
+  --cd-faint: #5f6b64;
+  --cd-brand: #22c55e;
+  --cd-brand-fg: #137a3a;
+  --cd-on-brand: #03200f;
+  --cd-ai: #06b6d4;
+  --cd-ai-fg: #0b7185;
+  --cd-accent: #f59e0b;
+  --cd-accent-fg: #a14e07;
+  --cd-warn: #f59e0b;
+  --cd-warn-fg: #a14e07;
+  --cd-danger: #dc2626;
+  --cd-danger-fg: #b91c1c;
+  --cd-info: #2563eb;
+  --cd-info-fg: #1d4ed8;
+  --cd-editor: #ffffff;
+  --cd-terminal: #fbfcfb;
+  --cd-grid: rgb(11 21 16 / 0.045);
+  --cd-panel: rgb(255 255 255 / 0.94);
+  --cd-glass: #ffffff;
+  --cd-shadow: 0 16px 40px -18px rgb(9 30 18 / 0.28), 0 2px 6px -2px rgb(9 30 18 / 0.08);
+  --cd-shadow-soft: 0 1px 2px rgb(9 30 18 / 0.06);
+  --cd-glow: rgb(34 197 94 / 0.28);
+  --cd-scrim: rgb(9 20 14 / 0.42);
+  color-scheme: light;
+}
+.k-tone-dark {
+  --cd-canvas: #0a0a0a;
+  --cd-surface: #101010;
+  --cd-raised: #161616;
+  --cd-sunken: #0c0c0c;
+  --cd-line: #222222;
+  --cd-line-strong: #2e2e2e;
+  --cd-fg: #e8e8e8;
+  --cd-muted: #a8a8a8;
+  --cd-faint: #8a8a8a;
+  --cd-brand: #22c55e;
+  --cd-brand-fg: #4ade80;
+  --cd-on-brand: #03200f;
+  --cd-ai: #22d3ee;
+  --cd-ai-fg: #67e8f9;
+  --cd-accent: #f59e0b;
+  --cd-accent-fg: #fbbf24;
+  --cd-warn: #f59e0b;
+  --cd-warn-fg: #fbbf24;
+  --cd-danger: #dc2626;
+  --cd-danger-fg: #f87171;
+  --cd-info: #3b82f6;
+  --cd-info-fg: #60a5fa;
+  --cd-editor: #0c0c0c;
+  --cd-terminal: #080808;
+  --cd-grid: rgb(255 255 255 / 0.035);
+  --cd-panel: rgb(16 16 16 / 0.94);
+  --cd-glass: #141414;
+  --cd-shadow: 0 20px 48px -16px rgb(0 0 0 / 0.8), 0 2px 6px -2px rgb(0 0 0 / 0.5);
+  --cd-shadow-soft: 0 1px 2px rgb(0 0 0 / 0.5);
+  --cd-glow: rgb(34 197 94 / 0.22);
+  --cd-scrim: rgb(0 0 0 / 0.62);
+  color-scheme: dark;
+}
+.k-entry {
+  background-color: var(--cd-canvas);
+  color: var(--cd-fg);
+}
+.cd-app[data-motion="on"] .k-entry {
+  transition-property: --cd-canvas, --cd-surface, --cd-raised, --cd-sunken, --cd-line, --cd-line-strong, --cd-fg, --cd-muted, --cd-faint, --cd-brand, --cd-brand-fg, --cd-on-brand, --cd-ai, --cd-ai-fg, --cd-accent, --cd-accent-fg, --cd-warn, --cd-warn-fg, --cd-danger, --cd-danger-fg, --cd-info, --cd-info-fg, --cd-editor, --cd-terminal, --cd-grid, --cd-panel, --cd-glass, --cd-glow, --cd-scrim;
+  transition-duration: 700ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

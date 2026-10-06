@@ -1,0 +1,25 @@
+# JavaScript syntax check: `node --check main.js` (Node.js 18).
+#
+#   /workspace/main.js:2
+#   for (const m of marks {
+#                         ^
+#
+#   SyntaxError: Unexpected token '{'
+#       at internalCompileFunction (node:internal/vm:73:18)
+#   ...
+#   Node.js v18.19.1
+
+streams = ["stderr"]
+column_unit = "utf16"        # V8 columns count UTF-16 code units, like the editor
+report_unmatched = true
+
+[[rules]]
+id = "node.error"
+action = "block"
+parser = "node-error"
+pattern = '''^(?P<file>[^\s:][^:]*\.(?:[cm]?js|ts|mts|cts)):(?P<line>\d+)$'''
+
+[[rules]]
+id = "node.version-trailer"
+action = "ignore"
+pattern = '''^Node\.js v\d+'''

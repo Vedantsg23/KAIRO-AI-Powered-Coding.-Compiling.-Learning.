@@ -1,0 +1,20 @@
+{
+  "toolchain": "2.4.20",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "main.kt:3:17: error: only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'String?'.\n    println(name.length)\n                ^\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

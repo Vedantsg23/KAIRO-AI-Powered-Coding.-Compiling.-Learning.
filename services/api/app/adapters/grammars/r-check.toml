@@ -1,0 +1,17 @@
+# R's parser (Rscript /usr/local/lib/kairo/check.R main.R): syntax errors.
+#   Error in parse(file = args[1]) : main.R:3:5: unexpected symbol
+#   2: x <- 5
+#   3: y x
+#          ^
+#   Execution halted
+# A long message goes on its own indented line; the r-error parser handles both.
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "r.parse"
+action = "block"
+parser = "r-error"
+pattern = '''^Error(?: in .+? :|:)'''

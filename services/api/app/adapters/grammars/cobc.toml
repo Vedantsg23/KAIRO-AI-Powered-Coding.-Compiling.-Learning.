@@ -1,0 +1,26 @@
+# GnuCOBOL 3.1 compiler (cobc -x).
+#   main.cob:7: error: 'WS-M' is not defined
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = true
+
+[[rules]]
+id = "cobc.gcc-noise"          # cobc's C compiler flags: "<command-line>: warning: _FORTIFY_SOURCE redefined"
+action = "ignore"
+pattern = '''^<command-line>: '''
+
+[[rules]]
+id = "cobc.located"
+action = "diagnostic"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+): (?P<severity>error|warning|note): (?P<message>.+)$'''
+
+[[rules]]
+id = "cobc.context"            # "main.cob: in paragraph 'MAIN':"
+action = "ignore"
+pattern = '''^[^\s:][^:]*: in (?:paragraph|section) .+:$'''
+
+[[rules]]
+id = "cobc.unlocated"
+action = "diagnostic"
+pattern = '''^cobc: (?P<severity>error|warning): (?P<message>.+)$'''

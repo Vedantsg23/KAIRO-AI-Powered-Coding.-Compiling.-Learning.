@@ -1,0 +1,25 @@
+# Runtime messages printed by the GNU C library (C and C++ programs).
+# Runtime stderr is mostly the program's own output, so only these messages
+# are recognized and nothing else is reported.
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = false
+
+[[rules]]
+id = "glibc.assert"          # main: main.c:7: main: Assertion `balance >= 0' failed.
+action = "diagnostic"        # main: main.cpp:6: int main(): Assertion `x' failed.
+severity = "error"
+pattern = '''^(?P<program>[^:]+): (?P<file>[^:]+):(?P<line>\d+): (?P<function>.+): (?P<message>Assertion `.*' failed\.)$'''
+
+[[rules]]
+id = "glibc.stack-smashing"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<message>\*\*\* stack smashing detected \*\*\*).*$'''
+
+[[rules]]
+id = "glibc.heap"            # free(): double free detected in tcache 2
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<message>(?:free|malloc|realloc|munmap_chunk|malloc_consolidate)\(\): .+|double free or corruption.*|corrupted (?:size|double-linked list|top size).*)$'''

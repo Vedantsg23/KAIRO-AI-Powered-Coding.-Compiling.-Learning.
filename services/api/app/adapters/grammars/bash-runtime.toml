@@ -1,0 +1,14 @@
+# Runtime messages from Bash itself:
+#   /workspace/main.sh: line 2: lss: command not found
+#   /workspace/main.sh: line 3: total / count: division by 0 (error token is "count")
+# The script's own stderr is not reported.
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "bash.runtime"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<file>/workspace/[^:]+): line (?P<line>\d+): (?P<message>.+)$'''

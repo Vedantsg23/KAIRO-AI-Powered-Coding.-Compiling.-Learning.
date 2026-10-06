@@ -1,0 +1,158 @@
+# Language profile: Lex with flex 2.6 and GCC 13 (compiler-design lab).
+#
+# flex turns main.l into a C scanner (lex.yy.c), GCC compiles it and the
+# scanner reads the program's input. Linking with libfl supplies main() and
+# yywrap() when the file does not define its own. GCC's errors in the C code
+# of main.l point back at main.l lines (flex writes #line directives).
+
+schema_version = 2
+id = "lex"
+display_name = "Lex (Flex)"
+editor_mode = "lex"
+source_file = "main.l"
+code_prefix = "LEX"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "flex"
+declared_version = "2.6"
+image = "compiler-copilot/sandbox-native:24.04"
+
+[[steps]]
+name = "scan"
+kind = "compile"
+label = "Generate scanner"
+argv = ["flex", "-o", "lex.yy.c", "main.l"]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { LC_ALL = "C" }
+grammar = "flex"
+[steps.limits]
+wall_time_ms = 10000
+cpu_time_s = 10
+memory_mb = 256
+pids = 16
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 32
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = [
+  "gcc", "-std=gnu17", "-O0", "-g",
+  "-fdiagnostics-color=never", "-fdiagnostics-urls=never",
+  "-fdiagnostics-column-unit=byte", "-fmessage-length=0",
+  "-o", "main", "lex.yy.c", "-lfl",
+]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { LC_ALL = "C" }
+grammar = "gcc"
+[steps.limits]
+wall_time_ms = 20000
+cpu_time_s = 20
+memory_mb = 512
+pids = 64
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 64
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["stdbuf", "-oL", "/workspace/main"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "glibc-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "undefined-definition"
+pattern = '''^undefined definition'''
+category = "name"
+code = "LEX_UNDEFINED"
+
+[[classify]]
+id = "unmatchable-rule"
+pattern = '''^rule cannot be matched'''
+category = "other"
+code = "LEX_UNREACHABLE_CODE"
+
+[[classify]]
+id = "premature-eof"
+pattern = '''^premature EOF|unexpected end of file'''
+category = "syntax"
+code = "LEX_UNEXPECTED_END_OF_FILE"
+
+[[classify]]
+id = "flex-syntax"
+pattern = '''^unrecognized rule|^bad character|^unrecognized %option|^unrecognized '%' directive|^missing quote|^bad start condition|^undeclared start condition|^unrecognized|^EOF encountered inside an action|^bad character class|^iteration value must be positive|^incomplete name definition|^unmatched'''
+category = "syntax"
+code = "LEX_SYNTAX_ERROR"
+
+[[classify]]
+id = "undeclared"
+pattern = '''^'[^']+' undeclared'''
+category = "name"
+code = "LEX_UNDECLARED_IDENTIFIER"
+
+[[classify]]
+id = "implicit-function"
+pattern = '''^(?:incompatible )?implicit declaration of (?:built-in )?function'''
+category = "name"
+code = "LEX_IMPLICIT_FUNCTION_DECLARATION"
+
+[[classify]]
+id = "unknown-type"
+pattern = '''^unknown type name'''
+category = "name"
+code = "LEX_UNKNOWN_TYPE_NAME"
+
+[[classify]]
+id = "undefined-reference"
+pattern = '''^undefined reference to'''
+category = "build"
+code = "LEX_UNDEFINED_REFERENCE"
+
+[[classify]]
+id = "missing-header"
+pattern = '''No such file or directory$'''
+category = "build"
+code = "LEX_MISSING_HEADER"
+
+[[classify]]
+id = "missing-semicolon"
+pattern = '''^expected (?:'[,)]' or )?';''''
+category = "syntax"
+code = "LEX_MISSING_SEMICOLON"
+hint = "previous_line_end"
+hint_message = "The missing ';' probably belongs at the end of this line."
+
+[[classify]]
+id = "expected-token"
+pattern = '''^expected |at end of input$|^stray '.+' in program|^missing terminating'''
+category = "syntax"
+code = "LEX_EXPECTED_TOKEN"
+
+[[classify]]
+id = "type-mismatch"
+pattern = '''^(?:incompatible types|invalid operands to binary|conflicting types for|lvalue required)|incompatible pointer type|makes (?:pointer from integer|integer from pointer) without a cast|^format '%[^']*' expects'''
+category = "type"
+code = "LEX_TYPE_MISMATCH"
+
+[[classify]]
+id = "argument-count"
+pattern = '''^too (?:few|many) arguments to function'''
+category = "type"
+code = "LEX_WRONG_ARGUMENT_COUNT"

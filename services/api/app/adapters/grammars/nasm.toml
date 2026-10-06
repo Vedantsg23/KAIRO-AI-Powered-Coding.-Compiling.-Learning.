@@ -1,0 +1,43 @@
+# NASM 2.16 assembler and GNU ld.
+#   main.asm:4: error: parser: instruction expected
+#   main.asm:4: warning: label alone on a line without a colon might be in error [-w+label-orphan]
+#   ld: main.o: in function `_start':
+#   main.asm:4:(.text+0x1): undefined reference to `helper'
+#   ld: warning: cannot find entry symbol _start; defaulting to 0000000000401000
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = true
+
+[[rules]]
+id = "nasm.located"
+action = "diagnostic"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+): (?P<severity>fatal|error|warning|note): (?P<message>.+?)(?: \[-w\+[\w-]+\])?$'''
+
+[[rules]]
+id = "nasm.unlocated"
+action = "diagnostic"
+pattern = '''^nasm: (?P<severity>fatal|error|warning): (?P<message>.+)$'''
+
+[[rules]]
+id = "ld.in-function"
+action = "ignore"
+pattern = '''^(?:/usr/bin/)?ld: .+: in function .+:$'''
+
+[[rules]]
+id = "ld.undefined"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?:(?:/usr/bin/)?ld: )?(?:(?P<file>[^\s:(][^:(]*):(?:(?P<line>\d+):)?)?(?:\([^)]*\):? ?)?(?P<message>undefined reference to .+)$'''
+
+[[rules]]
+id = "ld.warning"
+action = "diagnostic"
+severity = "warning"
+pattern = '''^(?:/usr/bin/)?ld: warning: (?P<message>.+)$'''
+
+[[rules]]
+id = "ld.other"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?:/usr/bin/)?ld: (?P<message>.+)$'''

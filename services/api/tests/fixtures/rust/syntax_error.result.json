@@ -1,0 +1,20 @@
+{
+  "toolchain": "1.75.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "error: expected `;`, found `println`\n --> main.rs:2:14\n  |\n2 |     let x = 5\n  |              ^ help: add `;` here\n3 |     println!(\"{}\", x);\n  |     ------- unexpected token\n\nerror: aborting due to previous error\n\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

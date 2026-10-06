@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Script error</title>
+</head>
+<body>
+  <h1 id="title">Loading...</h1>
+  <script>
+    // getElementByID is misspelled: the method is getElementById
+    const title = document.getElementByID("title");
+    title.textContent = "Ready";
+  </script>
+</body>
+</html>

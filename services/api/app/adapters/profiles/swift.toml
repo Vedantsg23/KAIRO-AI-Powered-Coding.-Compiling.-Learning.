@@ -1,0 +1,136 @@
+# Language profile: Swift 6.1 (EXPERIMENTAL).
+#
+# Prepared but not verified: the development environment could not reach
+# Docker Hub or swift.org, so no Swift program has been compiled with this
+# profile yet. The language is listed with status "experimental" and stays
+# hidden in the editor until its sandbox image is built and allowed on the
+# runner (docs/languages.md, "Enabling Swift"). Before calling it stable: run
+# tests/integration with the image, capture golden fixtures with
+# scripts/capture_fixtures.py and review the grammars against real output.
+#
+# One main.swift is compiled with swiftc in Swift 5 language mode (the
+# beginner-friendly mode; Swift 6 mode adds strict concurrency checking) and
+# the clang-style diagnostic format. Debug build: overflow and range checks
+# stay on and stop the program instead of giving wrong results.
+
+schema_version = 2
+id = "swift"
+display_name = "Swift"
+editor_mode = "swift"
+source_file = "main.swift"
+code_prefix = "SWIFT"
+workspace_prefix = "/workspace/"
+status = "experimental"
+
+[toolchain]
+name = "Swift"
+declared_version = "6.1"
+image = "compiler-copilot/sandbox-swift:6.1"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = ["swiftc", "-swift-version", "5", "-diagnostic-style", "llvm", "-Onone",
+        "-module-cache-path", "/tmp/swift-module-cache", "-o", "/workspace/main", "main.swift"]
+workdir = "/workspace"
+workspace_mode = "rw"
+grammar = "swiftc"
+[steps.limits]
+wall_time_ms = 45000                 # the module cache starts empty in every sandbox
+cpu_time_s = 45
+memory_mb = 1024
+pids = 64
+output_kb = 64
+tmp_mb = 256
+file_size_mb = 128
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["/workspace/main"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "swift-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# Swift stops at a failed runtime check with a trap: SIGILL on x86-64,
+# SIGTRAP on ARM64. Arithmetic overflow prints nothing before it.
+[signal_messages]
+SIGILL = "The program stopped at one of Swift's runtime safety checks: most often an arithmetic overflow, an index out of range, or force-unwrapping (!) a nil value."
+SIGTRAP = "The program stopped at one of Swift's runtime safety checks: most often an arithmetic overflow, an index out of range, or force-unwrapping (!) a nil value."
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "not-in-scope"
+pattern = '''^cannot find (?:type )?'[^']+' in scope'''
+category = "name"
+code = "SWIFT_NOT_IN_SCOPE"
+
+[[classify]]
+id = "type-mismatch"
+pattern = '''^cannot convert value of type|^cannot assign value of type|^binary operator '.+' cannot be applied'''
+category = "type"
+code = "SWIFT_TYPE_MISMATCH"
+
+[[classify]]
+id = "arguments"
+pattern = '''^missing argument|^extra argument|^incorrect argument label|^missing arguments? for parameters?'''
+category = "type"
+code = "SWIFT_ARGUMENT_MISMATCH"
+
+[[classify]]
+id = "immutable"
+pattern = '''^cannot assign to value: '[^']+' is a 'let' constant|^cannot use mutating member on immutable value'''
+category = "type"
+code = "SWIFT_IMMUTABLE"
+
+[[classify]]
+id = "optional"
+pattern = '''^value of optional type .+ must be unwrapped'''
+category = "type"
+code = "SWIFT_OPTIONAL_NOT_UNWRAPPED"
+
+[[classify]]
+id = "unused"
+pattern = '''was never used|was never mutated|is unused'''
+category = "other"
+code = "SWIFT_UNUSED"
+
+[[classify]]
+id = "syntax"
+pattern = '''^expected |^consecutive statements on a line must be separated|^unexpected '''
+category = "syntax"
+code = "SWIFT_SYNTAX_ERROR"
+
+[[classify]]
+id = "index"
+pattern = '''^Fatal error: Index out of range'''
+category = "runtime"
+code = "SWIFT_INDEX_OUT_OF_RANGE"
+
+[[classify]]
+id = "nil-unwrap"
+pattern = '''^Fatal error: Unexpectedly found nil'''
+category = "runtime"
+code = "SWIFT_NIL_UNWRAP"
+
+[[classify]]
+id = "division"
+pattern = '''^Fatal error: Division by zero'''
+category = "runtime"
+code = "SWIFT_DIVISION_BY_ZERO"
+
+[[classify]]
+id = "check-failed"
+pattern = '''^(?:Fatal error|Precondition failed|Assertion failed)'''
+category = "runtime"
+code = "SWIFT_RUNTIME_CHECK_FAILED"

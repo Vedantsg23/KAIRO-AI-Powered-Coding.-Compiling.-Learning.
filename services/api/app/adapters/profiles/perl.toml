@@ -1,0 +1,140 @@
+# Language profile: Perl 5.38 (Ubuntu 24.04).
+#
+# `perl -c` compiles the program without running its main code (BEGIN blocks
+# and `use` still run, inside the same sandbox). Warnings (-w) are on for the
+# check and the run, so "Use of uninitialized value" is reported with its line.
+
+schema_version = 2
+id = "perl"
+display_name = "Perl"
+editor_mode = "perl"
+source_file = "main.pl"
+code_prefix = "PERL"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "Perl"
+declared_version = "5.38"
+image = "compiler-copilot/sandbox-extra:24.04"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+label = "Syntax check"
+argv = ["perl", "-wc", "main.pl"]         # the usual "check syntax with warnings" idiom
+workdir = "/workspace"
+workspace_mode = "ro"
+grammar = "perl"
+[steps.limits]
+wall_time_ms = 10000
+cpu_time_s = 10
+memory_mb = 256
+pids = 16
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["perl", "-w", "/workspace/main.pl"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "perl"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "missing-semicolon"
+pattern = '''\(Missing semicolon on previous line\?\)'''
+category = "syntax"
+code = "PERL_MISSING_SEMICOLON"
+hint = "previous_line_end"
+hint_message = "The missing ';' probably belongs at the end of this line."
+
+[[classify]]
+id = "missing-brace"
+pattern = '''^Missing right curly or square bracket|^Unmatched right curly bracket|^Can't find string terminator'''
+category = "syntax"
+code = "PERL_UNBALANCED_BRACKETS"
+
+[[classify]]
+id = "syntax"
+pattern = '''^syntax error|^Bareword found where operator expected|^String found where operator expected|^Scalar found where operator expected|^Number found where operator expected|^Array found where operator expected|^Illegal character|^Unrecognized character'''
+category = "syntax"
+code = "PERL_SYNTAX_ERROR"
+
+[[classify]]
+id = "strict-vars"
+pattern = '''^Global symbol "[^"]+" requires explicit package name'''
+category = "name"
+code = "PERL_UNDECLARED_IDENTIFIER"
+
+[[classify]]
+id = "undefined-sub"
+pattern = '''^Undefined subroutine|^Bareword "[^"]+" not allowed while "strict subs"|^Can't locate object method'''
+category = "name"
+code = "PERL_UNDEFINED_FUNCTION"
+
+[[classify]]
+id = "module"
+pattern = '''^Can't locate \S+\.pm in @INC'''
+category = "build"
+code = "PERL_MODULE_NOT_FOUND"
+
+[[classify]]
+id = "uninitialized"
+pattern = '''^Use of uninitialized value'''
+category = "other"
+code = "PERL_UNINITIALIZED_VARIABLE"
+
+[[classify]]
+id = "not-numeric"
+pattern = '''^Argument ".*" isn't numeric'''
+category = "type"
+code = "PERL_TYPE_MISMATCH"
+
+[[classify]]
+id = "once"
+pattern = '''^Name "[^"]+" used only once: possible typo'''
+category = "name"
+code = "PERL_POSSIBLE_TYPO"
+
+[[classify]]
+id = "divide"
+pattern = '''^Illegal division by zero|^Illegal modulus zero'''
+category = "runtime"
+code = "PERL_DIVISION_BY_ZERO"
+
+[[classify]]
+id = "not-a-reference"
+pattern = '''^Can't use an undefined value as|^Can't use string \(".*"\) as|^Not an? (?:ARRAY|HASH|CODE|SCALAR) reference|^Can't call method "[^"]+" on (?:an undefined value|unblessed reference)'''
+category = "runtime"
+code = "PERL_NULL_REFERENCE"
+
+[[classify]]
+id = "recursion"
+pattern = '''^Deep recursion'''
+category = "memory"
+code = "PERL_RECURSION_ERROR"
+
+[[classify]]
+id = "memory"
+pattern = '''^Out of memory'''
+category = "memory"
+code = "PERL_OUT_OF_MEMORY"
+
+[[classify]]
+id = "useless"
+pattern = '''^Useless use of|^Found = in conditional|^Possible precedence|^Scalar value @\S+ better written'''
+category = "other"
+code = "PERL_SUSPICIOUS_CODE"

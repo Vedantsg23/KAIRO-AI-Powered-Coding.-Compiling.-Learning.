@@ -1,0 +1,17 @@
+# The notebook runner's summary line (infra/containers/python/notebook.py):
+#   \x1eKAIRO-ERROR 3 2 NameError: name 'x' is not defined\x1e
+# The tracebacks and cell markers are for the web app's Notebook view, which
+# puts every output under its cell; here only the summary becomes a diagnostic.
+# Python's str.splitlines() treats \x1e (record separator) as a line break, so
+# the grammar engine may see the line with or without the separators.
+
+streams = ["stderr"]
+column_unit = "codepoint"
+report_unmatched = false
+
+[[rules]]
+id = "notebook.error"
+action = "diagnostic"
+severity = "error"
+template = "Cell {cell}, line {cellline}: {message}"
+pattern = '''^\x1e?KAIRO-ERROR (?P<cell>\d+) (?P<cellline>\d+) (?P<message>.+?)\x1e?$'''

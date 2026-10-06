@@ -1,0 +1,40 @@
+# gfortran 13 (-fdiagnostics-plain-output): compiler and linker lines.
+#   main.f90:5:14: Error: Syntax error in expression at (1)
+#   main.f90:3:10: Warning: Unused variable 'x' declared at (1) [-Wunused-variable]
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = true
+severity_map = { "Error" = "error", "Fatal Error" = "error", "Warning" = "warning", "Note" = "note" }
+
+[[rules]]
+id = "gfortran.two-locations"   # "main.f90:5:6: Warning: (1)" then the message at location (2)
+action = "block"
+parser = "gfortran-multi"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+):(?P<column>\d+): (?:Fatal Error|Error|Warning): \(\d\)$'''
+
+[[rules]]
+id = "gfortran.located"
+action = "diagnostic"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+):(?P<column>\d+): (?P<severity>Fatal Error|Error|Warning|Note): (?P<message>.+)$'''
+
+[[rules]]
+id = "gfortran.line-only"
+action = "diagnostic"
+pattern = '''^(?P<file>[^\s:][^:]*):(?P<line>\d+): (?P<severity>Fatal Error|Error|Warning|Note): (?P<message>.+)$'''
+
+[[rules]]
+id = "gfortran.compilation-terminated"
+action = "ignore"
+pattern = '''^compilation terminated\.$'''
+
+[[rules]]
+id = "ld.undefined"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?:(?:/usr/bin/)?ld: )?(?:[^\s:][^:]*:)?(?:\([^)]*\): )?(?P<message>undefined reference to .+)$'''
+
+[[rules]]
+id = "ld.summary"
+action = "ignore"
+pattern = '''^collect2: error: ld returned \d+ exit status$'''

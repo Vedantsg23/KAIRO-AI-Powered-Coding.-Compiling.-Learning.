@@ -1,0 +1,19 @@
+# Runtime messages of C++ programs: uncaught exceptions (libstdc++) plus the
+# C library messages shared with C.
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = false
+extends = ["glibc-runtime"]
+
+[[rules]]
+id = "cxx.terminate"         # terminate called after throwing an instance of 'std::out_of_range'
+action = "block"             #   what():  vector::_M_range_check: __n (which is 5) >= ...
+parser = "cxx-terminate"
+pattern = '''^terminate called after throwing an instance of '(?P<type>.+)'$'''
+
+[[rules]]
+id = "cxx.terminate-other"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?P<message>terminate called (?:without an active exception|recursively))$'''

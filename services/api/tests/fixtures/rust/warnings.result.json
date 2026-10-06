@@ -1,0 +1,34 @@
+{
+  "toolchain": "1.75.0",
+  "error": null,
+  "steps": [
+    {
+      "name": "compile",
+      "termination": "EXITED",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "",
+      "stderr": "warning: unused variable: `unused`\n --> main.rs:2:9\n  |\n2 |     let unused = 3;\n  |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_unused`\n  |\n  = note: `#[warn(unused_variables)]` on by default\n\nwarning: variable does not need to be mutable\n --> main.rs:3:9\n  |\n3 |     let mut count = 1;\n  |         ----^^^^^\n  |         |\n  |         help: remove this `mut`\n  |\n  = note: `#[warn(unused_mut)]` on by default\n\nwarning: 2 warnings emitted\n\n",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    },
+    {
+      "name": "run",
+      "termination": "EXITED",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": null,
+      "wallMs": 100,
+      "stdout": "1\n",
+      "stderr": "",
+      "stdoutTruncated": false,
+      "stderrTruncated": false,
+      "oomKilled": false,
+      "peakMemoryBytes": null
+    }
+  ]
+}

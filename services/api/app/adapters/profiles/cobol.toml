@@ -1,0 +1,114 @@
+# Language profile: COBOL with GnuCOBOL 3.1 (Ubuntu 24.04).
+#
+# Fixed-form source (columns 8-72, column 7 for '*' comments), as in the
+# textbooks. Compiled to a native program (-x) with run-time checks (-debug):
+# a subscript outside its OCCURS range stops the program with the line.
+
+schema_version = 2
+id = "cobol"
+display_name = "COBOL"
+editor_mode = "cobol"
+source_file = "main.cob"
+code_prefix = "COB"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "GnuCOBOL"
+declared_version = "3.1"
+image = "compiler-copilot/sandbox-native:24.04"
+
+[[steps]]
+name = "compile"
+kind = "compile"
+argv = ["cobc", "-x", "-debug", "-Wall", "-o", "main", "main.cob"]
+workdir = "/workspace"
+workspace_mode = "rw"
+env = { LC_ALL = "C" }
+grammar = "cobc"
+[steps.limits]
+wall_time_ms = 20000
+cpu_time_s = 20
+memory_mb = 512
+pids = 32
+output_kb = 64
+tmp_mb = 64
+file_size_mb = 64
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["stdbuf", "-oL", "/workspace/main"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "cobol-runtime"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 32
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "unexpected-end"
+pattern = '''^syntax error, unexpected end of file'''
+category = "syntax"
+code = "COB_UNEXPECTED_END_OF_FILE"
+
+[[classify]]
+id = "syntax"
+pattern = '''^syntax error|^invalid indicator|^source text after program-text area|^invalid literal|^invalid symbol|^missing terminating|^unknown statement|^invalid level number|^PROCEDURE DIVISION header missing|^unexpected '''
+category = "syntax"
+code = "COB_SYNTAX_ERROR"
+
+[[classify]]
+id = "not-defined"
+pattern = '''^'[^']+' is not defined|^'[^']+' (?:\(.+\) )?undefined|is not a procedure name|^'[^']+' cannot be (?:found|referenced)'''
+category = "name"
+code = "COB_UNDEFINED"
+
+[[classify]]
+id = "ambiguous"
+pattern = '''^'[^']+' is ambiguous|^redefinition of '''
+category = "name"
+code = "COB_REDEFINITION"
+
+[[classify]]
+id = "type"
+pattern = '''^invalid MOVE statement|is not numeric|is not an? (?:numeric|alphanumeric|integer)|^incompatible|^invalid expression|value size exceeds data size|^alphanumeric literal has zero length'''
+category = "type"
+code = "COB_TYPE_MISMATCH"
+
+[[classify]]
+id = "subscript"
+pattern = '''^subscript of '[^']+' out of bounds|^offset of '[^']+' out of bounds|^length of '[^']+' out of bounds|OCCURS DEPENDING ON .+ out of bounds'''
+category = "runtime"
+code = "COB_INDEX_OUT_OF_BOUNDS"
+
+[[classify]]
+id = "divide"
+pattern = '''(?i)divide by zero|division by zero|size error'''
+category = "runtime"
+code = "COB_DIVISION_BY_ZERO"
+
+[[classify]]
+id = "stack"
+pattern = '''(?i)stack overflow|PERFORM stack'''
+category = "memory"
+code = "COB_STACK_OVERFLOW"
+
+[[classify]]
+id = "memory"
+pattern = '''(?i)cannot acquire \d+ bytes of memory|unallocated memory'''
+category = "memory"
+code = "COB_OUT_OF_MEMORY"
+
+[[classify]]
+id = "numeric-data"
+pattern = '''(?i)invalid numeric data|numeric data|is not numeric'''
+category = "runtime"
+code = "COB_INPUT_MISMATCH"

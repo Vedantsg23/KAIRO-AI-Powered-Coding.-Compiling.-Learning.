@@ -1,0 +1,80 @@
+# Language profile: SQL with SQLite 3.45 (Ubuntu 24.04 package).
+#
+# main.sql runs against a fresh in-memory database; statements run in order
+# and the first error stops the script (-bail). Query results are printed as
+# tables (-box). There is no separate syntax check: SQLite checks each
+# statement when it reaches it.
+
+schema_version = 2
+id = "sql"
+display_name = "SQL"
+editor_mode = "sql"
+source_file = "main.sql"
+code_prefix = "SQL"
+workspace_prefix = "/workspace/"
+
+[toolchain]
+name = "SQLite"
+declared_version = "3.45"
+image = "compiler-copilot/sandbox-scripting:24.04"
+
+[[steps]]
+name = "run"
+kind = "run"
+argv = ["sqlite3", "-bail", "-batch", "-box", ":memory:", ".read /workspace/main.sql"]
+workdir = "/tmp"
+workspace_mode = "ro"
+stdin = true
+grammar = "sqlite"
+[steps.limits]
+wall_time_ms = 5000
+cpu_time_s = 5
+memory_mb = 256
+pids = 16
+output_kb = 64
+tmp_mb = 16
+file_size_mb = 16
+
+# ------------------------------------------------------- classification
+
+[[classify]]
+id = "syntax"
+pattern = '''syntax error|incomplete input|unrecognized token'''
+category = "syntax"
+code = "SQL_SYNTAX_ERROR"
+
+[[classify]]
+id = "no-table"
+pattern = '''no such table'''
+category = "name"
+code = "SQL_NO_SUCH_TABLE"
+
+[[classify]]
+id = "no-column"
+pattern = '''no such column|has no column named'''
+category = "name"
+code = "SQL_NO_SUCH_COLUMN"
+
+[[classify]]
+id = "exists"
+pattern = '''already exists'''
+category = "name"
+code = "SQL_ALREADY_EXISTS"
+
+[[classify]]
+id = "constraint"
+pattern = '''constraint failed'''
+category = "runtime"
+code = "SQL_CONSTRAINT_FAILED"
+
+[[classify]]
+id = "values"
+pattern = '''values for \d+ columns|has \d+ columns but \d+ values were supplied'''
+category = "type"
+code = "SQL_WRONG_VALUE_COUNT"
+
+[[classify]]
+id = "mismatch"
+pattern = '''datatype mismatch'''
+category = "type"
+code = "SQL_TYPE_MISMATCH"

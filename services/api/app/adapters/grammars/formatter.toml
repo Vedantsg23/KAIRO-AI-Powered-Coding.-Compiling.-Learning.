@@ -1,0 +1,20 @@
+# Formatters (clang-format, Black, gofmt, shfmt) report why they could not
+# format the code on standard error; the web app shows that message. Lines
+# that look like "file:line:col: message" or "error: message" become a
+# diagnostic, the rest is ignored.
+
+streams = ["stderr"]
+column_unit = "byte"
+report_unmatched = false
+
+[[rules]]
+id = "formatter.located"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?:/workspace/)?(?P<file>[\w.-]+):(?P<line>\d+):(?P<column>\d+): (?:error: )?(?P<message>.+)$'''
+
+[[rules]]
+id = "formatter.error"
+action = "diagnostic"
+severity = "error"
+pattern = '''^(?:error|Error|ERROR): (?P<message>.+)$'''
